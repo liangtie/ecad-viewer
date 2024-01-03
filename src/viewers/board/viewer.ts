@@ -6,6 +6,7 @@
 
 import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
+import type { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -15,12 +16,12 @@ import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
 
 export class BoardViewer extends DocumentViewer<
-    board_items.KicadPCB,
+    board_items.KicadPCB | KicadFootprint,
     BoardPainter,
     LayerSet,
     BoardTheme
 > {
-    get board(): board_items.KicadPCB {
+    get board(): board_items.KicadPCB | KicadFootprint {
         return this.document;
     }
 
@@ -38,7 +39,7 @@ export class BoardViewer extends DocumentViewer<
     }
 
     protected override get grid_origin() {
-        return this.board.setup?.grid_origin ?? new Vec2(0, 0);
+        return new Vec2(0, 0);
     }
 
     protected override on_pick(
@@ -59,20 +60,18 @@ export class BoardViewer extends DocumentViewer<
 
     override select(item: board_items.Footprint | string | BBox | null) {
         // If item is a string, find the footprint by uuid or reference.
-        if (is_string(item)) {
-            item = this.board.find_footprint(item);
-        }
-
-        // If it's a footprint, use the footprint's nominal bounding box.
-        if (item instanceof board_items.Footprint) {
-            item = item.bbox;
-        }
-
-        super.select(item);
+        // if (is_string(item)) {
+        //     item = this.board.find_footprint(item);
+        // }
+        // // If it's a footprint, use the footprint's nominal bounding box.
+        // if (item instanceof board_items.Footprint) {
+        //     item = item.bbox;
+        // }
+        // super.select(item);
     }
 
     highlight_net(net: number) {
-        this.painter.paint_net(this.board, net);
+        // this.painter.paint_net(this.board, net);
         this.draw();
     }
 

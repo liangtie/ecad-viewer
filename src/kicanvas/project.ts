@@ -10,6 +10,8 @@ import { type IDisposable } from "../base/disposable";
 import { first, length, map } from "../base/iterator";
 import { Logger } from "../base/log";
 import { is_string, type Constructor } from "../base/types";
+import { KicadFootprint } from "../ecad-viewer/footprint/kicad_footprint";
+import { KicadSymbol } from "../ecad-viewer/lib_symbol/kicad_symbol";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
 import type {
     SchematicSheet,
@@ -21,7 +23,10 @@ const log = new Logger("kicanvas:project");
 
 export class Project extends EventTarget implements IDisposable {
     #fs: VirtualFileSystem;
-    #files_by_name: Map<string, KicadPCB | KicadSch | null> = new Map();
+    #files_by_name: Map<
+        string,
+        KicadPCB | KicadSch | null | KicadFootprint | KicadSymbol
+    > = new Map();
     #pages_by_path: Map<string, ProjectPage> = new Map();
     #root_schematic_page?: ProjectPage;
 
@@ -70,6 +75,12 @@ export class Project extends EventTarget implements IDisposable {
         if (filename.endsWith(".kicad_pcb")) {
             return await this.#load_doc(KicadPCB, filename);
         }
+        if (filename.endsWith(".kicad_sym")) {
+            return await this.#load_doc(KicadSymbol, filename);
+        }
+        if (filename.endsWith(".kicad_mod")) {
+            return await this.#load_doc(KicadFootprint, filename);
+        }
         if (filename.endsWith(".kicad_pro")) {
             return this.#load_meta(filename);
         }
@@ -78,7 +89,9 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     async #load_doc(
-        document_class: Constructor<KicadPCB | KicadSch>,
+        document_class: Constructor<
+            KicadPCB | KicadSch | KicadSymbol | KicadFootprint
+        >,
         filename: string,
     ) {
         if (this.#files_by_name.has(filename)) {
@@ -100,6 +113,16 @@ export class Project extends EventTarget implements IDisposable {
                 doc.filename,
                 "",
                 "Board",
+                "",
+            );
+            this.#pages_by_path.set(page.project_path, page);
+        } else if (doc instanceof KicadFootprint) {
+            const page = new ProjectPage(
+                this,
+                "sym",
+                doc.filename,
+                "",
+                "Symbol",
                 "",
             );
             this.#pages_by_path.set(page.project_path, page);
@@ -128,6 +151,10 @@ export class Project extends EventTarget implements IDisposable {
         >();
 
         for (const schematic of this.schematics()) {
+            if (schematic instanceof KicadSymbol) {
+                continue;
+            }
+
             paths_to_schematics.set(`/${schematic.uuid}`, schematic);
 
             for (const sheet of schematic.sheets) {
@@ -219,6 +246,8 @@ export class Project extends EventTarget implements IDisposable {
         );
 
         for (const schematic of this.schematics()) {
+            if (!(schematic instanceof KicadSch)) continue;
+
             if (!seen_schematic_files.has(schematic.filename)) {
                 const page = new ProjectPage(
                     this,
@@ -240,12 +269,14 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     public file_by_name(name: string) {
+        for (const [, v] of this.#files_by_name) if (v) return v;
+
         return this.#files_by_name.get(name);
     }
 
     public *boards() {
         for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadPCB) {
+            if (value instanceof KicadPCB || value instanceof KicadFootprint) {
                 yield value;
             }
         }
@@ -257,7 +288,7 @@ export class Project extends EventTarget implements IDisposable {
 
     public *schematics() {
         for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadSch) {
+            if (value instanceof KicadSch || value instanceof KicadSymbol) {
                 yield value;
             }
         }
@@ -328,7 +359,7 @@ export class Project extends EventTarget implements IDisposable {
 export class ProjectPage {
     constructor(
         public project: Project,
-        public type: "pcb" | "schematic",
+        public type: "pcb" | "schematic" | "sym" | "fp",
         public filename: string,
         public sheet_path: string,
         public name?: string,

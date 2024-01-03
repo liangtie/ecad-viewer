@@ -6,6 +6,7 @@
 
 import { Angle, BBox, Arc as MathArc, Matrix3, Vec2 } from "../base/math";
 import type { Project } from "../kicanvas/project";
+import { LayerNames } from "../viewers/board/layers";
 import {
     At,
     Effects,
@@ -399,22 +400,23 @@ export class ZoneFill {
 }
 
 export class Layer {
-    ordinal: number;
-    canonical_name: string;
-    type: "jumper" | "mixed" | "power" | "signal" | "user";
+    ordinal: number = 0;
+    canonical_name: string = LayerNames.f_cu;
+    type: "jumper" | "mixed" | "power" | "signal" | "user" = "signal";
     user_name?: string;
 
-    constructor(expr: Parseable) {
-        Object.assign(
-            this,
-            parse_expr(
-                expr,
-                P.positional("ordinal", T.number),
-                P.positional("canonical_name", T.string),
-                P.positional("type", T.string),
-                P.positional("user_name", T.string),
-            ),
-        );
+    constructor(expr?: Parseable) {
+        if (expr)
+            Object.assign(
+                this,
+                parse_expr(
+                    expr,
+                    P.positional("ordinal", T.number),
+                    P.positional("canonical_name", T.string),
+                    P.positional("type", T.string),
+                    P.positional("user_name", T.string),
+                ),
+            );
     }
 }
 
@@ -902,8 +904,8 @@ export class Footprint {
         if (this.properties[name] !== undefined) {
             return this.properties[name]!;
         }
-
-        return this.parent.resolve_text_var(name);
+        if (this.parent) return this.parent.resolve_text_var(name);
+        return;
     }
 
     pad_by_number(number: string): Pad {

@@ -612,10 +612,10 @@ class FpTextPainter extends BoardItemPainter {
         edatext.attributes.color = layer.color;
 
         if (t.parent) {
-            const rot = Angle.from_degrees(t.parent.at.rotation);
+            const rot = Angle.from_degrees(0);
             let pos = edatext.text_pos;
             pos = rot.rotate_point(pos, new Vec2(0, 0));
-            pos = pos.add(t.parent.at.position.multiply(10000));
+            pos = pos.add(new Vec2(0, 0).multiply(10000));
             edatext.text_pos.set(pos);
         }
 

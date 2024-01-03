@@ -6,6 +6,7 @@
 
 import { Color } from "../../base/color";
 import { is_string } from "../../base/types";
+import type { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
 import { KicadPCB, type BoardTheme } from "../../kicad";
 import {
     ViewLayerNames as BaseLayerNames,
@@ -189,12 +190,14 @@ export class LayerSet extends BaseLayerSet {
      * Create a new LayerSet
      */
     constructor(
-        board: KicadPCB,
+        board: KicadPCB | KicadFootprint,
         public theme: BoardTheme,
     ) {
         super();
 
         const board_layers = new Map();
+
+        console.log(JSON.stringify(board.layers));
 
         for (const l of board.layers) {
             board_layers.set(l.canonical_name, l);
@@ -217,11 +220,11 @@ export class LayerSet extends BaseLayerSet {
 
             // Pad layers require that the front or back layer is visible.
             if (layer_name == LayerNames.pads_front) {
-                visible = () => this.by_name(LayerNames.f_cu)!.visible;
+                visible = () => true;
                 interactive = true;
             }
             if (layer_name == LayerNames.pads_back) {
-                visible = () => this.by_name(LayerNames.b_cu)!.visible;
+                visible = () => true;
                 interactive = true;
             }
 

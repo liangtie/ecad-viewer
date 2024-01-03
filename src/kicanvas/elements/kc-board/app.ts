@@ -21,6 +21,7 @@ import "./nets-panel";
 import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
+import { KicadFootprint } from "../../../ecad-viewer/footprint/kicad_footprint";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -36,7 +37,10 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
     }
 
     override can_load(src: ProjectPage): boolean {
-        return src.document instanceof KicadPCB;
+        return (
+            src.document instanceof KicadPCB ||
+            src.document instanceof KicadFootprint
+        );
     }
 
     override make_viewer_element(): KCBoardViewerElement {

@@ -16,6 +16,7 @@ import "./viewer";
 import type { ProjectPage } from "../../project";
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
+import { KicadSymbol } from "../../../ecad-viewer/lib_symbol/kicad_symbol";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -43,7 +44,10 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
     }
 
     override can_load(src: ProjectPage): boolean {
-        return src.document instanceof KicadSch;
+        return (
+            src.document instanceof KicadSch ||
+            src.document instanceof KicadSymbol
+        );
     }
 
     override make_viewer_element(): KCSchematicViewerElement {
