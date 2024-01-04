@@ -243,6 +243,7 @@ export abstract class Viewer extends EventTarget {
 
     abstract zoom_to_item(): void;
 
+
     zoom_to_selection() {
         if (!this.selected) {
             return;
