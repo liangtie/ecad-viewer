@@ -11,10 +11,9 @@ import {
     type DrawingSheetDocument,
     type BaseTheme,
 } from "../../kicad";
-import { DrawingSheetPainter } from "../drawing-sheet/painter";
 import { Grid } from "./grid";
 import type { DocumentPainter, PaintableDocument } from "./painter";
-import { ViewLayerNames, type ViewLayerSet } from "./view-layers";
+import { type ViewLayerSet } from "./view-layers";
 import { Viewer } from "./viewer";
 import { later } from "../../base/async";
 
@@ -68,11 +67,11 @@ export abstract class DocumentViewer<
         later(async () => {
             log.info("Waiting for viewport");
             await this.viewport.ready;
-            this.viewport.bounds = this.drawing_sheet.page_bbox.grow(50);
+            this.viewport.bounds = this.document.bbox.grow(11);
 
             // Position the camera and draw the scene.
             log.info("Positioning camera");
-            this.zoom_to_page();
+            this.zoom_to_item();
 
             // Mark the viewer as loaded and notify event listeners
             this.resolve_loaded(true);
@@ -112,26 +111,31 @@ export abstract class DocumentViewer<
         this.painter = this.create_painter();
         this.painter.paint(this.document);
 
-        // Paint the drawing sheet
-        log.info("Painting drawing sheet");
-        new DrawingSheetPainter(this.renderer, this.layers, this.theme).paint(
-            this.drawing_sheet,
-        );
+        // // Paint the drawing sheet
+        // log.info("Painting drawing sheet");
+        // new DrawingSheetPainter(this.renderer, this.layers, this.theme).paint(
+        //     this.drawing_sheet,
+        // );
 
-        // Create the grid
-        log.info("Painting grid");
-        this.grid = new Grid(
-            this.renderer,
-            this.viewport.camera,
-            this.layers.by_name(ViewLayerNames.grid)!,
-            this.grid_origin,
-            this.theme.grid,
-            this.theme.grid_axes,
-        );
+        // // Create the grid
+        // log.info("Painting grid");
+        // this.grid = new Grid(
+        //     this.renderer,
+        //     this.viewport.camera,
+        //     this.layers.by_name(ViewLayerNames.grid)!,
+        //     this.grid_origin,
+        //     this.theme.grid,
+        //     this.theme.grid_axes,
+        // );
     }
 
     public override zoom_to_page() {
         this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(10);
+        this.draw();
+    }
+
+    public override zoom_to_item() {
+        this.viewport.camera.bbox = this.document.bbox.grow(1.6);
         this.draw();
     }
 

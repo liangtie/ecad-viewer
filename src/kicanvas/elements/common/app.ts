@@ -215,17 +215,17 @@ export abstract class KCViewerAppElement<
 
         const top_toolbar_buttons = [];
 
-        if (controlslist["download"] && !this.#has_more_than_one_page()) {
-            top_toolbar_buttons.push(
-                html`<kc-ui-button
-                    slot="right"
-                    name="download"
-                    title="download"
-                    icon="download"
-                    variant="toolbar-alt">
-                </kc-ui-button>`,
-            );
-        }
+        // if (controlslist["download"] && !this.#has_more_than_one_page()) {
+        //     top_toolbar_buttons.push(
+        //         html`<kc-ui-button
+        //             slot="right"
+        //             name="download"
+        //             title="download"
+        //             icon="download"
+        //             variant="toolbar-alt">
+        //         </kc-ui-button>`,
+        //     );
+        // }
 
         const top_toolbar = html`<kc-ui-floating-toolbar location="top">
             ${top_toolbar_buttons}

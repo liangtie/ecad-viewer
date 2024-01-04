@@ -11,7 +11,7 @@ import { first, length, map } from "../base/iterator";
 import { Logger } from "../base/log";
 import { is_string, type Constructor } from "../base/types";
 import { KicadFootprint } from "../ecad-viewer/footprint/kicad_footprint";
-import { KicadSymbol } from "../ecad-viewer/lib_symbol/kicad_symbol";
+import { KicadSymbolLib } from "../ecad-viewer/lib_symbol/kicad_symbol_lib";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
 import type {
     SchematicSheet,
@@ -25,7 +25,7 @@ export class Project extends EventTarget implements IDisposable {
     #fs: VirtualFileSystem;
     #files_by_name: Map<
         string,
-        KicadPCB | KicadSch | null | KicadFootprint | KicadSymbol
+        KicadPCB | KicadSch | null | KicadFootprint | KicadSymbolLib
     > = new Map();
     #pages_by_path: Map<string, ProjectPage> = new Map();
     #root_schematic_page?: ProjectPage;
@@ -76,7 +76,7 @@ export class Project extends EventTarget implements IDisposable {
             return await this.#load_doc(KicadPCB, filename);
         }
         if (filename.endsWith(".kicad_sym")) {
-            return await this.#load_doc(KicadSymbol, filename);
+            return await this.#load_doc(KicadSymbolLib, filename);
         }
         if (filename.endsWith(".kicad_mod")) {
             return await this.#load_doc(KicadFootprint, filename);
@@ -90,7 +90,7 @@ export class Project extends EventTarget implements IDisposable {
 
     async #load_doc(
         document_class: Constructor<
-            KicadPCB | KicadSch | KicadSymbol | KicadFootprint
+            KicadPCB | KicadSch | KicadSymbolLib | KicadFootprint
         >,
         filename: string,
     ) {
@@ -143,40 +143,42 @@ export class Project extends EventTarget implements IDisposable {
 
     #determine_schematic_hierarchy() {
         log.info("Determining schematic hierarchy");
+        let root: KicadSch | undefined | KicadSymbolLib;
 
-        const paths_to_schematics = new Map<string, KicadSch>();
+        const paths_to_schematics = new Map<
+            string,
+            KicadSch | KicadSymbolLib
+        >();
         const paths_to_sheet_instances = new Map<
             string,
             { sheet: SchematicSheet; instance: SchematicSheetInstance }
         >();
 
         for (const schematic of this.schematics()) {
-            if (schematic instanceof KicadSymbol) {
-                continue;
-            }
-
             paths_to_schematics.set(`/${schematic.uuid}`, schematic);
 
-            for (const sheet of schematic.sheets) {
-                const sheet_sch = this.#files_by_name.get(
-                    sheet.sheetfile ?? "",
-                ) as KicadSch;
+            if (schematic instanceof KicadSch)
+                for (const sheet of schematic.sheets) {
+                    const sheet_sch = this.#files_by_name.get(
+                        sheet.sheetfile ?? "",
+                    ) as KicadSch;
 
-                if (!sheet_sch) {
-                    continue;
-                }
+                    if (!sheet_sch) {
+                        continue;
+                    }
 
-                for (const instance of sheet.instances.values()) {
-                    paths_to_schematics.set(instance.path, schematic);
-                    paths_to_sheet_instances.set(
-                        `${instance.path}/${sheet.uuid}`,
-                        {
-                            sheet: sheet,
-                            instance: instance,
-                        },
-                    );
+                    for (const instance of sheet.instances.values()) {
+                        paths_to_schematics.set(instance.path, schematic);
+                        paths_to_sheet_instances.set(
+                            `${instance.path}/${sheet.uuid}`,
+                            {
+                                sheet: sheet,
+                                instance: instance,
+                            },
+                        );
+                    }
                 }
-            }
+            else root = schematic;
         }
 
         // Find the root sheet. This is done by sorting all of the paths
@@ -187,7 +189,6 @@ export class Project extends EventTarget implements IDisposable {
             (a, b) => a.length - b.length,
         );
 
-        let root: KicadSch | undefined;
         for (const path of paths) {
             const parent_path = path.split("/").slice(0, -1).join("/");
 
@@ -288,7 +289,7 @@ export class Project extends EventTarget implements IDisposable {
 
     public *schematics() {
         for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadSch || value instanceof KicadSymbol) {
+            if (value instanceof KicadSch || value instanceof KicadSymbolLib) {
                 yield value;
             }
         }
@@ -331,23 +332,18 @@ export class Project extends EventTarget implements IDisposable {
         page_or_path: ProjectPage | string | null | undefined,
     ) {
         let page;
-
         if (is_string(page_or_path)) {
             page = this.page_by_path(page_or_path);
         } else {
             page = page_or_path;
         }
-
         if (!page) {
             page = this.first_page;
         }
-
         if (!page) {
             throw new Error(`Unable to find ${page_or_path}`);
         }
-
         this.#active_page = page;
-
         this.dispatchEvent(
             new CustomEvent("change", {
                 detail: this,

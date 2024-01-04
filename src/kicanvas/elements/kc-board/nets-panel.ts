@@ -11,6 +11,7 @@ import {
     KCUITextFilterInputElement,
     type KCUIMenuItemElement,
 } from "../../../kc-ui";
+import { KicadPCB } from "../../../kicad";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
 export class KCBoardNetsPanelElement extends KCUIElement {
@@ -54,17 +55,17 @@ export class KCBoardNetsPanelElement extends KCUIElement {
         const board = this.viewer.board;
 
         const nets = [];
-
-        for (const net of board.nets) {
-            nets.push(
-                html`<kc-ui-menu-item
-                    name="${net.number}"
-                    data-match-text="${net.number} ${net.name}">
-                    <span class="very-narrow"> ${net.number} </span>
-                    <span>${net.name}</span>
-                </kc-ui-menu-item>`,
-            );
-        }
+        if (board instanceof KicadPCB)
+            for (const net of board.nets) {
+                nets.push(
+                    html`<kc-ui-menu-item
+                        name="${net.number}"
+                        data-match-text="${net.number} ${net.name}">
+                        <span class="very-narrow"> ${net.number} </span>
+                        <span>${net.name}</span>
+                    </kc-ui-menu-item>`,
+                );
+            }
 
         return html`
             <kc-ui-panel>

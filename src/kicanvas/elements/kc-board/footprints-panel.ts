@@ -13,7 +13,7 @@ import {
     KCUITextFilterInputElement,
     type KCUIMenuItemElement,
 } from "../../../kc-ui";
-import type { Footprint } from "../../../kicad/board";
+import { KicadPCB, type Footprint } from "../../../kicad/board";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
@@ -34,10 +34,11 @@ export class KCBoardFootprintsPanelElement extends KCUIElement {
 
     private sorted_footprints: Footprint[];
     private sort_footprints() {
-        this.sorted_footprints = sorted_by_numeric_strings(
-            this.viewer.board.footprints,
-            (fp) => fp.reference || "REF",
-        );
+        if (this.viewer.board instanceof KicadPCB)
+            this.sorted_footprints = sorted_by_numeric_strings(
+                this.viewer.board.footprints,
+                (fp) => fp.reference || "REF",
+            );
     }
 
     override initialContentCallback() {

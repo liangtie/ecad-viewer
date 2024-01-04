@@ -100,7 +100,7 @@ const theme: Theme = {
     schematic: {
         anchor: Color.from_css("rgb(0, 0, 255)"),
         aux_items: Color.from_css("rgb(0, 0, 0)"),
-        background: Color.from_css("rgb(245, 244, 239)"),
+        background: Color.from_css("rgb(255, 255, 255)"),
         brightened: Color.from_css("rgb(255, 0, 255)"),
         bus: Color.from_css("rgb(0, 0, 132)"),
         bus_junction: Color.from_css("rgb(0, 0, 132)"),

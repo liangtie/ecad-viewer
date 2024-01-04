@@ -62,7 +62,7 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
 
             this.#zoom_to_page_btn.addEventListener("click", (e) => {
                 e.preventDefault();
-                this.viewer.zoom_to_page();
+                this.viewer.zoom_to_item();
             });
             this.#zoom_to_selection_btn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -103,7 +103,6 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
         this.update_position();
 
         return html`<kc-ui-floating-toolbar location="bottom">
-            ${this.#position_elm} ${this.#zoom_to_selection_btn}
             ${this.#zoom_to_page_btn}
         </kc-ui-floating-toolbar>`;
     }

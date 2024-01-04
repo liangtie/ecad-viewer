@@ -770,7 +770,7 @@ export class LibSymbols {
 
     constructor(
         expr: Parseable,
-        public parent: KicadSch,
+        public parent?: KicadSch,
     ) {
         Object.assign(
             this,
@@ -811,6 +811,7 @@ export class LibSymbol {
     drawings: Drawing[] = [];
     pins: PinDefinition[] = [];
     units: Map<number, LibSymbol[]> = new Map();
+    libPins: LibSymbolPin[] = [];
 
     #pins_by_number: Map<string, PinDefinition> = new Map();
     #properties_by_id: Map<number, Property> = new Map();
@@ -868,6 +869,19 @@ export class LibSymbol {
                 list.push(child);
                 this.units.set(unit_num, list);
             }
+        }
+
+        for (const pin of this.pins) {
+            this.libPins.push(
+                new LibSymbolPin(
+                    pin.number.text,
+                    `${this.name}:${pin.number}`,
+                    "",
+                    pin,
+                    pin.unit,
+                    this,
+                ),
+            );
         }
     }
 
@@ -1429,6 +1443,17 @@ export class PinInstance {
     get unit() {
         return this.definition.unit;
     }
+}
+
+export class LibSymbolPin {
+    constructor(
+        public number: string,
+        public uuid: string,
+        public alternate: string,
+        public definition: PinDefinition,
+        public unit: number,
+        public parent: LibSymbol,
+    ) {}
 }
 
 export class SheetInstances {

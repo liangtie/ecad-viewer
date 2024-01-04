@@ -8,29 +8,29 @@
     --transition-time-short: 200ms;
     --transition-time-medium: 500ms;
 
-    --bg: #131218;
+    --bg: #777777;
     --fg: #f8f8f0;
 
     --tooltip-bg: #8864cb;
     --tooltip-fg: #f8f8f0;
-    --tooltip-border: 1px solid #131218;
+    --tooltip-border: 1px solid #777777;
 
-    --scrollbar-bg: #131218;
+    --scrollbar-bg: #777777;
     --scrollbar-fg: #ae81ff66;
     --scrollbar-active-fg: #ae81ff;
     --scrollbar-hover-bg: #ae81ffbb;
 
-    --activity-bar-bg: #282634;
+    --activity-bar-bg: #777777;
     --activity-bar-fg: #f8f8f0;
-    --activity-bar-active-bg: #131218;
+    --activity-bar-active-bg: #777777;
     --activity-bar-active-fg: #f8f8f0;
 
     --resizer-bg: #ae81ff;
     --resizer-active-bg: #ae81ffbb;
 
-    --panel-bg: #131218;
+    --panel-bg: #777777;
     --panel-fg: #f8f8f0;
-    --panel-border: 2px solid #282634;
+    --panel-border: 2px solid #777777;
     --panel-title-bg: #8077a8;
     --panel-title-fg: #f8f8f0;
     --panel-title-border: 1px solid #634e89;
@@ -47,33 +47,33 @@
     --dropdown-fg: #f8f8f0;
 
     --button-bg: #81eeff;
-    --button-fg: #131218;
+    --button-fg: #777777;
     --button-hover-bg: #a3f3ff;
-    --button-hover-fg: #131218;
+    --button-hover-fg: #777777;
     --button-focus-outline: 1px solid #ae81ff;
     --button-selected-bg: #ae81ff;
-    --button-selected-fg: #131218;
-    --button-disabled-bg: #131218;
+    --button-selected-fg: #777777;
+    --button-disabled-bg: #777777;
     --button-disabled-fg: #888;
     --button-success-bg: #64cb96;
-    --button-success-fg: #131218;
+    --button-success-fg: #777777;
     --button-success-hover-bg: #81ffbe;
-    --button-success-hover-fg: #131218;
+    --button-success-hover-fg: #777777;
     --button-danger-bg: #cb6488;
-    --button-danger-fg: #131218;
+    --button-danger-fg: #777777;
     --button-danger-hover-bg: #ff81ad;
-    --button-danger-hover-fg: #131218;
-    --button-outline-bg: #282634;
+    --button-danger-hover-fg: #777777;
+    --button-outline-bg: #777777;
     --button-outline-fg: #f8f8f0;
-    --button-outline-hover-bg: #282634;
+    --button-outline-hover-bg: #777777;
     --button-outline-hover-fg: #81eeff;
-    --button-outline-disabled-bg: #131218;
+    --button-outline-disabled-bg: #777777;
     --button-outline-disabled-fg: #888;
-    --button-toolbar-bg: #282634;
+    --button-toolbar-bg: #777777;
     --button-toolbar-fg: #f8f8f0;
-    --button-toolbar-hover-bg: #282634;
+    --button-toolbar-hover-bg: #777777;
     --button-toolbar-hover-fg: #81eeff;
-    --button-toolbar-disabled-bg: #131218;
+    --button-toolbar-disabled-bg: #777777;
     --button-toolbar-disabled-fg: #888;
     --button-menu-bg: transparent;
     --button-menu-fg: #f8f8f0;
@@ -82,14 +82,14 @@
     --button-menu-disabled-bg: transparent;
     --button-menu-disabled-fg: #888;
 
-    --input-bg: #131218;
+    --input-bg: #777777;
     --input-fg: #f8f8f0;
     --input-border: 1px solid #8077a8;
     --input-accent: #ae81ff;
     --input-hover-shadow: 1px 1px 10px 5px rgba(0, 0, 0, 0.2);
     --input-focus-outline: 1px solid #ae81ff;
     --input-placeholder: #8077a8;
-    --input-disabled-bg: #131218;
+    --input-disabled-bg: #777777;
     --input-disabled-fg: #888;
 
     --input-range-bg: #8077a8;
@@ -179,7 +179,7 @@
     --panel-title-bg: var(--gradient-purple-green-light);
     --panel-subtitle-bg: var(--gradient-purple-blue-medium);
 
-    --button-toolbar-bg: var(--gradient-purple-blue-dark);
+    --button-toolbar-bg: #777777;
     --button-toolbar-hover-bg: var(--gradient-purple-green-light);
     --button-toolbar-hover-fg: #f8f8f0;
     --button-toolbar-disabled-bg: var(--gradient-purple-blue-dark);

@@ -61,11 +61,11 @@ export class DrawingSheet {
     }
 
     get width() {
-        return this.paper?.width ?? 297;
+        return this.paper?.width ?? 88;
     }
 
     get height() {
-        return this.paper?.height ?? 210;
+        return this.paper?.height ?? 88;
     }
 
     get size() {
@@ -132,10 +132,10 @@ export class Setup {
     linewidth = 0.15;
     textsize: Vec2 = new Vec2(1.5, 1.5);
     textlinewidth = 0.15;
-    top_margin = 10;
-    left_margin = 10;
-    bottom_margin = 10;
-    right_margin = 10;
+    top_margin = 0;
+    left_margin = 0;
+    bottom_margin = 0;
+    right_margin = 0;
 
     constructor(expr?: Parseable) {
         if (expr) {

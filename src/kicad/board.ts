@@ -785,6 +785,7 @@ export class Footprint {
     zones: Zone[] = [];
     models: Model[] = [];
     #bbox: BBox;
+    fp_texts: FpText[];
 
     constructor(
         expr: Parseable,
@@ -834,7 +835,7 @@ export class Footprint {
                 P.collection("drawings", "fp_arc", T.item(FpArc, this)),
                 P.collection("drawings", "fp_poly", T.item(FpPoly, this)),
                 P.collection("drawings", "fp_rect", T.item(FpRect, this)),
-                P.collection("drawings", "fp_text", T.item(FpText, this)),
+                P.collection("fp_texts", "fp_text", T.item(FpText, this)),
                 P.collection("zones", "zone", T.item(Zone, this)),
                 P.collection("models", "model", T.item(Model)),
                 P.collection("pads", "pad", T.item(Pad, this)),

@@ -63,6 +63,10 @@ export class LibSymbolPainter extends SchematicItemPainter {
             for (const g of sym.drawings) {
                 this.view_painter.paint_item(layer, g);
             }
+
+            for (const p of sym.libPins) {
+                this.view_painter.paint_item(layer, p);
+            }
         }
     }
 }

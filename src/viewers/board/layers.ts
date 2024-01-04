@@ -197,8 +197,6 @@ export class LayerSet extends BaseLayerSet {
 
         const board_layers = new Map();
 
-        console.log(JSON.stringify(board.layers));
-
         for (const l of board.layers) {
             board_layers.set(l.canonical_name, l);
         }

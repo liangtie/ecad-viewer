@@ -5,7 +5,6 @@
 */
 
 import { BBox, Vec2 } from "../../base/math";
-import { is_string } from "../../base/types";
 import type { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
