@@ -36,6 +36,10 @@ export abstract class DocumentViewer<
     protected painter: PainterT;
     protected grid: Grid;
 
+    protected static FACTOR_ZOOM_TO_SCREEN = 1.6;
+
+    protected zoom_factor: number = DocumentViewer.FACTOR_ZOOM_TO_SCREEN;
+
     constructor(
         canvas: HTMLCanvasElement,
         interactive: boolean,
@@ -71,7 +75,7 @@ export abstract class DocumentViewer<
 
             // Position the camera and draw the scene.
             log.info("Positioning camera");
-            this.zoom_to_item();
+            this.zoom_to_screen();
 
             // Mark the viewer as loaded and notify event listeners
             this.resolve_loaded(true);
@@ -134,8 +138,26 @@ export abstract class DocumentViewer<
         this.draw();
     }
 
-    public override zoom_to_item() {
-        this.viewport.camera.bbox = this.document.bbox.grow(1.6);
+    public override zoom_in() {
+        this.zoom_factor = this.zoom_factor * 0.7;
+        this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(
+            this.zoom_factor,
+        );
+        this.draw();
+    }
+
+    public override zoom_out() {
+        this.zoom_factor = this.zoom_factor * 1.3;
+        this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(
+            this.zoom_factor,
+        );
+        this.draw();
+    }
+
+    public override zoom_to_screen() {
+        this.viewport.camera.bbox = this.document.bbox.grow(
+            DocumentViewer.FACTOR_ZOOM_TO_SCREEN,
+        );
         this.draw();
     }
 

@@ -37,6 +37,8 @@ export class KCUIButtonElement extends KCUIElement {
                 font-size: 1em;
                 background: var(--button-bg);
                 color: var(--button-fg);
+                width: 16px;
+                height: 16px;
                 transition:
                     color var(--transition-time-short) ease,
                     border var(--transition-time-short) ease,

@@ -6,10 +6,7 @@
 
 import { css, html } from "../../../base/web-components";
 import { KCUIElement, type KCUIButtonElement } from "../../../kc-ui";
-import {
-    KiCanvasMouseMoveEvent,
-    KiCanvasSelectEvent,
-} from "../../../viewers/base/events";
+import { KiCanvasMouseMoveEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 
 export class KCViewerBottomToolbarElement extends KCUIElement {
@@ -34,8 +31,9 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
 
     viewer: Viewer;
     #position_elm: HTMLOutputElement;
-    #zoom_to_page_btn: KCUIButtonElement;
-    #zoom_to_selection_btn: KCUIButtonElement;
+    #reset: KCUIButtonElement;
+    #zoom_in: KCUIButtonElement;
+    #zoom_out: KCUIButtonElement;
 
     override connectedCallback() {
         (async () => {
@@ -52,21 +50,18 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
                     },
                 ),
             );
-            this.addDisposable(
-                this.viewer.addEventListener(KiCanvasSelectEvent.type, (e) => {
-                    this.#zoom_to_selection_btn.disabled = e.detail.item
-                        ? false
-                        : true;
-                }),
-            );
 
-            this.#zoom_to_page_btn.addEventListener("click", (e) => {
+            this.#reset.addEventListener("click", (e) => {
                 e.preventDefault();
-                this.viewer.zoom_to_item();
+                this.viewer.zoom_to_screen();
             });
-            this.#zoom_to_selection_btn.addEventListener("click", (e) => {
+            this.#zoom_in.addEventListener("click", (e) => {
                 e.preventDefault();
-                this.viewer.zoom_to_selection();
+                this.viewer.zoom_in();
+            });
+            this.#zoom_out.addEventListener("click", (e) => {
+                e.preventDefault();
+                this.viewer.zoom_out();
             });
         })();
     }
@@ -83,27 +78,34 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
             slot="left"
             class="toolbar"></output>` as HTMLOutputElement;
 
-        this.#zoom_to_page_btn = html`<kc-ui-button
+        this.#reset = html`<kc-ui-button
             slot="right"
             variant="toolbar"
-            name="zoom_to_page"
-            title="zoom to page"
-            icon="svg:zoom_page">
+            name="reset"
+            title="reset"
+            icon="svg:reset">
         </kc-ui-button>` as KCUIButtonElement;
 
-        this.#zoom_to_selection_btn = html` <kc-ui-button
+        this.#zoom_in = html`<kc-ui-button
             slot="right"
             variant="toolbar"
-            name="zoom_to_selection"
-            title="zoom to selection"
-            icon="svg:zoom_footprint"
-            disabled>
+            name="zoom_in"
+            title="zoom in"
+            icon="svg:zoom_in">
+        </kc-ui-button>` as KCUIButtonElement;
+
+        this.#zoom_out = html`<kc-ui-button
+            slot="right"
+            variant="toolbar"
+            name="zoom_out"
+            title="zoom out"
+            icon="svg:zoom_out">
         </kc-ui-button>` as KCUIButtonElement;
 
         this.update_position();
 
         return html`<kc-ui-floating-toolbar location="bottom">
-            ${this.#zoom_to_page_btn}
+            ${this.#zoom_out} ${this.#reset} ${this.#zoom_in}
         </kc-ui-floating-toolbar>`;
     }
 }
