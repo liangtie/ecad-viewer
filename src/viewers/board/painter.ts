@@ -311,7 +311,7 @@ class PadPainter extends BoardItemPainter {
 
     layers_for(pad: board_items.Pad): string[] {
         // TODO: Port KiCAD's logic over.
-        const layers: string[] = [];
+        const layers: string[] = [LayerNames.pad_num];
 
         for (const layer of pad.layers) {
             if (layer == "*.Cu") {
@@ -351,8 +351,59 @@ class PadPainter extends BoardItemPainter {
         return layers;
     }
 
+    paintPadNumber(layer: ViewLayer, pad: board_items.Pad) {
+        const edatext = new EDAText(pad.number);
+        Object.assign(
+            edatext.attributes,
+            JSON.parse(`
+                {
+                    "font": null,
+                    "h_align": "center",
+                    "v_align": "center",
+                    "angle": {},
+                    "line_spacing": 1,
+                    "stroke_width": 350,
+                    "italic": false,
+                    "bold": false,
+                    "underlined": false,
+                    "color": {
+                        "r": 0.6862745098039216,
+                        "g": 0.6862745098039216,
+                        "b": 0.6862745098039216,
+                        "a": 1
+                    },
+                    "visible": true,
+                    "mirrored": false,
+                    "multiline": true,
+                    "size": {
+                        "x": 10000,
+                        "y": 10000
+                    },
+                    "keep_upright": false
+                }
+
+            `),
+        );
+        edatext.attributes.size = new Vec2(1000, 1000);
+
+        edatext.apply_at(pad.at);
+
+        edatext.attributes.color = Color.black;
+
+        StrokeFont.default().draw(
+            this.gfx,
+            edatext.shown_text,
+            edatext.text_pos,
+            edatext.attributes,
+        );
+    }
+
     paint(layer: ViewLayer, pad: board_items.Pad) {
         if (this.filter_net && pad.net?.number != this.filter_net) {
+            return;
+        }
+        if (layer.name === LayerNames.pad_num) {
+            this.paintPadNumber(layer, pad);
             return;
         }
 
