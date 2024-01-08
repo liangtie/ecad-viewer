@@ -384,11 +384,11 @@ class PadPainter extends BoardItemPainter {
 
             `),
         );
-        edatext.attributes.size = new Vec2(1000, 1000);
+        edatext.attributes.size = new Vec2(2000, 2000);
 
         edatext.apply_at(pad.at);
 
-        edatext.attributes.color = Color.black;
+        edatext.attributes.color = Color.white;
 
         StrokeFont.default().draw(
             this.gfx,
