@@ -53,7 +53,7 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
 
             this.#reset.addEventListener("click", (e) => {
                 e.preventDefault();
-                this.viewer.zoom_to_screen();
+                this.viewer.zoom_fit_top_item();
             });
             this.#zoom_in.addEventListener("click", (e) => {
                 e.preventDefault();

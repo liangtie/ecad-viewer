@@ -24,7 +24,7 @@ import {
     HierarchicalLabelPainter,
     NetLabelPainter,
 } from "./painters/label";
-import { LibSymbolPinPainter } from "./painters/libPin";
+import { LibSymbolPinPainter } from "./painters/lib_pin";
 import { PinPainter } from "./painters/pin";
 import { LibSymbolPainter, SchematicSymbolPainter } from "./painters/symbol";
 

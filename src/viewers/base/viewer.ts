@@ -241,7 +241,7 @@ export abstract class Viewer extends EventTarget {
 
     abstract zoom_to_page(): void;
 
-    abstract zoom_to_screen(): void;
+    abstract zoom_fit_top_item(): void;
 
     abstract zoom_in(): void;
 
