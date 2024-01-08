@@ -21,6 +21,8 @@ const log = new Logger("kicanvas:viewer");
 
 type ViewableDocument = DrawingSheetDocument &
     PaintableDocument & { filename: string };
+const zoom_speed = 0.005;
+const delta = 3;
 
 export abstract class DocumentViewer<
     DocumentT extends ViewableDocument,
@@ -37,8 +39,6 @@ export abstract class DocumentViewer<
     protected grid: Grid;
 
     protected static FACTOR_zoom_fit_top_item = 1.6;
-
-    protected zoom_factor: number = DocumentViewer.FACTOR_zoom_fit_top_item;
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -139,20 +139,25 @@ export abstract class DocumentViewer<
     }
 
     public override zoom_in() {
-        this.zoom_factor = this.zoom_factor * 0.7;
-        this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(
-            this.zoom_factor,
+        this.genericZoom(true);
+    }
+
+    protected genericZoom(zoomIn: boolean) {
+        this.viewport.camera.zoom *= Math.exp(
+            (zoomIn ? delta : -delta) * -zoom_speed,
+        );
+        this.viewport.camera.zoom = Math.min(
+            Viewer.MaxZoom,
+            Math.max(this.viewport.camera.zoom, Viewer.MinZoom),
         );
         this.draw();
     }
 
     public override zoom_out() {
-        this.zoom_factor = this.zoom_factor * 1.3;
-        this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(
-            this.zoom_factor,
-        );
-        this.draw();
+        this.genericZoom(false);
     }
+
+    public override move(pos: Vec2): void {}
 
     public override zoom_fit_top_item() {
         this.viewport.camera.bbox = this.document.bbox.grow(

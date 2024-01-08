@@ -5,7 +5,7 @@
 */
 
 import { Barrier } from "../../base/async";
-import { PanAndZoom } from "../../base/dom/pan-and-zoom";
+import { MoveAndZoom } from "../../base/dom/move-and-zoom";
 import { SizeObserver } from "../../base/dom/size-observer";
 import { Angle, BBox, Camera2, Matrix3, Vec2 } from "../../base/math";
 import { Renderer } from "../../graphics";
@@ -16,7 +16,7 @@ import { Renderer } from "../../graphics";
  */
 export class Viewport {
     #observer: SizeObserver;
-    #pan_and_zoom: PanAndZoom;
+    #pan_and_zoom: MoveAndZoom;
 
     width: number;
     height: number;
@@ -73,7 +73,7 @@ export class Viewport {
     }
 
     enable_pan_and_zoom(min_zoom?: number, max_zoom?: number) {
-        this.#pan_and_zoom = new PanAndZoom(
+        this.#pan_and_zoom = new MoveAndZoom(
             this.renderer.canvas,
             this.camera,
             () => {

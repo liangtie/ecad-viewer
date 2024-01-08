@@ -11,12 +11,12 @@ const page_delta_multiplier = 24;
 const zoom_speed = 0.005;
 const pan_speed = 1;
 
-export type PanAndZoomCallback = () => void;
+export type MoveAndZoomCallback = () => void;
 
 /**
- * Interactive Pan and Zoom helper
+ * Interactive Move and Zoom helper
  */
-export class PanAndZoom {
+export class MoveAndZoom {
     #rect: DOMRect;
 
     /**
@@ -30,9 +30,9 @@ export class PanAndZoom {
     constructor(
         public readonly target: HTMLElement,
         public camera: Camera2,
-        public callback: PanAndZoomCallback,
-        public min_zoom = 0.5,
-        public max_zoom = 10,
+        public callback: MoveAndZoomCallback,
+        public min_zoom: number = 0.5,
+        public max_zoom: number = 10,
         public bounds?: BBox,
     ) {
         this.target.addEventListener(
@@ -66,15 +66,8 @@ export class PanAndZoom {
         dx = Math.sign(dx) * Math.min(page_delta_multiplier, Math.abs(dx));
         dy = Math.sign(dy) * Math.min(page_delta_multiplier, Math.abs(dy));
 
-        // pinch zoom
-        if (e.ctrlKey) {
-            this.#rect = this.target.getBoundingClientRect();
-            this.#handle_zoom(dy, this.#relative_mouse_pos(e));
-        }
-        // pan
-        else {
-            this.#handle_pan(dx, dy);
-        }
+        this.#rect = this.target.getBoundingClientRect();
+        this.#handle_zoom(dy, this.#relative_mouse_pos(e));
 
         this.target.dispatchEvent(
             new MouseEvent("panzoom", {

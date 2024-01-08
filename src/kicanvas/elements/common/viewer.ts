@@ -4,6 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import { Vec2 } from "../../../base/math";
 import { attribute, html } from "../../../base/web-components";
 import { KCUIElement } from "../../../kc-ui";
 import { KiCanvasLoadEvent } from "../../../viewers/base/events";
@@ -27,9 +28,10 @@ export abstract class KCViewerElement<
 
     @attribute({ type: String })
     theme: string;
-
     @attribute({ type: Boolean })
     disableinteraction: boolean;
+
+    mouse_press_pos: Vec2 | null = null;
 
     override initialContentCallback() {
         (async () => {
@@ -81,6 +83,35 @@ export abstract class KCViewerElement<
 
     override render() {
         this.canvas = html`<canvas></canvas>` as HTMLCanvasElement;
+
+        this.canvas.addEventListener("mousedown", (e: MouseEvent) => {
+            this.mouse_press_pos = new Vec2(e.clientX, e.clientY);
+        });
+
+        this.canvas.addEventListener("mouseup", (e: MouseEvent) => {
+            this.mouse_press_pos = null;
+        });
+
+        this.canvas.addEventListener("mouseleave", (e: MouseEvent) => {
+            this.mouse_press_pos = null;
+        });
+
+        this.canvas.addEventListener("mousemove", (e: MouseEvent) => {
+            if (!this.mouse_press_pos) return;
+
+            const delta = new Vec2(
+                this.mouse_press_pos.x - e.clientX,
+                this.mouse_press_pos.y - e.clientY,
+            ).multiply(1 / this.viewer.viewport.camera.zoom);
+
+            this.mouse_press_pos = new Vec2(e.clientX, e.clientY);
+
+            const center = this.viewer.viewport.camera.center.add(delta);
+
+            this.viewer.viewport.camera.center.set(center);
+
+            this.viewer.draw();
+        });
 
         return html`<style>
                 :host {

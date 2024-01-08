@@ -26,6 +26,9 @@ export abstract class Viewer extends EventTarget {
     public mouse_position: Vec2 = new Vec2(0, 0);
     public loaded = new Barrier();
 
+    public static MinZoom = 0.5;
+    public static MaxZoom = 190;
+
     protected disposables = new Disposables();
     protected setup_finished = new Barrier();
 
@@ -77,7 +80,7 @@ export abstract class Viewer extends EventTarget {
         );
 
         if (this.interactive) {
-            this.viewport.enable_pan_and_zoom(0.5, 190);
+            this.viewport.enable_pan_and_zoom(Viewer.MinZoom, Viewer.MaxZoom);
 
             this.disposables.add(
                 listen(this.canvas, "mousemove", (e) => {
@@ -246,6 +249,8 @@ export abstract class Viewer extends EventTarget {
     abstract zoom_in(): void;
 
     abstract zoom_out(): void;
+
+    abstract move(pos: Vec2): void;
 
     zoom_to_selection() {
         if (!this.selected) {
