@@ -359,7 +359,6 @@ class TextPainter extends SchematicItemPainter {
             schtext.attributes.color = this.dim_if_needed(font_color);
         }
 
-        console.log(schtext.shown_text);
         this.gfx.state.push();
         StrokeFont.default().draw(
             this.gfx,
@@ -495,7 +494,6 @@ class LibTextPainter extends SchematicItemPainter {
             this.view_painter.current_symbol_transform!;
 
         const libtext = new LibText(lt.shown_text);
-        console.log(lt.shown_text);
 
         libtext.apply_effects(lt.effects);
         libtext.apply_at(lt.at);

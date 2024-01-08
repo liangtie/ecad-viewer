@@ -577,7 +577,6 @@ export const PinLabelInternals = {
     ) {
         const edatext = new EDAText(text);
 
-        console.log(text);
         edatext.apply_effects(effects);
         edatext.attributes.h_align = placement.h_align;
         edatext.attributes.v_align = placement.v_align;
