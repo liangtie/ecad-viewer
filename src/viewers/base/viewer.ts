@@ -18,6 +18,9 @@ import {
 } from "./events";
 import { ViewLayerSet } from "./view-layers";
 import { Viewport } from "./viewport";
+import type { CrossHightAble } from "../../base/cross_highlight_able";
+
+const ViewerMaps: Viewer[] = [];
 
 export abstract class Viewer extends EventTarget {
     public renderer: Renderer;
@@ -34,11 +37,14 @@ export abstract class Viewer extends EventTarget {
 
     #selected: BBox | null;
 
+    private _cross_hightedItem: CrossHightAble | null = null;
+
     constructor(
         public canvas: HTMLCanvasElement,
         protected interactive = true,
     ) {
         super();
+        ViewerMaps.push(this);
     }
 
     dispose() {
@@ -116,7 +122,6 @@ export abstract class Viewer extends EventTarget {
         const new_position = this.viewport.camera.screen_to_world(
             new Vec2(e.clientX - rect.left, e.clientY - rect.top),
         );
-
         if (
             this.mouse_position.x != new_position.x ||
             this.mouse_position.y != new_position.y
@@ -124,6 +129,7 @@ export abstract class Viewer extends EventTarget {
             this.mouse_position.set(new_position);
             this.dispatchEvent(new KiCanvasMouseMoveEvent(this.mouse_position));
         }
+        this.on_hover();
     }
 
     public abstract load(src: any): Promise<void>;
@@ -215,6 +221,22 @@ export abstract class Viewer extends EventTarget {
         later(() => this.paint_selected());
     }
 
+    @no_self_recursion
+    public sync_hover(it: CrossHightAble | null) {
+        const item = it ? this.locateItemForCrossHight(it.cross_index) : null;
+        let shouldDraw = false;
+        if (this._cross_hightedItem) {
+            this._cross_hightedItem.highlighted = false;
+            shouldDraw = true;
+        }
+        this._cross_hightedItem = item;
+        if (this._cross_hightedItem) {
+            this._cross_hightedItem.highlighted = true;
+            shouldDraw = true;
+        }
+        if (shouldDraw) this.draw();
+    }
+
     public get selection_color() {
         return Color.white;
     }
@@ -259,4 +281,27 @@ export abstract class Viewer extends EventTarget {
         this.viewport.camera.bbox = this.selected.grow(10);
         this.draw();
     }
+
+    on_hover() {
+        let shouldDraw = false;
+        const item = this.findHighlightItem(this.mouse_position);
+        if (this._cross_hightedItem) {
+            this._cross_hightedItem.highlighted = false;
+            shouldDraw = true;
+        }
+        this._cross_hightedItem = item;
+        if (this._cross_hightedItem) {
+            this._cross_hightedItem.highlighted = true;
+            shouldDraw = true;
+        }
+        if (shouldDraw) this.draw();
+
+        for (const v of ViewerMaps) {
+            if (v !== this) v.sync_hover(this._cross_hightedItem ?? null);
+        }
+    }
+
+    abstract findHighlightItem(pos: Vec2): CrossHightAble | null;
+
+    abstract locateItemForCrossHight(idx: string): CrossHightAble | null;
 }

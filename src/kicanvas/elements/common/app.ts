@@ -5,6 +5,7 @@
 */
 
 import { DeferredPromise } from "../../../base/async";
+import type { IDisposable } from "../../../base/disposable";
 import { delegate, listen } from "../../../base/events";
 import { length } from "../../../base/iterator";
 import {
@@ -18,7 +19,10 @@ import {
     KCUIButtonElement,
     KCUIElement,
 } from "../../../kc-ui";
-import { KiCanvasSelectEvent } from "../../../viewers/base/events";
+import {
+    KiCanvasSelectEvent,
+    KicadSyncHoverEvent,
+} from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 import type { Project, ProjectPage } from "../../project";
 

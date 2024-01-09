@@ -407,7 +407,7 @@ class PadPainter extends BoardItemPainter {
             return;
         }
 
-        const color = layer.color;
+        const color = pad.highlighted ? pad.highlightColor : layer.color;
 
         const position_mat = Matrix3.translation(
             pad.at.position.x,

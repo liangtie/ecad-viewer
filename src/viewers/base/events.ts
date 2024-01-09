@@ -44,6 +44,14 @@ export class KiCanvasMouseMoveEvent extends KiCanvasEvent<MouseMoveDetails> {
     }
 }
 
+export class KicadSyncHoverEvent extends KiCanvasEvent<string | null> {
+    static readonly type = "kicanvas:sync_hover";
+
+    constructor(index: string | null) {
+        super(KicadSyncHoverEvent.type, index, true);
+    }
+}
+
 // Event maps for type safe addEventListener.
 
 export interface KiCanvasEventMap {

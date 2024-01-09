@@ -4,8 +4,9 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
-import type { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
+import { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -20,8 +21,18 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    private pads: Map<string, board_items.Pad> = new Map();
+
     get board(): board_items.KicadPCB | KicadFootprint {
         return this.document;
+    }
+
+    override async load(src: board_items.KicadPCB | KicadFootprint) {
+        if (src instanceof KicadFootprint) {
+            for (const v of src.pads) this.pads.set(v.index, v);
+        }
+
+        await super.load(src);
     }
 
     protected override create_renderer(canvas: HTMLCanvasElement): Renderer {
@@ -120,5 +131,18 @@ export class BoardViewer extends DocumentViewer<
         const edge_cuts = this.layers.by_name(LayerNames.edge_cuts)!;
         const board_bbox = edge_cuts.bbox;
         this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
+    }
+
+    findHighlightItem(pos: Vec2): CrossHightAble | null {
+        for (const [, v] of this.pads) {
+            if (v.boundingBox.contains_point(pos)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    locateItemForCrossHight(idx: string): CrossHightAble | null {
+        return this.pads.get(idx) ?? null;
     }
 }

@@ -4,7 +4,9 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import type { CrossHightAble } from "../base/cross_highlight_able";
 import { Angle, BBox, Arc as MathArc, Matrix3, Vec2 } from "../base/math";
+import { Color } from "../graphics";
 import type { Project } from "../kicanvas/project";
 import { LayerNames } from "../viewers/board/layers";
 import {
@@ -1357,7 +1359,17 @@ export class GrText extends Text {
     }
 }
 
-export class Pad {
+export class Pad implements CrossHightAble {
+    public static MyHighlightColor = new Color(255, 215, 0);
+    public get boundingBox() {
+        return new BBox(
+            this.at.position.x,
+            this.at.position.y,
+            this.size.x,
+            this.size.y,
+        );
+    }
+
     number: string; // I hate this
     type: "thru_hole" | "smd" | "connect" | "np_thru_hole" = "thru_hole";
     shape: "circle" | "rect" | "oval" | "trapezoid" | "roundrect" | "custom";
@@ -1388,6 +1400,20 @@ export class Pad {
     net: Net;
     options: PadOptions;
     primitives: (GrLine | GrCircle | GrArc | GrRect | GrPoly)[];
+
+    public get highlightColor() {
+        return Pad.MyHighlightColor;
+    }
+
+    public highlighted: boolean = false;
+
+    public get index() {
+        return `pad_${this.number}`;
+    }
+
+    public get cross_index() {
+        return `symbol_pin_${this.number}`;
+    }
 
     constructor(
         expr: Parseable,

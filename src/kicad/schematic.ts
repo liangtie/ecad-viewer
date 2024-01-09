@@ -5,8 +5,11 @@
 */
 
 import { Color } from "../base/color";
+import type { CrossHightAble } from "../base/cross_highlight_able";
+import type { HighlightAble } from "../base/highlightable";
+import type { IndexAble } from "../base/index_able";
 import * as log from "../base/log";
-import { Arc as MathArc, Vec2 } from "../base/math";
+import { BBox, Arc as MathArc, Vec2 } from "../base/math";
 import type { Project } from "../kicanvas/project";
 import {
     At,
@@ -1411,7 +1414,7 @@ export class SchematicSymbolInstance {
     constructor() {}
 }
 
-export class PinInstance {
+export class PinInstance implements HighlightAble, IndexAble {
     number: string;
     uuid: string;
     alternate: string;
@@ -1432,6 +1435,7 @@ export class PinInstance {
             ),
         );
     }
+    boundingBox: BBox;
 
     get definition() {
         return this.parent.lib_symbol.pin_by_number(
@@ -1443,9 +1447,20 @@ export class PinInstance {
     get unit() {
         return this.definition.unit;
     }
+
+    public get highlightColor() {
+        return LibSymbolPin.MyHighlightColor;
+    }
+
+    public highlighted: boolean = false;
+
+    public get index() {
+        return `symbol_pin_${this.number}`;
+    }
 }
 
-export class LibSymbolPin {
+export class LibSymbolPin implements CrossHightAble {
+    public static MyHighlightColor = new Color(255, 215, 0);
     constructor(
         public number: string,
         public uuid: string,
@@ -1454,6 +1469,28 @@ export class LibSymbolPin {
         public unit: number,
         public parent: LibSymbol,
     ) {}
+    public get boundingBox() {
+        return new BBox(
+            this.definition.at.position.x,
+            this.definition.at.position.y,
+            this.definition.length,
+            1,
+        );
+    }
+
+    public get highlightColor() {
+        return LibSymbolPin.MyHighlightColor;
+    }
+
+    public highlighted: boolean = false;
+
+    public get index() {
+        return `symbol_pin_${this.number}`;
+    }
+
+    public get cross_index() {
+        return `pad_${this.number}`;
+    }
 }
 
 export class SheetInstances {

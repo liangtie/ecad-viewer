@@ -4,15 +4,17 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { first } from "../../base/iterator";
-import { BBox } from "../../base/math";
+import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
-import type { KicadSymbolLib } from "../../ecad-viewer/lib_symbol/kicad_symbol_lib";
+import { KicadSymbolLib } from "../../ecad-viewer/lib_symbol/kicad_symbol_lib";
 import { Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { type SchematicTheme } from "../../kicad";
 import {
     KicadSch,
+    LibSymbolPin,
     SchematicSheet,
     SchematicSymbol,
 } from "../../kicad/schematic";
@@ -27,6 +29,8 @@ export class SchematicViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
+    private libPins: Map<string, LibSymbolPin> = new Map();
+
     get schematic(): KicadSch | KicadSymbolLib {
         return this.document;
     }
@@ -42,6 +46,16 @@ export class SchematicViewer extends DocumentViewer<
     override async load(src: KicadSch | KicadSymbolLib | ProjectPage) {
         if (src instanceof KicadSch) {
             return await super.load(src);
+        }
+
+        this.libPins = new Map();
+
+        if (src instanceof KicadSymbolLib) {
+            for (const i of src.items()) {
+                for (const pin of i.libPins) {
+                    this.libPins.set(pin.uuid, pin);
+                }
+            }
         }
 
         this.document = null!;
@@ -61,6 +75,18 @@ export class SchematicViewer extends DocumentViewer<
 
     protected override create_layer_set() {
         return new LayerSet(this.theme);
+    }
+    findHighlightItem(pos: Vec2): CrossHightAble | null {
+        for (const [, v] of this.libPins) {
+            if (v.boundingBox.contains_point(pos)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    locateItemForCrossHight(idx: string): CrossHightAble | null {
+        return this.libPins.get(idx) ?? null;
     }
 
     public override select(

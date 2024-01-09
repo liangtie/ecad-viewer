@@ -71,7 +71,8 @@ export abstract class DocumentViewer<
         later(async () => {
             log.info("Waiting for viewport");
             await this.viewport.ready;
-            this.viewport.bounds = this.document.bbox.grow(11);
+            const c = this.document as unknown as any;
+            this.viewport.bounds = c.bbox.grow(11);
 
             // Position the camera and draw the scene.
             log.info("Positioning camera");
@@ -160,7 +161,8 @@ export abstract class DocumentViewer<
     public override move(pos: Vec2): void {}
 
     public override zoom_fit_top_item() {
-        this.viewport.camera.bbox = this.document.bbox.grow(
+        const c = this.document as unknown as any;
+        this.viewport.camera.bbox = c.bbox.grow(
             DocumentViewer.FACTOR_zoom_fit_top_item,
         );
         this.draw();

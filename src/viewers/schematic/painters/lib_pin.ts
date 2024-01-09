@@ -63,7 +63,8 @@ export class LibSymbolPinPainter extends SchematicItemPainter {
 
         this.gfx.state.push();
         this.gfx.state.matrix = Matrix3.identity();
-        this.gfx.state.stroke = color;
+        this.gfx.state.stroke = p.highlighted ? p.highlightColor : color;
+        this.gfx.state.fill = p.highlighted ? p.highlightColor : color;
 
         this.draw_pin_shape(this.gfx, pin);
 
@@ -400,6 +401,7 @@ export const PinShapeInternals = {
 
         switch (shape) {
             case "line":
+                gfx.circle(new Vec2(position.x - 0.5, position.y), 0.5);
                 gfx.line([p0, position]);
                 return;
             case "inverted":
