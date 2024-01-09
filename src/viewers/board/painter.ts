@@ -388,7 +388,7 @@ class PadPainter extends BoardItemPainter {
 
         edatext.apply_at(pad.at);
 
-        edatext.attributes.color = Color.white;
+        edatext.attributes.color = pad.highlighted ? Color.black : Color.white;
 
         StrokeFont.default().draw(
             this.gfx,

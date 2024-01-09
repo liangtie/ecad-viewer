@@ -1459,8 +1459,27 @@ export class PinInstance implements HighlightAble, IndexAble {
     }
 }
 
+type PinOrientation = "right" | "left" | "up" | "down";
+
+function angle_to_orientation(angle_deg: number): PinOrientation {
+    switch (angle_deg) {
+        case 0:
+            return "right";
+        case 90:
+            return "up";
+        case 180:
+            return "left";
+        case 270:
+            return "down";
+        default:
+            throw new Error(`Unexpected pin angle ${angle_deg}`);
+    }
+}
+
 export class LibSymbolPin implements CrossHightAble {
-    public static MyHighlightColor = new Color(255, 215, 0);
+    public static MyHighlightColor = new Color(0, 100, 100);
+    public orientation: PinOrientation;
+
     constructor(
         public number: string,
         public uuid: string,
@@ -1468,14 +1487,43 @@ export class LibSymbolPin implements CrossHightAble {
         public definition: PinDefinition,
         public unit: number,
         public parent: LibSymbol,
-    ) {}
+    ) {
+        this.orientation = angle_to_orientation(definition.at.rotation);
+    }
     public get boundingBox() {
-        return new BBox(
-            this.definition.at.position.x,
-            this.definition.at.position.y,
-            this.definition.length,
-            1,
-        );
+        const defaultLen = 1;
+        switch (this.orientation) {
+            case "up":
+                return new BBox(
+                    this.definition.at.position.x - defaultLen / 2,
+                    this.definition.at.position.y - defaultLen,
+                    defaultLen,
+                    this.definition.length,
+                );
+            case "down":
+                return new BBox(
+                    this.definition.at.position.x - defaultLen / 2,
+                    this.definition.at.position.y -
+                        this.definition.length +
+                        defaultLen,
+                    defaultLen,
+                    this.definition.length,
+                );
+            case "left":
+                return new BBox(
+                    this.definition.at.position.x - this.definition.length,
+                    this.definition.at.position.y - defaultLen / 2,
+                    this.definition.length,
+                    defaultLen,
+                );
+            case "right":
+                return new BBox(
+                    this.definition.at.position.x - defaultLen,
+                    this.definition.at.position.y - defaultLen / 2,
+                    this.definition.length,
+                    defaultLen,
+                );
+        }
     }
 
     public get highlightColor() {

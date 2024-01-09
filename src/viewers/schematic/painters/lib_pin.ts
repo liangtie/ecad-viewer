@@ -186,6 +186,8 @@ export class LibSymbolPinPainter extends SchematicItemPainter {
             pin.position,
             p0,
             dir,
+            pin.orientation,
+            pin.def.length,
         );
     }
 
@@ -349,6 +351,8 @@ export const PinShapeInternals = {
         position: Vec2,
         p0: Vec2,
         dir: Vec2,
+        orientation: PinOrientation,
+        len: number,
     ) {
         const radius = schematic_items.DefaultValues.pinsymbol_size;
         const diam = radius * 2;
@@ -401,9 +405,29 @@ export const PinShapeInternals = {
 
         switch (shape) {
             case "line":
-                gfx.circle(new Vec2(position.x - 0.5, position.y), 0.5);
-                gfx.line([p0, position]);
+                switch (orientation) {
+                    case "down":
+                        gfx.circle(position, 0.5);
+                        gfx.line([
+                            position,
+                            new Vec2(position.x, position.y - len),
+                        ]);
+                        break;
+                    case "up":
+                        gfx.circle(position, 0.5);
+                        gfx.line([
+                            position,
+                            new Vec2(position.x, position.y + len),
+                        ]);
+                        break;
+                    case "left":
+                    case "right":
+                        gfx.circle(new Vec2(position.x - 0.5, position.y), 0.5);
+                        gfx.line([p0, position]);
+                        break;
+                }
                 return;
+
             case "inverted":
                 gfx.arc(p0.add(dir.multiply(radius)), radius);
                 gfx.line([p0.add(dir.multiply(diam)), position]);

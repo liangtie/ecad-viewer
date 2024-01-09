@@ -27,6 +27,7 @@ export abstract class Viewer extends EventTarget {
     public viewport: Viewport;
     public layers: ViewLayerSet;
     public mouse_position: Vec2 = new Vec2(0, 0);
+    public hover_position = new Vec2(0, 0);
     public loaded = new Barrier();
 
     public static MinZoom = 0.5;
@@ -120,6 +121,9 @@ export abstract class Viewer extends EventTarget {
     protected on_mouse_change(e: MouseEvent) {
         const rect = this.canvas.getBoundingClientRect();
         const new_position = this.viewport.camera.screen_to_world(
+            new Vec2(e.clientX - rect.left, e.clientY - rect.top),
+        );
+        this.hover_position = this.viewport.camera.screen_to_world(
             new Vec2(e.clientX - rect.left, e.clientY - rect.top),
         );
         if (
@@ -234,7 +238,10 @@ export abstract class Viewer extends EventTarget {
             this._cross_hightedItem.highlighted = true;
             shouldDraw = true;
         }
-        if (shouldDraw) this.draw();
+        if (shouldDraw) {
+            this.paint();
+            this.draw();
+        }
     }
 
     public get selection_color() {
@@ -284,7 +291,7 @@ export abstract class Viewer extends EventTarget {
 
     on_hover() {
         let shouldDraw = false;
-        const item = this.findHighlightItem(this.mouse_position);
+        const item = this.findHighlightItem(this.hover_position);
         if (this._cross_hightedItem) {
             this._cross_hightedItem.highlighted = false;
             shouldDraw = true;
@@ -294,7 +301,10 @@ export abstract class Viewer extends EventTarget {
             this._cross_hightedItem.highlighted = true;
             shouldDraw = true;
         }
-        if (shouldDraw) this.draw();
+        if (shouldDraw) {
+            this.paint();
+            this.draw();
+        }
 
         for (const v of ViewerMaps) {
             if (v !== this) v.sync_hover(this._cross_hightedItem ?? null);

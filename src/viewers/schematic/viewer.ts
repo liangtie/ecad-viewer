@@ -14,6 +14,7 @@ import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { type SchematicTheme } from "../../kicad";
 import {
     KicadSch,
+    LibSymbol,
     LibSymbolPin,
     SchematicSheet,
     SchematicSymbol,
@@ -43,6 +44,13 @@ export class SchematicViewer extends DocumentViewer<
         return renderer;
     }
 
+    build_libPins(lib: LibSymbol) {
+        for (const i of lib.libPins) {
+            this.libPins.set(i.index, i);
+        }
+        for (const c of lib.children) this.build_libPins(c);
+    }
+
     override async load(src: KicadSch | KicadSymbolLib | ProjectPage) {
         if (src instanceof KicadSch) {
             return await super.load(src);
@@ -52,9 +60,7 @@ export class SchematicViewer extends DocumentViewer<
 
         if (src instanceof KicadSymbolLib) {
             for (const i of src.items()) {
-                for (const pin of i.libPins) {
-                    this.libPins.set(pin.uuid, pin);
-                }
+                this.build_libPins(i);
             }
         }
 
@@ -86,6 +92,9 @@ export class SchematicViewer extends DocumentViewer<
     }
 
     locateItemForCrossHight(idx: string): CrossHightAble | null {
+        console.log(idx);
+        console.log(this.libPins);
+
         return this.libPins.get(idx) ?? null;
     }
 

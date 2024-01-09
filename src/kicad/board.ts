@@ -1360,11 +1360,11 @@ export class GrText extends Text {
 }
 
 export class Pad implements CrossHightAble {
-    public static MyHighlightColor = new Color(255, 215, 0);
+    public static MyHighlightColor = new Color(0, 100, 100);
     public get boundingBox() {
         return new BBox(
-            this.at.position.x,
-            this.at.position.y,
+            this.at.position.x - this.size.x / 2,
+            this.at.position.y - this.size.y / 2,
             this.size.x,
             this.size.y,
         );
