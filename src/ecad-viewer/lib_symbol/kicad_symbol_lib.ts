@@ -11,6 +11,8 @@ import {
 } from "../../kicad/schematic";
 import type { Project } from "../../kicanvas/project";
 
+import { calculateBoundingBox } from "./baz";
+
 function Vect2dToBBox(a: Vec2, b: Vec2) {
     const x = a.x;
 
@@ -75,8 +77,15 @@ function GetLibSymbolBBoxs(box_list: BBox[], s: LibSymbol) {
                 y_min = y_min! > pos.y ? pos.y : y_min;
                 y_max = y_max! < pos.y ? pos.y : y_max;
             }
+
+            const pts = calculateBoundingBox(d.start!, d.c1!, d.c2!, d.end!);
             box_list.push(
-                new BBox(x_min, y_min, x_max! - x_min!, y_max! - y_min!),
+                new BBox(
+                    pts.minX,
+                    pts.minY,
+                    pts.maxX - pts.minX,
+                    pts.maxY - pts.minY,
+                ),
             );
         } else if (d instanceof Polyline) {
             let x_min, x_max, y_min, y_max;
