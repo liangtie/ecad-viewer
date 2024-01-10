@@ -1,21 +1,35 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
-        <link rel="stylesheet" href="./style.css" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            /* Apply styles to the container div */
+            .container {
+                display: flex;
+            }
+        </style>
+        <title>Horizontal Canvas Layout</title>
     </head>
-
     <body>
-        <p>Symbol</p>
-        <kicanvas-embed
-            src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
-            controls="basic">
-        </kicanvas-embed>
-        <p>Footprint</p>
-        <kicanvas-embed
-            src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"
-            controls="basic">
-        </kicanvas-embed>
-        <p>3D Model</p>
+        <!-- Container div for the horizontal layout -->
+
+        <div class="container">
+            <!-- Individual canvas containers within the container -->
+            <kicanvas-embed
+                id="canvas1"
+                src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
+                controls="basic">
+            </kicanvas-embed>
+            <kicanvas-embed
+                id="canvas2"
+                src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"
+                controls="basic">
+            </kicanvas-embed>
+            <div class="canvas-container">
+                <canvas id="canvas3" width="200" height="100"></canvas>
+            </div>
+        </div>
     </body>
 
     <script type="module" src="./kicanvas/kicanvas.js"></script>

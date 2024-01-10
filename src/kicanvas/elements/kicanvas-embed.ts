@@ -161,10 +161,7 @@ class KiCanvasEmbedElement extends KCUIElement {
         //     this.controlslist?.includes("nooverlay")
         //         ? null
         //         : html`<kc-ui-focus-overlay></kc-ui-focus-overlay>`;
-        const focus_overlay = null;
-        return html`<main>
-            ${this.#schematic_app} ${this.#board_app} ${focus_overlay}
-        </main>`;
+        return html` ${this.#schematic_app} ${this.#board_app} `;
     }
 }
 

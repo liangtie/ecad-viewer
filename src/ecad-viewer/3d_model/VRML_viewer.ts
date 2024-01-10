@@ -121,6 +121,4 @@ export function animate() {
     controls.update(); // to support damping
 
     renderer.render(scene, camera);
-
-    stats.update();
 }
