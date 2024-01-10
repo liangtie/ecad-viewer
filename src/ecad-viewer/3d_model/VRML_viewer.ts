@@ -14,7 +14,7 @@ let camera: THREE.Object3D<THREE.Object3DEventMap>,
     loader: VRMLLoader;
 
 const params = {
-    asset: "house",
+    asset: "DIP-8_W8.89mm_SMDSocket",
 };
 
 const assets = [
@@ -64,7 +64,8 @@ export function init() {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    //FIXME -
+    renderer.setSize(246, 246);
     document.body.appendChild(renderer.domElement);
 
     // controls
@@ -73,12 +74,6 @@ export function init() {
     controls.minDistance = 1;
     controls.maxDistance = 200;
     controls.enableDamping = true;
-
-    //
-
-    stats = new Stats();
-    document.body.appendChild(stats.dom);
-
     //
 
     window.addEventListener("resize", onWindowResize);
