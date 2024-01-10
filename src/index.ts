@@ -7,3 +7,7 @@
 import "./base/livereload";
 import "./kicanvas/elements/kicanvas-shell";
 import "./kicanvas/elements/kicanvas-embed";
+import { init, animate } from "./ecad-viewer/3d_model/VRML_viewer";
+
+init();
+animate();
