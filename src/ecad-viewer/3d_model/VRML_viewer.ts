@@ -1,6 +1,5 @@
 import * as THREE from "three";
 
-
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { VRMLLoader } from "./kicad_vrml_loader";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
@@ -14,23 +13,6 @@ let camera: THREE.Object3D<THREE.Object3DEventMap>,
 const params = {
     asset: "DIP-8_W8.89mm_SMDSocket",
 };
-
-const assets = [
-    "creaseAngle",
-    "crystal",
-    "house",
-    "elevationGrid1",
-    "elevationGrid2",
-    "extrusion1",
-    "extrusion2",
-    "extrusion3",
-    "lines",
-    "meshWithLines",
-    "meshWithTexture",
-    "pixelTexture",
-    "points",
-    "DIP-8_W8.89mm_SMDSocket",
-];
 
 let vrmlScene: { traverse: (arg0: (object: any) => void) => void };
 
@@ -72,30 +54,8 @@ export function init() {
     controls.minDistance = 1;
     controls.maxDistance = 200;
     controls.enableDamping = true;
-    //
 
     window.addEventListener("resize", onWindowResize);
-
-    //
-
-    const gui = new GUI();
-    gui.add(params, "asset", assets).onChange(function (value) {
-        if (vrmlScene) {
-            vrmlScene.traverse(function (object: {
-                material: { dispose: () => void; map: { dispose: () => void } };
-                geometry: { dispose: () => void };
-            }) {
-                if (object.material) object.material.dispose();
-                if (object.material && object.material.map)
-                    object.material.map.dispose();
-                if (object.geometry) object.geometry.dispose();
-            });
-
-            scene.remove(vrmlScene);
-        }
-
-        loadAsset(value);
-    });
 }
 
 function loadAsset(asset: string) {
