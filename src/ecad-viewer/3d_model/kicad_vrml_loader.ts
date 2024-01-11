@@ -39,7 +39,7 @@ import {
 import * as chevrotain from "chevrotain";
 
 class VRMLLoader extends Loader {
-    constructor(manager: LoadingManager | undefined) {
+    constructor(manager?: LoadingManager) {
         super(manager);
     }
 
