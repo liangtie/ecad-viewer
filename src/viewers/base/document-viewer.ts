@@ -100,19 +100,19 @@ export abstract class DocumentViewer<
         this.renderer.background_color = this.theme.background;
 
         // Load the default drawing sheet.
-        log.info("Loading drawing sheet");
+        // log.info("Loading drawing sheet");
         if (!this.drawing_sheet) {
             this.drawing_sheet = DrawingSheet.default();
         }
         this.drawing_sheet.document = this.document;
 
         // Setup graphical layers
-        log.info("Creating layers");
+        // log.info("Creating layers");
         this.disposables.disposeAndRemove(this.layers);
         this.layers = this.disposables.add(this.create_layer_set());
 
         // Paint the board
-        log.info("Painting items");
+        // log.info("Painting items");
         this.painter = this.create_painter();
         this.painter.paint(this.document);
 

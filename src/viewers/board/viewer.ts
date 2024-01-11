@@ -134,10 +134,7 @@ export class BoardViewer extends DocumentViewer<
     }
 
     findHighlightItem(pos: Vec2): CrossHightAble | null {
-        console.log(pos);
-
         for (const [, v] of this.pads) {
-            console.log(v.boundingBox);
             if (v.boundingBox.contains_point(pos)) {
                 return v;
             }

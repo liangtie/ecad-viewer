@@ -92,9 +92,6 @@ export class SchematicViewer extends DocumentViewer<
     }
 
     locateItemForCrossHight(idx: string): CrossHightAble | null {
-        console.log(idx);
-        console.log(this.libPins);
-
         return this.libPins.get(idx) ?? null;
     }
 

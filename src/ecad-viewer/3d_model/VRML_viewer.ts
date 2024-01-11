@@ -3,7 +3,7 @@ import * as THREE from "three";
 import Stats from "three/addons/libs/stats.module.js";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { VRMLLoader } from "three/addons/loaders/VRMLLoader.js";
+import { VRMLLoader } from "./kicad_vrml_loader";
 import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
 let camera: THREE.Object3D<THREE.Object3DEventMap>,
