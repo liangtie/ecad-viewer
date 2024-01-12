@@ -2,9 +2,8 @@ import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { VRMLLoader } from "./kicad_vrml_loader";
-import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
-let camera: THREE.Object3D<THREE.Object3DEventMap>,
+let camera: THREE.Camera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
     controls: OrbitControls,
@@ -14,7 +13,7 @@ const params = {
     asset: "DIP-8_W8.89mm_SMDSocket",
 };
 
-let vrmlScene: { traverse: (arg0: (object: any) => void) => void };
+let vrmlScene: THREE.Scene;
 
 export function init() {
     camera = new THREE.PerspectiveCamera(
@@ -45,7 +44,7 @@ export function init() {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     //FIXME -
-    renderer.setSize(246, 246);
+    // renderer.setSize(246, 246);
     document.body.appendChild(renderer.domElement);
 
     // controls
