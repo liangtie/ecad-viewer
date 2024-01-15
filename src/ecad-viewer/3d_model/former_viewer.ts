@@ -10,10 +10,12 @@ class VRMLViewer {
     private controls: OrbitControls;
     private loader: VRMLLoader;
 
-    public constructor() {}
+    public constructor() {
+        this.loader = new VRMLLoader();
 
+    }
 
-    public make_view(){
-        
+    public make_view() {
+        return this.renderer.domElement;
     }
 }
