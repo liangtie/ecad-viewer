@@ -5,23 +5,17 @@
 */
 
 import { later } from "../../base/async";
-import {
-    CSS,
-    attribute,
-    css,
-    html,
-} from "../../base/web-components";
+import { CSS, attribute, css, html } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
 import { Project } from "../project";
 import { FetchFileSystem, VirtualFileSystem } from "../services/vfs";
 import type { KCBoardAppElement } from "./kc-board/app";
-import type { KCSchematicAppElement } from "./kc-schematic/app";
 
 /**
  *
  */
-class KicadStandaloneBoard extends KCUIElement {
+class KicadStandAloneBoard extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -82,7 +76,6 @@ class KicadStandaloneBoard extends KCUIElement {
     @attribute({ type: String })
     zoom: "objects" | "page" | string | null;
 
-    #schematic_app: KCSchematicAppElement;
     #board_app: KCBoardAppElement;
 
     override initialContentCallback() {
@@ -99,11 +92,6 @@ class KicadStandaloneBoard extends KCUIElement {
 
         if (this.src) {
             sources.push(this.src);
-        }
-
-        if (sources.length == 0) {
-            console.warn("No valid sources specified");
-            return;
         }
 
         const vfs = new FetchFileSystem(sources);
@@ -131,14 +119,6 @@ class KicadStandaloneBoard extends KCUIElement {
             return html``;
         }
 
-        if (this.#project.has_schematics && !this.#schematic_app) {
-            this.#schematic_app = html`<kc-schematic-app
-                sidebarcollapsed
-                controls="${this.controls}"
-                controlslist="${this.controlslist}">
-            </kc-schematic-app>` as KCSchematicAppElement;
-        }
-
         if (this.#project.has_boards && !this.#board_app) {
             this.#board_app = html`<kc-board-app
                 sidebarcollapsed
@@ -146,38 +126,8 @@ class KicadStandaloneBoard extends KCUIElement {
                 controlslist="${this.controlslist}">
             </kc-board-app>` as KCBoardAppElement;
         }
-
-        // const focus_overlay =
-        //     (this.controls ?? "none") == "none" ||
-        //     this.controlslist?.includes("nooverlay")
-        //         ? null
-        //         : html`<kc-ui-focus-overlay></kc-ui-focus-overlay>`;
-        return html` ${this.#schematic_app} ${this.#board_app} `;
+        return html` ${this.#board_app} `;
     }
 }
 
-window.customElements.define("kicad-standalone-board", KicadStandaloneBoard);
-
-// class KiCanvasSourceElement extends CustomElement {
-//     constructor() {
-//         super();
-//         this.ariaHidden = "true";
-//         this.hidden = true;
-//         this.style.display = "none";
-//     }
-
-//     @attribute({ type: String })
-//     src: string | null;
-// }
-
-// window.customElements.define("kicanvas-source", KiCanvasSourceElement);
-
-// /* Import required fonts.
-//  * TODO: Package these up as part of KiCanvas
-//  */
-// document.body.appendChild(
-//     html`<link
-//         rel="stylesheet"
-//         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&family=Nunito:wght@300;400;500;600;700&display=swap"
-//         crossorigin="anonymous" />`,
-// );
+window.customElements.define("kicad-board-viewer", KicadStandAloneBoard);

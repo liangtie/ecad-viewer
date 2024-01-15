@@ -53,6 +53,26 @@ kicanvas-embed {
     margin-top: 1rem;
 }
 
+kicad-board-viewer {
+    display: block;
+    width: 246px;
+    height: 246px;
+    aspect-ratio: 1.414;
+    background-color: aqua;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+kicad-schematic-viewer {
+    display: block;
+    width: 246px;
+    height: 246px;
+    aspect-ratio: 1.414;
+    background-color: aqua;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
 kc-kicanvas-shell {
     width: 100%;
     height: 100vh;

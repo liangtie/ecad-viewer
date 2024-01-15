@@ -16,7 +16,7 @@ import type { KCSchematicAppElement } from "./kc-schematic/app";
 /**
  *
  */
-class KicadStandaloneSchematic extends KCUIElement {
+class KicadSchematicViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -141,31 +141,4 @@ class KicadStandaloneSchematic extends KCUIElement {
     }
 }
 
-window.customElements.define(
-    "kicad-standalone-schematic",
-    KicadStandaloneSchematic,
-);
-
-// class KiCanvasSourceElement extends CustomElement {
-//     constructor() {
-//         super();
-//         this.ariaHidden = "true";
-//         this.hidden = true;
-//         this.style.display = "none";
-//     }
-
-//     @attribute({ type: String })
-//     src: string | null;
-// }
-
-// window.customElements.define("kicanvas-source", KiCanvasSourceElement);
-
-// /* Import required fonts.
-//  * TODO: Package these up as part of KiCanvas
-//  */
-// document.body.appendChild(
-//     html`<link
-//         rel="stylesheet"
-//         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0&family=Nunito:wght@300;400;500;600;700&display=swap"
-//         crossorigin="anonymous" />`,
-// );
+window.customElements.define("kicad-schematic-viewer", KicadSchematicViewer);
