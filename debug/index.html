@@ -8,6 +8,11 @@
             .container {
                 display: flex;
             }
+            .canvas-container {
+                margin: 10px; /* Add some margin for spacing */
+                padding: 15px; /* Add padding for visual separation */
+                border: 1px solid #ccc; /* Add a border for visual distinction */
+            }
         </style>
         <link rel="stylesheet" href="./style.css" />
         <title>Horizontal Canvas Layout</title>
@@ -17,17 +22,25 @@
 
         <div class="container">
             <!-- Individual canvas containers within the container -->
-            <kicad-schematic-viewer
-                id="canvas1"
-                src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
-                controls="basic">
-            </kicad-schematic-viewer>
-            <kicad-board-viewer
-                id="canvas2"
-                src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"
-                controls="basic">
-            </kicad-board-viewer>
-            <vrml-viewer id="canvas3"></vrml-viewer>
+            <div class="canvas-container">
+                <kicad-schematic-viewer
+                    id="canvas1"
+                    src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
+                    controls="basic">
+                </kicad-schematic-viewer>
+            </div>
+
+            <div class="canvas-container">
+                <kicad-board-viewer
+                    id="canvas2"
+                    src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"
+                    controls="basic">
+                </kicad-board-viewer>
+            </div>
+
+            <div class="canvas-container">
+                <vrml-viewer id="canvas3"></vrml-viewer>
+            </div>
         </div>
     </body>
 
