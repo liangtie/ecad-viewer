@@ -9,8 +9,4 @@ import "./kicanvas/elements/kicanvas-shell";
 import "./kicanvas/elements/kicanvas-embed";
 import "./kicanvas/elements/kicad-board-viewer";
 import "./kicanvas/elements/kicad-schematic-viewer";
-
-import { init, animate } from "./ecad-viewer/3d_model/VRML_viewer";
-
-init();
-animate();
+import "./ecad-viewer/3d_model/former_viewer";

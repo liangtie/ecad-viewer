@@ -53,7 +53,8 @@ kicanvas-embed {
     margin-top: 1rem;
 }
 
-kicad-board-viewer {
+kicad-board-viewer,
+kicad-schematic-viewer {
     display: block;
     width: 246px;
     height: 246px;
@@ -63,12 +64,9 @@ kicad-board-viewer {
     margin-top: 1rem;
 }
 
-kicad-schematic-viewer {
-    display: block;
+vrml-viewer {
     width: 246px;
     height: 246px;
-    aspect-ratio: 1.414;
-    background-color: aqua;
     margin-bottom: 1rem;
     margin-top: 1rem;
 }
