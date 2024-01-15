@@ -7,7 +7,6 @@
 import { later } from "../../base/async";
 import {
     CSS,
-    CustomElement,
     attribute,
     css,
     html,

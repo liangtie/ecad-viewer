@@ -5,13 +5,7 @@
 */
 
 import { later } from "../../base/async";
-import {
-    CSS,
-    CustomElement,
-    attribute,
-    css,
-    html,
-} from "../../base/web-components";
+import { CSS, attribute, css, html } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
 import { Project } from "../project";
@@ -100,14 +94,6 @@ class KicadStandaloneSchematic extends KCUIElement {
 
         if (this.src) {
             sources.push(this.src);
-        }
-
-        for (const src_elm of this.querySelectorAll<KiCanvasSourceElement>(
-            "kicanvas-source",
-        )) {
-            if (src_elm.src) {
-                sources.push(src_elm.src);
-            }
         }
 
         if (sources.length == 0) {
