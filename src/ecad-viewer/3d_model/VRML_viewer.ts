@@ -6,6 +6,7 @@ import { VRMLLoader } from "./kicad_vrml_loader";
 import { CSS, css } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
+import { sqrt } from "three/examples/jsm/nodes/Nodes.js";
 
 class VRMLViewer extends KCUIElement {
     static override styles = [
@@ -84,19 +85,6 @@ class VRMLViewer extends KCUIElement {
         this.controls.maxDistance = 200;
         this.controls.enableDamping = true;
 
-        // window.addEventListener("resize", () => {
-        //     const widget = 246;
-
-        //     const height = 246;
-
-        //     this.camera.aspect = widget / height;
-        //     this.camera.updateProjectionMatrix();
-
-        //     this.renderer.setSize(widget, height);
-
-        //     console.log(`${window.innerHeight} ,  {window.innerWidth}`);
-        // });
-
         const do_animate = () => {
             requestAnimationFrame(do_animate);
             this.controls.update();
@@ -116,6 +104,16 @@ class VRMLViewer extends KCUIElement {
         this.loader.load(
             "vrml/" + asset + ".wrl",
             (object: any) => {
+                // console.log(typeof object);
+                const mesh2Bounds = new THREE.Box3().setFromObject(object);
+                const s_x = Math.sqrt(mesh2Bounds.max.x / window.innerWidth);
+                const s_y = Math.sqrt(mesh2Bounds.max.y / window.innerHeight);
+                const scale = s_x > s_y ? s_y : s_x;
+                console.log(scale);
+                // console.log(` ${mesh2Bounds.x} ${mesh2Bounds.y}  `);
+                // object.scale.set(scale, scale, scale);
+                console.log(`${JSON.stringify(mesh2Bounds)}  `);
+
                 this.vrmlScene = object;
                 this.scene.add(object);
                 this.controls.reset();

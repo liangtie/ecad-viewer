@@ -43,6 +43,8 @@ class VRMLLoader extends Loader {
         super(manager);
     }
 
+    private foundBackGround = false;
+
     override load(
         url: string,
         onLoad:
@@ -67,6 +69,15 @@ class VRMLLoader extends Loader {
         loader.load(
             url,
             function (text) {
+                text =
+                    text +
+                    `  Background {
+                    skyColor [ 1 1 1, 1 1 1, 1 1 1, 1 1 1, 1 1 1, 1 1 1 ]
+                    skyAngle [ 1.35, 1.4, 1.45, 1.5, 1.55 ]
+                    groundColor [ 1 1 1, 1 1 1, 1 1 1 ]
+                    groundAngle [ 1.3, 1.57 ]
+                  }
+                `;
                 try {
                     onLoad(scope.parse(text, path));
                 } catch (e) {
