@@ -3,79 +3,132 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { VRMLLoader } from "./kicad_vrml_loader";
 
-let camera: THREE.Camera,
-    scene: THREE.Scene,
-    renderer: THREE.WebGLRenderer,
-    controls: OrbitControls,
-    loader: VRMLLoader;
+import { CSS, css } from "../../base/web-components";
+import { KCUIElement } from "../../kc-ui";
+import kc_ui_styles from "../../kc-ui/kc-ui.css";
 
-const params = {
-    asset: "DIP-8_W8.89mm_SMDSocket",
-};
+class VRMLViewer extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        new CSS(kc_ui_styles),
+        css`
+            :host {
+                margin: 0;
+                display: flex;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                max-height: 100%;
+                max-width: 100%;
+                background-color: aqua;
+                color: var(--fg);
+            }
 
-let vrmlScene: THREE.Scene;
+            main {
+                display: contents;
+            }
 
-export function init() {
-    camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1e10,
-    );
-    camera.position.set(-10, 5, 10);
+            vrml-viewer,
+            canvas {
+                width: 100%;
+                height: 100%;
+                flex: 1;
+            }
+        `,
+    ];
 
-    scene = new THREE.Scene();
-    scene.add(camera);
+    private camera: THREE.Camera;
+    private scene: THREE.Scene;
+    private renderer: THREE.WebGLRenderer;
+    private controls: OrbitControls;
+    private loader: VRMLLoader;
+    private vrmlScene: THREE.Scene;
 
-    // light
+    public constructor() {
+        super();
+        this.camera = new THREE.PerspectiveCamera(
+            60,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1e10,
+        );
+        this.camera.position.set(-10, 5, 10);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-    scene.add(ambientLight);
+        this.scene = new THREE.Scene();
+        this.scene.add(this.camera);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
-    dirLight.position.set(200, 200, 200);
-    scene.add(dirLight);
+        // light
 
-    loader = new VRMLLoader();
-    loadAsset(params.asset);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        this.scene.add(ambientLight);
 
-    // renderer
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        dirLight.position.set(200, 200, 200);
+        this.scene.add(dirLight);
 
-    renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio(window.devicePixelRatio);
-    //FIXME -
-    // renderer.setSize(246, 246);
-    document.body.appendChild(renderer.domElement);
+        this.loader = new VRMLLoader();
+        this.loadAsset("DIP-8_W8.89mm_SMDSocket");
 
-    // controls
+        // renderer
 
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 1;
-    controls.maxDistance = 200;
-    controls.enableDamping = true;
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setPixelRatio(window.devicePixelRatio);
 
-    window.addEventListener("resize", onWindowResize);
+        // this.controls
+
+        this.controls = new OrbitControls(
+            this.camera,
+            this.renderer.domElement,
+        );
+        this.controls.minDistance = 1;
+        this.controls.maxDistance = 200;
+        this.controls.enableDamping = true;
+
+        // window.addEventListener("resize", () => {
+        //     const widget = 246;
+
+        //     const height = 246;
+
+        //     this.camera.aspect = widget / height;
+        //     this.camera.updateProjectionMatrix();
+
+        //     this.renderer.setSize(widget, height);
+
+        //     console.log(`${window.innerHeight} ,  {window.innerWidth}`);
+        // });
+
+        const do_animate = () => {
+            requestAnimationFrame(do_animate);
+            this.controls.update();
+            this.renderer.render(this.scene, this.camera);
+        };
+        do_animate();
+    }
+
+    public make_view() {
+        return this.renderer.domElement;
+    }
+    override render(): Element | DocumentFragment {
+        return this.renderer.domElement;
+    }
+
+    public loadAsset(asset: string) {
+        this.loader.load(
+            "vrml/" + asset + ".wrl",
+            (object: any) => {
+                this.vrmlScene = object;
+                this.scene.add(object);
+                this.controls.reset();
+            },
+            undefined,
+            undefined,
+        );
+    }
+
+    public updateControl() {
+        this.controls.update();
+        this.renderer.render(this.scene, this.camera);
+    }
 }
 
-function loadAsset(asset: string) {
-    loader.load("vrml/" + asset + ".wrl", function (object: any) {
-        vrmlScene = object;
-        scene.add(object);
-        controls.reset();
-    });
-}
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-export function animate() {
-    requestAnimationFrame(animate);
-
-    controls.update(); // to support damping
-
-    renderer.render(scene, camera);
-}
+window.customElements.define("vrml-viewer", VRMLViewer);
