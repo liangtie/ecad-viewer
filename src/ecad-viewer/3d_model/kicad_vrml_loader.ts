@@ -43,8 +43,6 @@ class VRMLLoader extends Loader {
         super(manager);
     }
 
-    private foundBackGround = false;
-
     override load(
         url: string,
         onLoad:
