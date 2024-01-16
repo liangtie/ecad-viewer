@@ -41,7 +41,7 @@ export enum LayerNames {
     anchors = ":Anchors",
     non_plated_holes = ":NonPlatedHoles",
     via_holes = ":Via:Holes",
-    pad_num = ":Pad:Num" ,
+    pad_num = ":Pad:Num",
     pad_holes = ":Pad:Holes",
     pad_holewalls = ":Pad:HoleWalls",
     via_holewalls = ":Via:HoleWalls",
