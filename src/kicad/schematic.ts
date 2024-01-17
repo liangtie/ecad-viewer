@@ -837,6 +837,7 @@ export class LibSymbol {
                     P.pair("offset", T.number),
                     P.atom("hide"),
                 ),
+                P.pair("exclude_from_sim", T.boolean),
                 P.pair("in_bom", T.boolean),
                 P.pair("on_board", T.boolean),
                 P.mapped_collection(

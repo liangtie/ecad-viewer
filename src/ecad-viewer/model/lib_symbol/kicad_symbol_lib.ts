@@ -135,6 +135,7 @@ export class KicadSymbolLib {
                 P.start("kicad_symbol_lib"),
                 P.pair("version", T.number),
                 P.pair("generator", T.string),
+                P.pair("generator_version", T.string),
                 P.collection("symbols", "symbol", T.item(LibSymbol, this)),
             ),
         );
