@@ -14,10 +14,8 @@ import {
     VirtualFileSystem,
 } from "../../kicanvas/services/vfs";
 import { KCBoardAppElement } from "../../kicanvas/elements/kc-board/app";
+import { ECadSource } from "../utils/ecad_source";
 
-/**
- *
- */
 class KicadFootprintViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
@@ -97,6 +95,24 @@ class KicadFootprintViewer extends KCUIElement {
             sources.push(this.src);
         }
 
+        for (const src_elm of this.querySelectorAll<ECadSource>(
+            "ecad-source",
+        )) {
+            if (src_elm.src) {
+                sources.push(src_elm.src);
+            }
+        }
+
+        if (sources.length == 0) {
+            console.warn("No valid sources specified");
+            return;
+        }
+
+        if (sources.length == 0) {
+            console.warn("No valid sources specified");
+            return;
+        }
+
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
     }
@@ -127,7 +143,7 @@ class KicadFootprintViewer extends KCUIElement {
                 sidebarcollapsed
                 controls="${this.controls}"
                 controlslist="${this.controlslist}">
-            </kc-board-app>` as KCBoardAppElement;
+            </kc-board-app> ` as KCBoardAppElement;
         }
         return html` ${this.#board_app} `;
     }

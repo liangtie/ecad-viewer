@@ -14,6 +14,7 @@ import {
     VirtualFileSystem,
 } from "../../kicanvas/services/vfs";
 import { KCSchematicAppElement } from "../../kicanvas/elements/kc-schematic/app";
+import { ECadSource } from "../utils/ecad_source";
 
 /**
  *
@@ -95,6 +96,19 @@ class KicadSymbolViewer extends KCUIElement {
 
         if (this.src) {
             sources.push(this.src);
+        }
+
+        for (const src_elm of this.querySelectorAll<ECadSource>(
+            "ecad-source",
+        )) {
+            if (src_elm.src) {
+                sources.push(src_elm.src);
+            }
+        }
+
+        if (sources.length == 0) {
+            console.warn("No valid sources specified");
+            return;
         }
 
         if (sources.length == 0) {

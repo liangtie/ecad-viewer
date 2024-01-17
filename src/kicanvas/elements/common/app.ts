@@ -5,7 +5,6 @@
 */
 
 import { DeferredPromise } from "../../../base/async";
-import type { IDisposable } from "../../../base/disposable";
 import { delegate, listen } from "../../../base/events";
 import { length } from "../../../base/iterator";
 import {
@@ -18,11 +17,9 @@ import {
     KCUIActivitySideBarElement,
     KCUIButtonElement,
     KCUIElement,
+    KCViewerBottomToolbarLeftElement,
 } from "../../../kc-ui";
-import {
-    KiCanvasSelectEvent,
-    KicadSyncHoverEvent,
-} from "../../../viewers/base/events";
+import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 import type { Project, ProjectPage } from "../../project";
 
@@ -191,60 +188,15 @@ export abstract class KCViewerAppElement<
 
     override render() {
         const controls = this.controls ?? "none";
-        const controlslist = parseFlagAttribute(
-            this.controlslist ?? "",
-            controls == "none"
-                ? { fullscreen: false, download: false }
-                : { fullscreen: true, download: true },
-        );
-
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
-
-        let resizer = null;
-
-        if (controls == "full") {
-            const pre_activities = this.make_pre_activities();
-            const post_activities = this.make_post_activities();
-            const activities = this.make_activities();
-            this.#activity_bar = html`<kc-ui-activity-side-bar
-                collapsed="${this.sidebarcollapsed}">
-                ${pre_activities} ${activities} ${post_activities}
-            </kc-ui-activity-side-bar>` as KCUIActivitySideBarElement;
-            resizer = html`<kc-ui-resizer></kc-ui-resizer>`;
-        } else {
-            // NO activity bar
-            this.#activity_bar = null;
-        }
-
-        const top_toolbar_buttons = [];
-
-        // if (controlslist["download"] && !this.#has_more_than_one_page()) {
-        //     top_toolbar_buttons.push(
-        //         html`<kc-ui-button
-        //             slot="right"
-        //             name="download"
-        //             title="download"
-        //             icon="download"
-        //             variant="toolbar-alt">
-        //         </kc-ui-button>`,
-        //     );
-        // }
-
-        const top_toolbar = html`<kc-ui-floating-toolbar location="top">
-            ${top_toolbar_buttons}
-        </kc-ui-floating-toolbar>`;
-
-        let bottom_toolbar = null;
-        if (controls != "none") {
-            bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
-        }
+        const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
 
         return html`<kc-ui-split-view vertical>
             <kc-ui-view class="grow">
-                ${top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
+                ${this.#viewer_elm} ${bottom_toolbar}
             </kc-ui-view>
-            ${resizer} ${this.#activity_bar}
+            ${this.#activity_bar}
         </kc-ui-split-view>`;
     }
 
