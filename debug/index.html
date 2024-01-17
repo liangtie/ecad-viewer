@@ -23,18 +23,25 @@
         <div class="container">
             <!-- Individual canvas containers within the container -->
             <div class="canvas-container">
+                <!-- For multiple parts , there will be a combobox -->
                 <kicad-schematic-viewer
                     id="canvas1"
                     src="ul_M24C02-WBN6P/muti_part.kicad_sym"
                     controls="basic">
                 </kicad-schematic-viewer>
             </div>
-
             <div class="canvas-container">
                 <kicad-board-viewer
                     id="canvas2"
                     src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"
                     controls="basic">
+                    <!-- Show different sizes of footprints -->
+                    <ecad-source
+                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"></ecad-source>
+                    <ecad-source
+                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-M.kicad_mod"></ecad-source>
+                    <ecad-source
+                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM.kicad_mod"></ecad-source>
                 </kicad-board-viewer>
             </div>
 

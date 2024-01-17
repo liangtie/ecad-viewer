@@ -5,8 +5,8 @@
 */
 
 import "./base/livereload";
+import "./ecad-viewer/utils/ecad_source";
 import "./kicanvas/elements/kicanvas-shell";
-import "./kicanvas/elements/kicanvas-embed";
-import "./kicanvas/elements/kicad-board-viewer";
-import "./kicanvas/elements/kicad-schematic-viewer";
+import "./ecad-viewer/view/kicad_footprint_viewer";
+import "./ecad-viewer/view/kicad_symbol_viewer";
 import "./ecad-viewer/view/vrml_viewer";
