@@ -9,13 +9,16 @@ import { CSS, attribute, css, html } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
 import { Project } from "../../kicanvas/project";
-import { FetchFileSystem, VirtualFileSystem } from "../../kicanvas/services/vfs";
-import type { KCBoardAppElement } from "../../kicanvas/elements/kc-board/app";
+import {
+    FetchFileSystem,
+    VirtualFileSystem,
+} from "../../kicanvas/services/vfs";
+import { KCBoardAppElement } from "../../kicanvas/elements/kc-board/app";
 
 /**
  *
  */
-class KicadStandAloneBoard extends KCUIElement {
+class KicadFootprintViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -130,4 +133,4 @@ class KicadStandAloneBoard extends KCUIElement {
     }
 }
 
-window.customElements.define("kicad-board-viewer", KicadStandAloneBoard);
+window.customElements.define("kicad-footprint-viewer", KicadFootprintViewer);

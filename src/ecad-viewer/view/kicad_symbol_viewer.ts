@@ -13,13 +13,12 @@ import {
     FetchFileSystem,
     VirtualFileSystem,
 } from "../../kicanvas/services/vfs";
-import type { KCBoardAppElement } from "../../kicanvas/elements/kc-board/app";
-import type { KCSchematicAppElement } from "../../kicanvas/elements/kc-schematic/app";
+import { KCSchematicAppElement } from "../../kicanvas/elements/kc-schematic/app";
 
 /**
  *
  */
-class KicadSchematicViewer extends KCUIElement {
+class KicadSymbolViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -81,7 +80,6 @@ class KicadSchematicViewer extends KCUIElement {
     zoom: "objects" | "page" | string | null;
 
     #schematic_app: KCSchematicAppElement;
-    #board_app: KCBoardAppElement;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -140,8 +138,8 @@ class KicadSchematicViewer extends KCUIElement {
         //     this.controlslist?.includes("nooverlay")
         //         ? null
         //         : html`<kc-ui-focus-overlay></kc-ui-focus-overlay>`;
-        return html` ${this.#schematic_app} ${this.#board_app} `;
+        return html` ${this.#schematic_app}`;
     }
 }
 
-window.customElements.define("kicad-schematic-viewer", KicadSchematicViewer);
+window.customElements.define("kicad-symbol-viewer", KicadSymbolViewer);
