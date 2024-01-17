@@ -1,5 +1,5 @@
-import { Arc, BBox, Vec2 } from "../../base/math";
-import { P, parse_expr, T, type Parseable } from "../../kicad/parser";
+import { Arc, BBox, Vec2 } from "../../../base/math";
+import { P, parse_expr, T, type Parseable } from "../../../kicad/parser";
 import {
     Bezier,
     KicadSch,
@@ -8,8 +8,8 @@ import {
     TextBox,
     Circle,
     Polyline,
-} from "../../kicad/schematic";
-import type { Project } from "../../kicanvas/project";
+} from "../../../kicad/schematic";
+import type { Project } from "../../../kicanvas/project";
 
 import { calculateBoundingBox } from "./baz";
 

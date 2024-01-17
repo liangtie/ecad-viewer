@@ -6,7 +6,7 @@
 
 import { Color } from "../../base/color";
 import { is_string } from "../../base/types";
-import type { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
+import type { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { KicadPCB, type BoardTheme } from "../../kicad";
 import {
     ViewLayerNames as BaseLayerNames,

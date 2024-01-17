@@ -1,7 +1,7 @@
-import { Footprint, KicadPCB, Layer } from "../../kicad/board";
-import { At } from "../../kicad/common";
-import type { Parseable } from "../../kicad/parser";
-import type { Project } from "../../kicanvas/project";
+import { Footprint, KicadPCB, Layer } from "../../../kicad/board";
+import { At } from "../../../kicad/common";
+import type { Parseable } from "../../../kicad/parser";
+import type { Project } from "../../../kicanvas/project";
 
 export class KicadFootprint extends Footprint {
     project?: Project;

@@ -16,7 +16,7 @@ import "./viewer";
 import type { ProjectPage } from "../../project";
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
-import { KicadSymbolLib } from "../../../ecad-viewer/lib_symbol/kicad_symbol_lib";
+import { KicadSymbolLib } from "../../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles

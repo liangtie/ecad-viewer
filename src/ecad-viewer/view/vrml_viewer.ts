@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { VRMLLoader } from "./kicad_vrml_loader";
+import { VRMLLoader } from "../model/3d_model/kicad_vrml_loader";
 
 import { CSS, css } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";

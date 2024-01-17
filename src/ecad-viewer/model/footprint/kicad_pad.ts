@@ -1,5 +1,5 @@
-import { Footprint, Pad } from "../../kicad/board";
-import type { Parseable } from "../../kicad/parser";
+import { Footprint, Pad } from "../../../kicad/board";
+import type { Parseable } from "../../../kicad/parser";
 
 export class KicadPad extends Pad {
     public constructor(

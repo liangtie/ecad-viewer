@@ -21,7 +21,7 @@ import "./nets-panel";
 import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
-import { KicadFootprint } from "../../../ecad-viewer/footprint/kicad_footprint";
+import { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles

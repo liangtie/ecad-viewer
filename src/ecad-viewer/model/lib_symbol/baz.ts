@@ -1,4 +1,4 @@
-import { Vec2 } from "../../base/math";
+import { Vec2 } from "../../../base/math";
 
 // Bezier curve calculation function
 function bezier(t: number, p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2): Vec2 {

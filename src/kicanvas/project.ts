@@ -10,8 +10,8 @@ import { type IDisposable } from "../base/disposable";
 import { first, length, map } from "../base/iterator";
 import { Logger } from "../base/log";
 import { is_string, type Constructor } from "../base/types";
-import { KicadFootprint } from "../ecad-viewer/footprint/kicad_footprint";
-import { KicadSymbolLib } from "../ecad-viewer/lib_symbol/kicad_symbol_lib";
+import { KicadFootprint } from "../ecad-viewer/model/footprint/kicad_footprint";
+import { KicadSymbolLib } from "../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
 import type {
     SchematicSheet,

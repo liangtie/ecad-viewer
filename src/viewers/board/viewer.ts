@@ -6,7 +6,7 @@
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
-import { KicadFootprint } from "../../ecad-viewer/footprint/kicad_footprint";
+import { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";

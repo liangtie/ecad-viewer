@@ -1,5 +1,5 @@
-import type { Parseable } from "../../kicad/parser";
-import { LibSymbol, PinDefinition } from "../../kicad/schematic";
+import type { Parseable } from "../../../kicad/parser";
+import { LibSymbol, PinDefinition } from "../../../kicad/schematic";
 
 export class KicadPin extends PinDefinition {
     constructor(

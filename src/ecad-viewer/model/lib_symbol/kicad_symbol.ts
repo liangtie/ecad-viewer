@@ -1,6 +1,6 @@
-import type { Parseable } from "../../kicad/parser";
-import { LibSymbol } from "../../kicad/schematic";
-import type { Project } from "../../kicanvas/project";
+import type { Parseable } from "../../../kicad/parser";
+import { LibSymbol } from "../../../kicad/schematic";
+import type { Project } from "../../../kicanvas/project";
 
 export class KicadSymbol extends LibSymbol {
     project?: Project;

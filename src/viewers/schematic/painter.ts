@@ -5,7 +5,7 @@
 */
 
 import { Angle, BBox, Arc as MathArc, Matrix3, Vec2 } from "../../base/math";
-import { KicadSymbolLib } from "../../ecad-viewer/lib_symbol/kicad_symbol_lib";
+import { KicadSymbolLib } from "../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import {
     Arc,
     Circle,
