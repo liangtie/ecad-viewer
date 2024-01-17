@@ -100,8 +100,11 @@ class KicadSymbolLibPainter extends SchematicItemPainter {
     }
 
     paint(layer: ViewLayer, pl: KicadSymbolLib) {
+        console.log(pl.symbols.length);
+
         for (const g of pl.symbols) {
             this.view_painter.paint_item(layer, g);
+            break;
         }
     }
 }

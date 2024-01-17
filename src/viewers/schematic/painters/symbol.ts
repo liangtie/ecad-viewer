@@ -43,6 +43,11 @@ export class LibSymbolPainter extends SchematicItemPainter {
 
         const si = this.view_painter.current_symbol;
 
+        console.log(s.units.size);
+
+        console.log(s.units.keys());
+        console.log(s.unit_count);
+
         const symbol_unit = s.units.get(si?.unit || 1);
 
         if (symbol_unit) {
