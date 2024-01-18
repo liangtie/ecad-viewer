@@ -22,6 +22,7 @@ import {
 import type { KicadPCB, KicadSch } from "../../../kicad";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
+import { SchematicViewer } from "../../../viewers/schematic/viewer";
 import type { Project } from "../../project";
 
 // import dependent elements so they're registered before use.
@@ -61,9 +62,6 @@ export abstract class KCViewerAppElement<
     constructor() {
         super();
         this.provideLazyContext("viewer", () => this.viewer);
-        this.addEventListener("alter_source_available", (e) => {
-            this.select.addSelections(e.detail);
-        });
     }
 
     get viewer() {
@@ -81,13 +79,16 @@ export abstract class KCViewerAppElement<
 
     abstract apply_alter_src(idx: SourceSelection): void;
 
+    public init_alter_source(src: string[]) {
+        this.select.addSelections(src);
+    }
+
     override connectedCallback() {
         this.hidden = true;
         (async () => {
             this.project = await this.requestContext("project");
             await this.project.loaded;
             super.connectedCallback();
-
             this.select.addSelections(
                 await this.requestContext("alter_source"),
             );
@@ -160,6 +161,13 @@ export abstract class KCViewerAppElement<
         } else {
             this.hidden = true;
         }
+
+        if (this.#viewer_elm.viewer instanceof SchematicViewer)
+            this.select.addSelections(
+                (this.#viewer_elm.viewer as SchematicViewer)
+                    .alter_footprint_parts,
+            );
+
     }
 
     #has_more_than_one_page() {

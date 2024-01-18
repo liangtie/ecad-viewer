@@ -120,6 +120,24 @@ export class KicadSymbolLib {
     public uuid;
     public version?: number;
     public generator?: string;
+
+    private _active_unit_index: number = 0;
+
+    public get alter_symbol_parts() {
+        if (this.symbols.length) {
+            return this.symbols[0]!.unit_count;
+        }
+        return 1;
+    }
+
+    public get active_unit_index() {
+        return this._active_unit_index;
+    }
+
+    public set_active_unit_index(a: number) {
+        this._active_unit_index = a;
+    }
+
     #symbols_by_name: Map<string, LibSymbol> = new Map();
 
     symbols: LibSymbol[];

@@ -10,6 +10,7 @@ import type { HighlightAble } from "../base/highlightable";
 import type { IndexAble } from "../base/index_able";
 import * as log from "../base/log";
 import { BBox, Arc as MathArc, Vec2 } from "../base/math";
+import type { KicadSymbolLib } from "../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import type { Project } from "../kicanvas/project";
 import {
     At,
@@ -131,65 +132,6 @@ export class KicadSch {
                 P.collection("sheets", "sheet", T.item(SchematicSheet, this)),
             ),
         );
-
-        this.update_hierarchical_data();
-    }
-
-    update_hierarchical_data(path?: string) {
-        // Assigns SchematicSymbol properties based on data in symbol_instances,
-        // used for differing values in hierarchical sheet instances.
-        // See SCH_SHEET_LIST::UpdateSymbolInstanceData
-        path ??= ``;
-
-        const root_symbol_instances = (
-            this.project?.root_schematic_page?.document as KicadSch
-        )?.symbol_instances;
-        const global_symbol_instances = this.symbol_instances;
-
-        for (const s of this.symbols.values()) {
-            const symbol_path = `${path}/${s.uuid}`;
-            const instance_data =
-                root_symbol_instances?.get(symbol_path) ??
-                global_symbol_instances?.get(symbol_path) ??
-                s.instances.get(path);
-
-            if (!instance_data) {
-                continue;
-            }
-
-            s.reference = instance_data.reference ?? s.reference;
-            s.value = instance_data.value ?? s.value;
-            s.footprint = instance_data.footprint ?? s.footprint;
-            s.unit = instance_data.unit ?? s.unit;
-        }
-
-        // See SCH_SHEET_LIST::UpdateSheetInstanceData
-        const root_sheet_instances = (
-            this.project?.root_schematic_page?.document as KicadSch
-        )?.sheet_instances;
-        const global_sheet_instances = this.sheet_instances;
-
-        for (const s of this.sheets) {
-            const sheet_path = `${path}/${s.uuid}`;
-            const instance_data =
-                root_sheet_instances?.get(sheet_path) ??
-                global_sheet_instances?.get(sheet_path) ??
-                s.instances.get(path);
-
-            if (!instance_data) {
-                continue;
-            }
-
-            s.page = instance_data.page;
-            s.path = instance_data.path;
-
-            if (!s.instances.size) {
-                const inst = new SchematicSheetInstance();
-                inst.page = instance_data.page;
-                inst.path = instance_data.path;
-                s.instances.set("", inst);
-            }
-        }
     }
 
     *items() {
@@ -821,8 +763,9 @@ export class LibSymbol {
 
     constructor(
         expr: Parseable,
-        public parent?: LibSymbol | KicadSch,
+        public parent: LibSymbol | KicadSch | KicadSymbolLib,
     ) {
+        console.log(parent);
         Object.assign(
             this,
             parse_expr(

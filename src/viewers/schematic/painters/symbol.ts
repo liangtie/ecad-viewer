@@ -5,6 +5,7 @@
 */
 
 import { BBox, Matrix3, Vec2 } from "../../../base/math";
+import { KicadSymbolLib } from "../../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import { NullRenderer } from "../../../graphics/null-renderer";
 import type { SchematicTheme } from "../../../kicad";
 import * as schematic_items from "../../../kicad/schematic";
@@ -41,11 +42,19 @@ export class LibSymbolPainter extends SchematicItemPainter {
             this.#paint_unit(layer, common_unit, body_style);
         }
 
-        const si = this.view_painter.current_symbol;
-        const symbol_unit = s.units.get(si?.unit || 1);
+        if (s.parent instanceof KicadSymbolLib) {
+            const symbol_unit = s.units.get(s.parent.active_unit_index + 1);
 
-        if (symbol_unit) {
-            this.#paint_unit(layer, symbol_unit, body_style);
+            if (symbol_unit) {
+                this.#paint_unit(layer, symbol_unit, body_style);
+            }
+        } else {
+            const si = this.view_painter.current_symbol;
+            const symbol_unit = s.units.get(si?.unit || 1);
+
+            if (symbol_unit) {
+                this.#paint_unit(layer, symbol_unit, body_style);
+            }
         }
     }
 

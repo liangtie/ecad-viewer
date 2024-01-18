@@ -29,7 +29,15 @@ export class SchematicViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
+    private _alter_footprint_parts: string[] = [];
+
+    public get alter_footprint_parts() {
+        return this._alter_footprint_parts;
+    }
+
     private libPins: Map<string, LibSymbolPin> = new Map();
+
+    private _symbolLib?: KicadSymbolLib;
 
     get schematic(): KicadSch | KicadSymbolLib {
         return this.document;
@@ -50,6 +58,16 @@ export class SchematicViewer extends DocumentViewer<
         for (const c of lib.children) this.build_libPins(c);
     }
 
+    set_active_part_unit(idx: number) {
+        if (this._symbolLib) {
+            if (this._symbolLib.active_unit_index != idx) {
+                this._symbolLib.set_active_unit_index(idx);
+                this.paint();
+                this.draw();
+            }
+        }
+    }
+
     override async load(src: KicadSch | KicadSymbolLib) {
         if (src instanceof KicadSch) {
             return await super.load(src);
@@ -58,19 +76,14 @@ export class SchematicViewer extends DocumentViewer<
         this.libPins = new Map();
 
         if (src instanceof KicadSymbolLib) {
+            this._symbolLib = src;
             for (const i of src.items()) {
                 this.build_libPins(i);
             }
-
-            const e = document.getElementsByTagName("kicad-symbol-viewer");
-            if (e.length) {
-                const v = e[0];
-                v?.dispatchEvent(
-                    new CustomEvent("alter_source_available", {
-                        detail: ["A", "B", "C"],
-                    }),
+            for (let i = 0; i < src.alter_symbol_parts; i++)
+                this._alter_footprint_parts.push(
+                    `Part ${String.fromCharCode(0x41 + i)}`,
                 );
-            }
         }
 
         this.document = null!;

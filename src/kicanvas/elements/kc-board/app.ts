@@ -43,7 +43,7 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
         return src instanceof KicadPCB || src instanceof KicadFootprint;
     }
 
-    apply_alter_src(idx: SourceSelection) {
+    override apply_alter_src(idx: SourceSelection) {
         const fn = this.project.filesByIndex.get(idx.name);
 
         if (fn) {
