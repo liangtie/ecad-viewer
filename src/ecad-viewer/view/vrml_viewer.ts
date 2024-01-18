@@ -3,10 +3,15 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { VRMLLoader } from "../model/3d_model/kicad_vrml_loader";
 
-import { CSS, css } from "../../base/web-components";
+import { CSS, attribute, css } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
+import type { ECadSource } from "../utils/ecad_source";
+
 class VRMLViewer extends KCUIElement {
+    @attribute({ type: String })
+    src: string | null;
+
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -66,7 +71,7 @@ class VRMLViewer extends KCUIElement {
         this.scene.add(dirLight);
 
         this.loader = new VRMLLoader();
-        this.loadAsset("DIP-8_W8.89mm_SMDSocket");
+        this.loadAsset();
 
         // renderer
 
@@ -98,17 +103,41 @@ class VRMLViewer extends KCUIElement {
         return this.renderer.domElement;
     }
 
-    public loadAsset(asset: string) {
-        this.loader.load(
-            "vrml/" + asset + ".wrl",
-            (object: any) => {
-                this.vrmlScene = object;
-                this.scene.add(object);
-                this.controls.reset();
-            },
-            undefined,
-            undefined,
-        );
+    public loadAsset() {
+        const sources = [];
+        if (this.src) {
+            sources.push(this.src);
+        }
+
+        for (const src_elm of this.querySelectorAll<ECadSource>(
+            "ecad-source",
+        )) {
+            if (src_elm.src) {
+                sources.push(src_elm.src);
+            }
+        }
+
+        if (sources.length == 0) {
+            console.warn("No valid sources specified");
+            return;
+        }
+
+        if (sources.length == 0) {
+            console.warn("No valid sources specified");
+            return;
+        }
+
+        if (sources.length)
+            this.loader.load(
+                sources[0]!,
+                (object: any) => {
+                    this.vrmlScene = object;
+                    this.scene.add(object);
+                    this.controls.reset();
+                },
+                undefined,
+                undefined,
+            );
     }
 
     public updateControl() {
