@@ -115,6 +115,8 @@ class KicadSymbolViewer extends KCUIElement {
             return;
         }
 
+        this.provideContext("alter_source", []);
+
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
     }

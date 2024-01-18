@@ -92,13 +92,6 @@ export abstract class KCViewerAppElement<
             this.select.addSelections(
                 await this.requestContext("alter_source"),
             );
-
-            this.select.select.addEventListener("change", (e) => {
-                this.apply_alter_src({
-                    idx: this.select.select.selectedIndex,
-                    name: this.select.select.value,
-                });
-            });
         })();
     }
 
@@ -122,6 +115,13 @@ export abstract class KCViewerAppElement<
                 }
             }),
         );
+
+        this.select.select.addEventListener("change", (e) => {
+            this.apply_alter_src({
+                idx: this.select.select.selectedIndex,
+                name: this.select.select.value,
+            });
+        });
 
         // Handle item selection in the viewers.
         this.addDisposable(
@@ -167,7 +167,6 @@ export abstract class KCViewerAppElement<
                 (this.#viewer_elm.viewer as SchematicViewer)
                     .alter_footprint_parts,
             );
-
     }
 
     #has_more_than_one_page() {
