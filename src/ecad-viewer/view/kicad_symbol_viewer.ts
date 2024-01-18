@@ -89,11 +89,14 @@ class KicadSymbolViewer extends KCUIElement {
         });
     }
 
-    async #setup_events() {}
+    async #setup_events() {
+        this.addEventListener("alter_source_changed", (e) => [
+            this.#schematic_app.viewer.canvas,
+        ]);
+    }
 
     async #load_src() {
         const sources = [];
-
         if (this.src) {
             sources.push(this.src);
         }
@@ -115,7 +118,14 @@ class KicadSymbolViewer extends KCUIElement {
             console.warn("No valid sources specified");
             return;
         }
-        this.provideContext("alter_source", sources);
+
+        const fn: string[] = [];
+
+        for (const p of sources) {
+            const ps = p.split("/");
+            if (ps.length) fn.push(ps[ps.length - 1]!);
+        }
+        this.provideContext("alter_source", fn);
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
     }
@@ -130,7 +140,7 @@ class KicadSymbolViewer extends KCUIElement {
             this.loaded = true;
             await this.update();
 
-            this.#project.set_active_page(this.#project.root_schematic_page!);
+            this.#project.set_active_page(this.#project.active_page_name);
         } finally {
             this.loading = false;
         }

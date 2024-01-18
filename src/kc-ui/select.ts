@@ -23,10 +23,6 @@ export class KCUISelectElement extends KCUIElement {
                 align-items: center;
                 justify-content: center;
             }
-
-            select {
-                margin-right: 20px;
-            }
         `,
     ];
 

@@ -10,8 +10,8 @@ import { KCUIElement } from "../../../kc-ui";
 import { KiCanvasLoadEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 import { Preferences, WithPreferences } from "../../preferences";
-import type { ProjectPage } from "../../project";
 import themes from "../../themes";
+import type { KicadAssert } from "./app";
 
 /**
  * Basic element for wiring up a Viewer to the DOM.
@@ -76,9 +76,9 @@ export abstract class KCViewerElement<
 
     protected abstract make_viewer(): ViewerT;
 
-    async load(src: ProjectPage) {
+    override async load(src: KicadAssert) {
         this.loaded = false;
-        await this.viewer.load(src.document);
+        await this.viewer.load(src);
     }
 
     override render() {

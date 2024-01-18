@@ -139,7 +139,7 @@ class KicadFootprintViewer extends KCUIElement {
             this.loaded = true;
             await this.update();
 
-            this.#project.set_active_page(this.#project.root_schematic_page!);
+            this.#project.set_active_page(this.#project.active_page_name!);
         } finally {
             this.loading = false;
         }
@@ -157,7 +157,6 @@ class KicadFootprintViewer extends KCUIElement {
                 controlslist="${this.controlslist}">
             </kc-board-app> ` as KCBoardAppElement;
         }
-
 
         return html` ${this.#board_app}`;
     }

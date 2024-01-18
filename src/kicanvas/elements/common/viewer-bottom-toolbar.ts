@@ -5,11 +5,7 @@
 */
 
 import { css, html } from "../../../base/web-components";
-import {
-    KCUIElement,
-    type KCUISelectElement,
-    type KCUIButtonElement,
-} from "../../../kc-ui";
+import { KCUIElement, type KCUIButtonElement } from "../../../kc-ui";
 import { KiCanvasMouseMoveEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 

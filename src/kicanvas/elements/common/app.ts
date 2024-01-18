@@ -12,14 +12,17 @@ import {
     html,
     type ElementOrFragment,
 } from "../../../base/web-components";
+import type { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
+import type { KicadSymbolLib } from "../../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import {
     KCUIActivitySideBarElement,
     KCUISelectElement,
     KCUIElement,
 } from "../../../kc-ui";
+import type { KicadPCB, KicadSch } from "../../../kicad";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
-import type { Project, ProjectPage } from "../../project";
+import type { Project } from "../../project";
 
 // import dependent elements so they're registered before use.
 import "./help-panel";
@@ -27,10 +30,17 @@ import "./preferences-panel";
 import "./project-panel";
 import "./viewer-bottom-toolbar";
 
+export type KicadAssert = KicadSymbolLib | KicadFootprint | KicadPCB | KicadSch;
+
 interface ViewerElement extends HTMLElement {
     viewer: Viewer;
-    load(src: ProjectPage): Promise<void>;
+    load(src: KicadAssert): Promise<void>;
     disableinteraction: boolean;
+}
+
+export interface SourceSelection {
+    idx: number;
+    name: string;
 }
 
 /**
@@ -51,6 +61,9 @@ export abstract class KCViewerAppElement<
     constructor() {
         super();
         this.provideLazyContext("viewer", () => this.viewer);
+        this.addEventListener("alter_source_available", (e) => {
+            this.select.addSelections(e.detail);
+        });
     }
 
     get viewer() {
@@ -66,6 +79,8 @@ export abstract class KCViewerAppElement<
     @attribute({ type: Boolean })
     sidebarcollapsed: boolean;
 
+    abstract apply_alter_src(idx: SourceSelection): void;
+
     override connectedCallback() {
         this.hidden = true;
         (async () => {
@@ -78,32 +93,27 @@ export abstract class KCViewerAppElement<
             );
 
             this.select.select.addEventListener("change", (e) => {
-                // this.viewer.changeAlternativeSource({
-                //     idx: this.select.select.selectedIndex,
-                //     name: this.select.select.value,
-                // });
-
-                const evt = new CustomEvent("alter_src_changed",{
-                    
-                })
-
-
-
+                this.apply_alter_src({
+                    idx: this.select.select.selectedIndex,
+                    name: this.select.select.value,
+                });
             });
         })();
     }
 
     override initialContentCallback() {
         // If the project already has an active page, load it.
-        if (this.project.active_page) {
-            this.load(this.project.active_page!);
+        if (this.project.first_page) {
+            this.load(this.project.first_page!);
         }
 
         // Listen for changes to the project's active page and load or hide
         // as needed.
         this.addDisposable(
             listen(this.project, "change", async (e) => {
-                const page = this.project.active_page;
+                const page = this.project.page_by_path(
+                    this.project.active_page_name,
+                );
                 if (page) {
                     await this.load(page);
                 } else {
@@ -125,10 +135,8 @@ export abstract class KCViewerAppElement<
             console.log("button", target);
             switch (target.name) {
                 case "download":
-                    if (this.project.active_page) {
-                        this.project.download(
-                            this.project.active_page.filename,
-                        );
+                    if (this.project.active_page_name) {
+                        this.project.download(this.project.active_page_name);
                     }
                     break;
                 default:
@@ -142,9 +150,9 @@ export abstract class KCViewerAppElement<
         previous?: unknown,
     ): void;
 
-    protected abstract can_load(src: ProjectPage): boolean;
+    protected abstract can_load(src: KicadAssert): boolean;
 
-    async load(src: ProjectPage) {
+    override async load(src: KicadAssert) {
         await this.viewerReady;
         if (this.can_load(src)) {
             await this.#viewer_elm.load(src);

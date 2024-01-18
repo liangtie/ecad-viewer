@@ -6,8 +6,11 @@
 
 import { html } from "../../../base/web-components";
 import { KicadPCB } from "../../../kicad";
-import type { ProjectPage } from "../../project";
-import { KCViewerAppElement } from "../common/app";
+import {
+    KCViewerAppElement,
+    type KicadAssert,
+    type SourceSelection,
+} from "../common/app";
 import { KCBoardViewerElement } from "./viewer";
 
 // import dependent elements so they're registered before use.
@@ -36,11 +39,16 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
         }
     }
 
-    override can_load(src: ProjectPage): boolean {
-        return (
-            src.document instanceof KicadPCB ||
-            src.document instanceof KicadFootprint
-        );
+    override can_load(src: KicadAssert): boolean {
+        return src instanceof KicadPCB || src instanceof KicadFootprint;
+    }
+
+    apply_alter_src(idx: SourceSelection) {
+        const fn = this.project.filesByIndex.get(idx.name);
+
+        if (fn) {
+            this.project.set_active_page(idx.name);
+        }
     }
 
     override make_viewer_element(): KCBoardViewerElement {

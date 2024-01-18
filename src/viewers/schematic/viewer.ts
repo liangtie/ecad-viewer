@@ -19,9 +19,7 @@ import {
     SchematicSheet,
     SchematicSymbol,
 } from "../../kicad/schematic";
-import { ProjectPage } from "../../kicanvas/project";
 import { DocumentViewer } from "../base/document-viewer";
-import type { SourceSelection } from "../base/viewer";
 import { LayerSet } from "./layers";
 import { SchematicPainter } from "./painter";
 
@@ -52,7 +50,7 @@ export class SchematicViewer extends DocumentViewer<
         for (const c of lib.children) this.build_libPins(c);
     }
 
-    override async load(src: KicadSch | KicadSymbolLib | ProjectPage) {
+    override async load(src: KicadSch | KicadSymbolLib) {
         if (src instanceof KicadSch) {
             return await super.load(src);
         }
@@ -63,17 +61,20 @@ export class SchematicViewer extends DocumentViewer<
             for (const i of src.items()) {
                 this.build_libPins(i);
             }
+
+            const e = document.getElementsByTagName("kicad-symbol-viewer");
+            if (e.length) {
+                const v = e[0];
+                v?.dispatchEvent(
+                    new CustomEvent("alter_source_available", {
+                        detail: ["A", "B", "C"],
+                    }),
+                );
+            }
         }
 
         this.document = null!;
-
-        if (src instanceof ProjectPage) {
-            const doc = src.document;
-            if (doc instanceof KicadSch)
-                doc.update_hierarchical_data(src.sheet_path);
-
-            if (doc instanceof KicadSch) return await super.load(doc);
-        } else return await super.load(src);
+        return await super.load(src);
     }
 
     protected override create_painter() {
