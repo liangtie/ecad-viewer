@@ -113,6 +113,18 @@ class KicadFootprintViewer extends KCUIElement {
             return;
         }
 
+        this.addEventListener("alter_source_changed", (e) => {
+            console.log(e);
+        });
+
+        const fn: string[] = [];
+
+        for (const p of sources) {
+            const ps = p.split("/");
+            if (ps.length) fn.push(ps[ps.length - 1]!);
+        }
+        this.provideContext("alter_source", fn);
+
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
     }
@@ -145,7 +157,9 @@ class KicadFootprintViewer extends KCUIElement {
                 controlslist="${this.controlslist}">
             </kc-board-app> ` as KCBoardAppElement;
         }
-        return html` ${this.#board_app} `;
+
+
+        return html` ${this.#board_app}`;
     }
 }
 

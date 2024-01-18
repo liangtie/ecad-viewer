@@ -22,6 +22,11 @@ import type { CrossHightAble } from "../../base/cross_highlight_able";
 
 const ViewerMaps: Viewer[] = [];
 
+export interface SourceSelection {
+    idx: number;
+    name: string;
+}
+
 export abstract class Viewer extends EventTarget {
     public renderer: Renderer;
     public viewport: Viewport;

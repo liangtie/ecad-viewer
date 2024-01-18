@@ -31,7 +31,6 @@ export class BoardViewer extends DocumentViewer<
         if (src instanceof KicadFootprint) {
             for (const v of src.pads) this.pads.set(v.index, v);
         }
-
         await super.load(src);
     }
 

@@ -12,12 +12,10 @@ import {
     html,
     type ElementOrFragment,
 } from "../../../base/web-components";
-import { parseFlagAttribute } from "../../../base/web-components/flag-attribute";
 import {
     KCUIActivitySideBarElement,
-    KCUIButtonElement,
+    KCUISelectElement,
     KCUIElement,
-    KCViewerBottomToolbarLeftElement,
 } from "../../../kc-ui";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
@@ -42,6 +40,9 @@ export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
     #viewer_elm: ViewerElementT;
+    select: KCUISelectElement = html`<kc-ui-select slot="right">
+    </kc-ui-select> ` as KCUISelectElement;
+
     #activity_bar: KCUIActivitySideBarElement | null;
 
     project: Project;
@@ -71,6 +72,24 @@ export abstract class KCViewerAppElement<
             this.project = await this.requestContext("project");
             await this.project.loaded;
             super.connectedCallback();
+
+            this.select.addSelections(
+                await this.requestContext("alter_source"),
+            );
+
+            this.select.select.addEventListener("change", (e) => {
+                // this.viewer.changeAlternativeSource({
+                //     idx: this.select.select.selectedIndex,
+                //     name: this.select.select.value,
+                // });
+
+                const evt = new CustomEvent("alter_src_changed",{
+                    
+                })
+
+
+
+            });
         })();
     }
 
@@ -102,7 +121,7 @@ export abstract class KCViewerAppElement<
 
         // Handle download button.
         delegate(this.renderRoot, "kc-ui-button", "click", (e) => {
-            const target = e.target as KCUIButtonElement;
+            const target = e.target as KCUISelectElement;
             console.log("button", target);
             switch (target.name) {
                 case "download":
@@ -191,10 +210,13 @@ export abstract class KCViewerAppElement<
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
         const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
+        const top_toolbar = html`<kc-ui-floating-toolbar location="top">
+            ${this.select}
+        </kc-ui-floating-toolbar>`;
 
         return html`<kc-ui-split-view vertical>
             <kc-ui-view class="grow">
-                ${this.#viewer_elm} ${bottom_toolbar}
+                ${top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
             </kc-ui-view>
             ${this.#activity_bar}
         </kc-ui-split-view>`;

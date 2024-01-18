@@ -5,7 +5,11 @@
 */
 
 import { css, html } from "../../../base/web-components";
-import { KCUIElement, type KCUIButtonElement } from "../../../kc-ui";
+import {
+    KCUIElement,
+    type KCUISelectElement,
+    type KCUIButtonElement,
+} from "../../../kc-ui";
 import { KiCanvasMouseMoveEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 
@@ -55,10 +59,12 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
                 e.preventDefault();
                 this.viewer.zoom_fit_top_item();
             });
+
             this.#zoom_in.addEventListener("click", (e) => {
                 e.preventDefault();
                 this.viewer.zoom_in();
             });
+
             this.#zoom_out.addEventListener("click", (e) => {
                 e.preventDefault();
                 this.viewer.zoom_out();
@@ -103,7 +109,6 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
         </kc-ui-button>` as KCUIButtonElement;
 
         this.update_position();
-
         return html`<kc-ui-floating-toolbar location="bottom">
             ${this.#zoom_out} ${this.#reset} ${this.#zoom_in}
         </kc-ui-floating-toolbar>`;

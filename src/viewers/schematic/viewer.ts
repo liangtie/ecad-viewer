@@ -21,6 +21,7 @@ import {
 } from "../../kicad/schematic";
 import { ProjectPage } from "../../kicanvas/project";
 import { DocumentViewer } from "../base/document-viewer";
+import type { SourceSelection } from "../base/viewer";
 import { LayerSet } from "./layers";
 import { SchematicPainter } from "./painter";
 

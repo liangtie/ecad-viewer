@@ -115,7 +115,7 @@ class KicadSymbolViewer extends KCUIElement {
             console.warn("No valid sources specified");
             return;
         }
-
+        this.provideContext("alter_source", sources);
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
     }
@@ -146,12 +146,6 @@ class KicadSymbolViewer extends KCUIElement {
             controls="${this.controls}"
             controlslist="${this.controlslist}">
         </kc-schematic-app>` as KCSchematicAppElement;
-
-        // const focus_overlay =
-        //     (this.controls ?? "none") == "none" ||
-        //     this.controlslist?.includes("nooverlay")
-        //         ? null
-        //         : html`<kc-ui-focus-overlay></kc-ui-focus-overlay>`;
         return html` ${this.#schematic_app}`;
     }
 }
