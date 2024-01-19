@@ -258,16 +258,16 @@ export class LibSymbolPinPainter extends SchematicItemPainter {
                   );
         }
 
-        if (name_placement) {
-            PinLabelInternals.draw(
-                gfx,
-                name,
-                pin.position,
-                name_placement,
-                def.name.effects,
-                gfx.state.stroke,
-            );
-        }
+        // if (name_placement) {
+        //     PinLabelInternals.draw(
+        //         gfx,
+        //         name,
+        //         pin.position,
+        //         name_placement,
+        //         def.name.effects,
+        //         gfx.state.stroke,
+        //     );
+        // }
 
         if (num_placement) {
             PinLabelInternals.draw(
