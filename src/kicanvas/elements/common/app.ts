@@ -9,7 +9,6 @@ import { delegate, listen } from "../../../base/events";
 import { length } from "../../../base/iterator";
 import {
     attribute,
-    css,
     html,
     type ElementOrFragment,
 } from "../../../base/web-components";
@@ -51,25 +50,8 @@ export interface SourceSelection {
 export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
-    static override styles = [
-        ...KCUIElement.styles,
-        css`
-            .h_lay {
-                display: flex;
-                flex-direction: column; /* Set flex direction to column for a vertical layout */
-                height: 100%;
-                width: 100%;
-            }
-
-            .h_container {
-                padding: 3px; /* Add padding for visual separation */
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-        `,
-    ];
     #viewer_elm: ViewerElementT;
-    select: KCUISelectElement = html`<kc-ui-select>
+    select: KCUISelectElement = html`<kc-ui-select slot="right">
     </kc-ui-select> ` as KCUISelectElement;
 
     #activity_bar: KCUIActivitySideBarElement | null;
@@ -242,14 +224,17 @@ export abstract class KCViewerAppElement<
         const controls = this.controls ?? "none";
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
-        // return html` ${this.#viewer_elm} `;
-        return html`
-            <div class="h_lay">
-                ${this.#viewer_elm}
+        const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
+        const top_toolbar = html`<kc-ui-floating-toolbar location="top">
+            ${this.select}
+        </kc-ui-floating-toolbar>`;
 
-                <div class="h_container">${this.select}</div>
-            </div>
-        `;
+        return html`<kc-ui-split-view vertical>
+            <kc-ui-view class="grow">
+                ${top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
+            </kc-ui-view>
+            ${this.#activity_bar}
+        </kc-ui-split-view>`;
     }
 
     override renderedCallback(): void | undefined {

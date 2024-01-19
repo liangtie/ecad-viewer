@@ -35,12 +35,12 @@ class VRMLViewer extends KCUIElement {
             vrml-viewer,
             canvas {
                 width: 100%;
-                height: 90%;
+                height: 100%;
                 flex: 1;
             }
             .spacer {
                 height: 10px; /* Adjust the height as needed */
-              }
+            }
         `,
     ];
 
@@ -51,7 +51,7 @@ class VRMLViewer extends KCUIElement {
     private loader: VRMLLoader;
     private vrmlScene: THREE.Scene;
 
-    private spacer : HTMLDivElement
+    private spacer: HTMLDivElement;
 
     public constructor() {
         super();
@@ -106,22 +106,25 @@ class VRMLViewer extends KCUIElement {
         return this.renderer.domElement;
     }
     override render(): Element | DocumentFragment {
-        return  html` <style>
-        :host {
-            display: block;
-            touch-action: none;
-            width: 90%;
-            height: 90%;
-        }
-        canvas {
-            width: 90%;
-            height: 90%;
-            border: solid 1px rgb(24, 144, 255);
-        }
-        spacer {
-            height: 10%; /* Adjust the height as needed */
-        }
-    </style>  ${this.renderer.domElement} ${this.spacer} `;
+        return html`
+            <style>
+                :host {
+                    display: block;
+                    touch-action: none;
+                    width: 90%;
+                    height: 90%;
+                }
+                canvas {
+                    width: 90%;
+                    height: 90%;
+                    border: solid 1px rgb(24, 144, 255);
+                }
+                spacer {
+                    height: 10%; /* Adjust the height as needed */
+                }
+            </style>
+            ${this.renderer.domElement} ${this.spacer}
+        `;
     }
 
     public loadAsset() {
