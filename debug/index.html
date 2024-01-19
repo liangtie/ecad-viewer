@@ -5,8 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
             /* Apply styles to the container div */
-            .container {
+            .flex-container {
                 display: flex;
+            }
+            .col-flex-container {
+                display: flex;
+                flex-direction: column; /* Set flex direction to column for a vertical layout */
             }
             .canvas-container {
                 margin: 5px; /* Add some margin for spacing */
@@ -15,12 +19,12 @@
             }
         </style>
         <link rel="stylesheet" href="./style.css" />
-        <title>Horizontal Canvas Layout</title>
+        <title>ECAD Viewer</title>
     </head>
     <body>
         <!-- Container div for the horizontal layout -->
 
-        <div class="container">
+        <div class="flex-container">
             <!-- Individual canvas containers within the container -->
             <div class="canvas-container">
                 <!-- For multiple parts , there will be a combobox -->
@@ -46,6 +50,21 @@
                 <vrml-viewer
                     id="canvas3"
                     src="ul_M24C02-WBN6P/SO-8_STM.wrl"></vrml-viewer>
+            </div>
+        </div>
+
+        <div class="flex-container">
+            <div>
+                <label>选择下载格式</label>
+            </div>
+            <div>
+                <select>
+                    <option>Kicad</option>
+                    <option>Altium</option>
+                </select>
+            </div>
+            <div>
+                <button style="width: 106px; border: none">下载</button>
             </div>
         </div>
     </body>
