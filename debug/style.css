@@ -1,16 +1,8 @@
 kicad-footprint-viewer,
-kicad-symbol-viewer {
-    display: block;
-    width: 246px;
-    height: 246px;
-    aspect-ratio: 1.414;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
-}
-
+kicad-symbol-viewer,
 vrml-viewer {
-    width: 246px;
-    height: 246px;
+    width: 200px;
+    height: 220px;
     margin-bottom: 1rem;
     margin-top: 1rem;
 }
