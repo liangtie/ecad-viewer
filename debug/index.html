@@ -15,7 +15,6 @@
             .canvas-container {
                 margin: 5px; /* Add some margin for spacing */
                 padding: 5px; /* Add padding for visual separation */
-                border: 1px solid #ccc; /* Add a border for visual distinction */
             }
         </style>
         <link rel="stylesheet" href="./style.css" />
@@ -30,7 +29,7 @@
                 <!-- For multiple parts , there will be a combobox -->
                 <kicad-symbol-viewer
                     id="canvas1"
-                    src="ul_M24C02-WBN6P/muti_part.kicad_sym"
+                    src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
                     controls="basic">
                 </kicad-symbol-viewer>
             </div>
@@ -50,21 +49,6 @@
                 <vrml-viewer
                     id="canvas3"
                     src="ul_M24C02-WBN6P/SO-8_STM.wrl"></vrml-viewer>
-            </div>
-        </div>
-
-        <div class="flex-container">
-            <div>
-                <label>选择下载格式</label>
-            </div>
-            <div>
-                <select>
-                    <option>Kicad</option>
-                    <option>Altium</option>
-                </select>
-            </div>
-            <div>
-                <button style="width: 106px; border: none">下载</button>
             </div>
         </div>
     </body>

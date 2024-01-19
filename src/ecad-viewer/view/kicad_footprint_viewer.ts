@@ -28,11 +28,8 @@ class KicadFootprintViewer extends KCUIElement {
                 width: 100%;
                 max-height: 100%;
                 aspect-ratio: 1.414;
-                background-color: aqua;
+                background-color: white;
                 color: var(--fg);
-                font-family: "Nunito", ui-rounded, "Hiragino Maru Gothic ProN",
-                    Quicksand, Comfortaa, Manjari, "Arial Rounded MT Bold",
-                    Calibri, source-sans-pro, sans-serif;
                 contain: layout paint;
             }
 

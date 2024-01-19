@@ -57,31 +57,6 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
     override make_viewer_element(): KCSchematicViewerElement {
         return html`<kc-schematic-viewer></kc-schematic-viewer>` as KCSchematicViewerElement;
     }
-
-    override make_activities() {
-        return [
-            // Symbols
-            html`<kc-ui-activity
-                slot="activities"
-                name="Symbols"
-                icon="interests">
-                <kc-schematic-symbols-panel></kc-schematic-symbols-panel>
-            </kc-ui-activity>`,
-
-            // Schematic item properties
-            html`<kc-ui-activity
-                slot="activities"
-                name="Properties"
-                icon="list">
-                <kc-schematic-properties-panel></kc-schematic-properties-panel>
-            </kc-ui-activity>`,
-
-            // Schematic info
-            html`<kc-ui-activity slot="activities" name="Info" icon="info">
-                <kc-schematic-info-panel></kc-schematic-info-panel>
-            </kc-ui-activity>`,
-        ];
-    }
 }
 
 window.customElements.define("kc-schematic-app", KCSchematicAppElement);

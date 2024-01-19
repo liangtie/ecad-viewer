@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { VRMLLoader } from "../model/3d_model/kicad_vrml_loader";
 
-import { CSS, attribute, css } from "../../base/web-components";
+import { CSS, attribute, css, html } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
 import type { ECadSource } from "../utils/ecad_source";
@@ -24,7 +24,7 @@ class VRMLViewer extends KCUIElement {
                 height: 100%;
                 max-height: 100%;
                 max-width: 100%;
-                background-color: aqua;
+                background-color: white;
                 color: var(--fg);
             }
 
@@ -35,9 +35,12 @@ class VRMLViewer extends KCUIElement {
             vrml-viewer,
             canvas {
                 width: 100%;
-                height: 100%;
+                height: 90%;
                 flex: 1;
             }
+            .spacer {
+                height: 10px; /* Adjust the height as needed */
+              }
         `,
     ];
 
@@ -47,6 +50,8 @@ class VRMLViewer extends KCUIElement {
     private controls: OrbitControls;
     private loader: VRMLLoader;
     private vrmlScene: THREE.Scene;
+
+    private spacer : HTMLDivElement
 
     public constructor() {
         super();
@@ -72,6 +77,7 @@ class VRMLViewer extends KCUIElement {
 
         this.loader = new VRMLLoader();
         this.loadAsset();
+        this.spacer = html`<div class="spacer"></div>` as HTMLDivElement;
 
         // renderer
 
@@ -100,7 +106,22 @@ class VRMLViewer extends KCUIElement {
         return this.renderer.domElement;
     }
     override render(): Element | DocumentFragment {
-        return this.renderer.domElement;
+        return  html` <style>
+        :host {
+            display: block;
+            touch-action: none;
+            width: 90%;
+            height: 90%;
+        }
+        canvas {
+            width: 90%;
+            height: 90%;
+            border: solid 1px rgb(24, 144, 255);
+        }
+        spacer {
+            height: 10%; /* Adjust the height as needed */
+        }
+    </style>  ${this.renderer.domElement} ${this.spacer} `;
     }
 
     public loadAsset() {

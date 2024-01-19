@@ -31,11 +31,8 @@ class KicadSymbolViewer extends KCUIElement {
                 width: 100%;
                 max-height: 100%;
                 aspect-ratio: 1.414;
-                background-color: aqua;
+                background-color: white;
                 color: var(--fg);
-                font-family: "Nunito", ui-rounded, "Hiragino Maru Gothic ProN",
-                    Quicksand, Comfortaa, Manjari, "Arial Rounded MT Bold",
-                    Calibri, source-sans-pro, sans-serif;
                 contain: layout paint;
             }
 
@@ -142,11 +139,11 @@ class KicadSymbolViewer extends KCUIElement {
             return html``;
         }
 
+
         this.#schematic_app = html`<kc-schematic-app
             sidebarcollapsed
             controls="${this.controls}"
-            controlslist="${this.controlslist}">
-        </kc-schematic-app>` as KCSchematicAppElement;
+            controlslist="${this.controlslist}">        </kc-schematic-app>` as KCSchematicAppElement;
         return html` ${this.#schematic_app}`;
     }
 }

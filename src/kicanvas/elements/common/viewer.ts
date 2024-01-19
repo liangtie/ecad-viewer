@@ -120,10 +120,10 @@ export abstract class KCViewerElement<
                     width: 100%;
                     height: 100%;
                 }
-
                 canvas {
                     width: 100%;
-                    height: 100%;
+                    height: 90%;
+                    border: solid 1px rgb(24, 144, 255);
                 }
             </style>
             ${this.canvas}`;

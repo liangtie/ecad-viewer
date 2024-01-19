@@ -14,3 +14,7 @@ vrml-viewer {
     margin-bottom: 1rem;
     margin-top: 1rem;
 }
+
+kc-board-viewer {
+    border: solid 2px rgb(24, 144, 255);
+}

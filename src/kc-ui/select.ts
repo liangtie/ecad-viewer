@@ -11,20 +11,7 @@ import { KCUIElement } from "./element";
  * kc-ui-button wraps the <button> element with common styles and behaviors
  */
 export class KCUISelectElement extends KCUIElement {
-    static override styles = [
-        ...KCUIElement.styles,
-        css`
-            :host {
-                display: inline-flex;
-                position: relative;
-                width: auto;
-                cursor: pointer;
-                user-select: none;
-                align-items: center;
-                justify-content: center;
-            }
-        `,
-    ];
+    static override styles = [...KCUIElement.styles, css``];
 
     @query("select", true)
     public select!: HTMLSelectElement;

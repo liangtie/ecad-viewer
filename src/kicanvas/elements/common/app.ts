@@ -9,6 +9,7 @@ import { delegate, listen } from "../../../base/events";
 import { length } from "../../../base/iterator";
 import {
     attribute,
+    css,
     html,
     type ElementOrFragment,
 } from "../../../base/web-components";
@@ -224,17 +225,7 @@ export abstract class KCViewerAppElement<
         const controls = this.controls ?? "none";
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
-        const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
-        const top_toolbar = html`<kc-ui-floating-toolbar location="top">
-            ${this.select}
-        </kc-ui-floating-toolbar>`;
-
-        return html`<kc-ui-split-view vertical>
-            <kc-ui-view class="grow">
-                ${top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
-            </kc-ui-view>
-            ${this.#activity_bar}
-        </kc-ui-split-view>`;
+        return html` ${this.#viewer_elm} ${this.select} `;
     }
 
     override renderedCallback(): void | undefined {
