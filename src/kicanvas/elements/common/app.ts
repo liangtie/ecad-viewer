@@ -51,8 +51,25 @@ export interface SourceSelection {
 export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            .h_lay {
+                display: flex;
+                flex-direction: column; /* Set flex direction to column for a vertical layout */
+                height: 100%;
+                width: 100%;
+            }
+
+            .h_container {
+                padding: 3px; /* Add padding for visual separation */
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        `,
+    ];
     #viewer_elm: ViewerElementT;
-    select: KCUISelectElement = html`<kc-ui-select slot="right">
+    select: KCUISelectElement = html`<kc-ui-select>
     </kc-ui-select> ` as KCUISelectElement;
 
     #activity_bar: KCUIActivitySideBarElement | null;
@@ -225,7 +242,14 @@ export abstract class KCViewerAppElement<
         const controls = this.controls ?? "none";
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
-        return html` ${this.#viewer_elm} ${this.select} `;
+        // return html` ${this.#viewer_elm} `;
+        return html`
+            <div class="h_lay">
+                ${this.#viewer_elm}
+
+                <div class="h_container">${this.select}</div>
+            </div>
+        `;
     }
 
     override renderedCallback(): void | undefined {

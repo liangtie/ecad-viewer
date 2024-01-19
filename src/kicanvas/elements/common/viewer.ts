@@ -118,11 +118,11 @@ export abstract class KCViewerElement<
                     display: block;
                     touch-action: none;
                     width: 100%;
-                    height: 100%;
+                    height: 90%;
                 }
                 canvas {
                     width: 100%;
-                    height: 90%;
+                    height: 100%;
                     border: solid 1px rgb(24, 144, 255);
                 }
             </style>

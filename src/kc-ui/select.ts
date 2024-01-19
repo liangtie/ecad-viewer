@@ -11,7 +11,41 @@ import { KCUIElement } from "./element";
  * kc-ui-button wraps the <button> element with common styles and behaviors
  */
 export class KCUISelectElement extends KCUIElement {
-    static override styles = [...KCUIElement.styles, css``];
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            .alter_src_selections {
+                border: solid 1px rgb(202, 216, 218);
+                width: 100%;
+            }
+
+            .alter_src_selections option {
+                text-align: center;
+                border: none;
+            }
+            .alter_src_selections:hover {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections:focus {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections:active {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections option:checked {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections option:disabled {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections option:focus {
+                border: solid 1px rgb(202, 216, 218);
+            }
+            .alter_src_selections option:active {
+                border: solid 1px rgb(202, 216, 218);
+            }
+        `,
+    ];
 
     @query("select", true)
     public select!: HTMLSelectElement;
@@ -55,7 +89,9 @@ export class KCUISelectElement extends KCUIElement {
 
     public addSelections(ss: string[]) {
         for (const s of ss)
-            this.select.appendChild(html`<option value=${s}>${s}</option>`);
+            this.select.appendChild(
+                html`<option value=${s}>${s.split(".")[0]}</option>`,
+            );
     }
 }
 
