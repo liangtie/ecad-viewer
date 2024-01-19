@@ -60,7 +60,7 @@ export class KCUIFloatingToolbarElement extends KCUIElement {
     ];
 
     override render() {
-        return html`<slot name="left"></slot><slot name="right"></slot>`;
+        return html`<slot></slot>`;
     }
 }
 

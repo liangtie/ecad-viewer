@@ -51,10 +51,12 @@ export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
     #viewer_elm: ViewerElementT;
-    select: KCUISelectElement = html`<kc-ui-select slot="right">
+    select: KCUISelectElement = html`<kc-ui-select>
     </kc-ui-select> ` as KCUISelectElement;
 
     #activity_bar: KCUIActivitySideBarElement | null;
+
+    top_toolbar: HTMLElement;
 
     project: Project;
     viewerReady: DeferredPromise<boolean> = new DeferredPromise<boolean>();
@@ -225,13 +227,22 @@ export abstract class KCViewerAppElement<
         this.#viewer_elm = this.make_viewer_element();
         this.#viewer_elm.disableinteraction = controls == "none";
         const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
-        const top_toolbar = html`<kc-ui-floating-toolbar location="top">
+        this.top_toolbar = html`<kc-ui-floating-toolbar>
             ${this.select}
-        </kc-ui-floating-toolbar>`;
+        </kc-ui-floating-toolbar>` as HTMLElement;
+        this.top_toolbar.style.display = "none";
+
+        this.addEventListener("mouseenter", (e) => {
+            if (this.select.select.options.length > 1)
+                this.top_toolbar.style.display = "block";
+        });
+        this.addEventListener("mouseleave", (e) => {
+            this.top_toolbar.style.display = "none";
+        });
 
         return html`<kc-ui-split-view vertical>
             <kc-ui-view class="grow">
-                ${top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
+                ${this.top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
             </kc-ui-view>
             ${this.#activity_bar}
         </kc-ui-split-view>`;
