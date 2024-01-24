@@ -1,8 +1,6 @@
 <!doctype html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
             /* Apply styles to the container div */
             .flex-container {
@@ -18,40 +16,18 @@
             }
         </style>
         <link rel="stylesheet" href="./style.css" />
-        <title>ECAD Viewer</title>
     </head>
     <body>
-        <!-- Container div for the horizontal layout -->
-
-        <div class="flex-container">
-            <!-- Individual canvas containers within the container -->
-            <div class="canvas-container">
-                <!-- For multiple parts , there will be a combobox -->
-                <kicad-symbol-viewer
-                    id="canvas1"
-                    src="ul_M24C02-WBN6P/2024-01-02_10-18-57.kicad_sym"
-                    controls="basic">
-                </kicad-symbol-viewer>
+        <main>
+            <div class="flex-container">
+                <kicanvas-embed
+                    src="examples/complex_hierarchy.kicad_pcb"
+                    controls="full">
+                </kicanvas-embed>
+                <kicanvas-embed src="examples/video.kicad_pcb" controls="full">
+                </kicanvas-embed>
             </div>
-            <div class="canvas-container">
-                <kicad-footprint-viewer id="canvas2" controls="basic">
-                    <!-- Show different sizes of footprints -->
-                    <ecad-source
-                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-L.kicad_mod"></ecad-source>
-                    <ecad-source
-                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM-M.kicad_mod"></ecad-source>
-                    <ecad-source
-                        src="ul_M24C02-WBN6P/footprints.pretty/SO-8_STM.kicad_mod"></ecad-source>
-                </kicad-footprint-viewer>
-            </div>
-
-            <div class="canvas-container">
-                <vrml-viewer
-                    id="canvas3"
-                    src="ul_M24C02-WBN6P/SO-8_STM.wrl"></vrml-viewer>
-            </div>
-        </div>
+        </main>
     </body>
-
     <script type="module" src="./kicanvas/kicanvas.js"></script>
 </html>

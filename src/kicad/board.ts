@@ -111,6 +111,10 @@ export class KicadPCB {
         return this.title_block.resolve_text_var(name);
     }
 
+    get bbox() {
+        return this.edge_cuts_bbox;
+    }
+
     get edge_cuts_bbox(): BBox {
         let bbox = new BBox(0, 0, 0, 0);
         for (const item of this.drawings) {
