@@ -1,0 +1,8 @@
+kicad-footprint-viewer,
+kicad-symbol-viewer,
+vrml-viewer {
+    width: 260px;
+    height: 260px;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
