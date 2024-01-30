@@ -8,7 +8,7 @@ import fs from "node:fs";
 import { bundle } from "./bundle.js";
 
 let { options, context } = await bundle({
-    outfile: "build/kicanvas.js",
+    outfile: "build/ecad-viewer.js",
     minify: true,
     metafile: true,
 });
