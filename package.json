@@ -53,6 +53,7 @@
     "homepage": "https://github.com/theacodes/kicanvas.js#readme",
     "dependencies": {
         "chevrotain": "^11.0.3",
+        "occt-import-js": "^0.0.21",
         "three": "^0.160.0"
     }
 }
