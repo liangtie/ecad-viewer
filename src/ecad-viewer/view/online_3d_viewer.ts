@@ -26,7 +26,7 @@ class OvViewerContainer extends HTMLElement {
 
         this._viewer = new OV.EmbeddedViewer(this, {
             camera: new OV.Camera(
-                new OV.Coord3D(0, 0, 3.0),
+                new OV.Coord3D(0, -2, 3.0),
                 new OV.Coord3D(0.0, 0.0, 0.0),
                 new OV.Coord3D(0.0, 1.0, 0.0),
                 45.0,
