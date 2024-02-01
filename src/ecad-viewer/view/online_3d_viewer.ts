@@ -6,6 +6,34 @@ import kc_ui_styles from "../../kc-ui/kc-ui.css";
 import { Project } from "../../kicanvas/project";
 import type { ECadSource } from "../utils/ecad_source";
 
+class OvViewerContainer extends HTMLElement {
+    private _viewer: OV.EmbeddedViewer;
+
+    public get viewer(): OV.EmbeddedViewer {
+        return this._viewer;
+    }
+
+    public constructor() {
+        super();
+
+        this._viewer = new OV.EmbeddedViewer(this, {
+            camera: new OV.Camera(
+                new OV.Coord3D(-1.5, 2, 3),
+                new OV.Coord3D(0, 0, 0),
+                new OV.Coord3D(0, 1, 0),
+                45,
+            ),
+            backgroundColor: new OV.RGBAColor(255, 255, 255, 255),
+            defaultColor: new OV.RGBColor(200, 200, 200),
+            edgeSettings: new OV.EdgeSettings(
+                false,
+                new OV.RGBColor(0, 0, 0),
+                1,
+            ),
+        });
+    }
+}
+
 class OnLine3dViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
@@ -27,7 +55,7 @@ class OnLine3dViewer extends KCUIElement {
                 display: contents;
             }
 
-            kc-schematic-app {
+            ov-viewer-container {
                 width: 100%;
                 height: 100%;
                 flex: 1;
@@ -38,21 +66,6 @@ class OnLine3dViewer extends KCUIElement {
     constructor() {
         super();
         this.provideContext("project", this.#project);
-        this.#viewer = new OV.EmbeddedViewer(this, {
-            camera: new OV.Camera(
-                new OV.Coord3D(-1.5, 2, 3),
-                new OV.Coord3D(0, 0, 0),
-                new OV.Coord3D(0, 1, 0),
-                45,
-            ),
-            backgroundColor: new OV.RGBAColor(255, 255, 255, 255),
-            defaultColor: new OV.RGBColor(200, 200, 200),
-            edgeSettings: new OV.EdgeSettings(
-                false,
-                new OV.RGBColor(0, 0, 0),
-                1,
-            ),
-        });
     }
 
     #project: Project = new Project();
@@ -78,7 +91,8 @@ class OnLine3dViewer extends KCUIElement {
     @attribute({ type: String })
     zoom: "objects" | "page" | string | null;
 
-    #viewer: OV.EmbeddedViewer;
+    #viewer: OvViewerContainer;
+    private mySource: string;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -106,38 +120,27 @@ class OnLine3dViewer extends KCUIElement {
         }
 
         const first = sources[0];
-
         if (!first) {
             this.loaded = false;
             this.loading = false;
             console.warn("No valid sources specified");
         } else {
-            this.#viewer.LoadModelFromUrlList([first]);
-            await this.update();
             this.loaded = true;
             this.loading = false;
+            this.mySource = first;
+            this.#viewer = new OvViewerContainer();
+            this.#viewer.viewer.LoadModelFromUrlList([first]);
+            await this.update();            await this.update();
+
         }
     }
 
     override render() {
-        if (!this.loaded) {
-            return html``;
-        }
-
-        return html` <style>
-                :host {
-                    display: block;
-                    touch-action: none;
-                    width: 100%;
-                    height: 100%;
-                }
-                canvas {
-                    width: 100%;
-                    height: 100%;
-                    border: solid 1px rgb(24, 144, 255);
-                }
-            </style>
-            ${this.#viewer}`;
+        if (!this.loaded) return html``;
+        // this.#viewer =
+        //     html`<ov-viewer-container></ov-viewer-container>` as OvViewerContainer;
+        // this.#viewer.viewer.LoadModelFromUrlList([this.mySource]);
+        return html` ${this.#viewer}`;
     }
 }
 
@@ -146,4 +149,5 @@ window.addEventListener("load", () => {
     OV.SetExternalLibLocation("../libs");
 });
 
+window.customElements.define("ov-viewer-container", OvViewerContainer);
 window.customElements.define("online-3d-viewer", OnLine3dViewer);

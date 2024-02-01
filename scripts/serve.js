@@ -7,7 +7,7 @@
 import { bundle } from "./bundle.js";
 
 let { context } = await bundle({
-    outfile: "debug/ecad-viewer.js",
+    outfile: "debug/ecad_viewer/ecad-viewer.js",
     sourcemap: true,
     define: {
         DEBUG: "true",
