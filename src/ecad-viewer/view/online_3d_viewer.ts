@@ -13,6 +13,7 @@ class OvViewerContainer extends HTMLElement {
     }
 
     public LoadModelFromUrlList(urls: string[]) {
+        this.viewer.Resize();
         this.viewer.LoadModelFromUrlList(urls);
         this.viewer.Resize();
     }
@@ -22,10 +23,10 @@ class OvViewerContainer extends HTMLElement {
 
         this._viewer = new OV.EmbeddedViewer(this, {
             camera: new OV.Camera(
-                new OV.Coord3D(-1.5, 2, 3),
+                new OV.Coord3D(0, 0, 10),
                 new OV.Coord3D(0, 0, 0),
                 new OV.Coord3D(0, 1, 0),
-                45,
+                90,
             ),
             backgroundColor: new OV.RGBAColor(255, 255, 255, 255),
             defaultColor: new OV.RGBColor(200, 200, 200),
