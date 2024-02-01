@@ -8,25 +8,23 @@ import type { ECadSource } from "../utils/ecad_source";
 class OvViewerContainer extends HTMLElement {
     private _viewer: OV.EmbeddedViewer;
 
-    public get viewer(): OV.EmbeddedViewer {
+    public get ov_viewer(): OV.EmbeddedViewer {
         return this._viewer;
     }
 
+    protected get viewer() {
+        return this._viewer.viewer;
+    }
+
     public LoadModelFromUrlList(urls: string[]) {
-        this.viewer.LoadModelFromUrlList(urls);
-        this.viewer.Resize();
+        this.ov_viewer.LoadModelFromUrlList(urls);
+        this.ov_viewer.Resize();
     }
 
     public constructor() {
         super();
 
         this._viewer = new OV.EmbeddedViewer(this, {
-            camera: new OV.Camera(
-                new OV.Coord3D(0, 0, 4),
-                new OV.Coord3D(0, 0, 0),
-                new OV.Coord3D(0, 1, 0),
-                90,
-            ),
             backgroundColor: new OV.RGBAColor(255, 255, 255, 255),
             defaultColor: new OV.RGBColor(200, 200, 200),
             edgeSettings: new OV.EdgeSettings(
@@ -60,11 +58,6 @@ class OnLine3dViewer extends KCUIElement {
             }
 
             ov-viewer-container {
-                width: 100%;
-                height: 100%;
-                flex: 1;
-            }
-            canvas {
                 width: 100%;
                 height: 100%;
                 border: solid 1px rgb(24, 144, 255);
