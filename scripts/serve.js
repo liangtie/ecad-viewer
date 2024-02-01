@@ -7,7 +7,7 @@
 import { bundle } from "./bundle.js";
 
 let { context } = await bundle({
-    outfile: "debug/kicanvas/kicanvas.js",
+    outfile: "debug/ecad-viewer.js",
     sourcemap: true,
     define: {
         DEBUG: "true",

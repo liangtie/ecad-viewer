@@ -43,8 +43,13 @@
                         src="ul_M24C02-FMC6TG/KiCADv6/footprints.pretty/DFPN_FMC6TG_STM.kicad_mod"></ecad-source>
                 </kicad-footprint-viewer>
             </div>
-            <div class="canvas-container" id="viewer"></div>
+            <div class="canvas-container">
+                <online-3d-viewer>
+                    <ecad-source
+                        src="ul_M24C02-FMC6TG/DFPN_FMC6TG_STM.step"></ecad-source>
+                </online-3d-viewer>
+            </div>
         </div>
     </body>
-    <script type="module" src="./kicanvas/kicanvas.js"></script>
+    <script type="module" src="./ecad-viewer.js"></script>
 </html>

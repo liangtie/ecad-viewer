@@ -26,7 +26,7 @@ export function initOV() {
         });
 
         // load a model providing model urls
-        viewer.LoadModelFromUrlList(["vrml/DIP-8_W8.89mm_SMDSocket.wrl"]);
+        viewer.LoadModelFromUrlList(["ul_M24C02-FMC6TG/DFPN_FMC6TG_STM.step"]);
     });
 }
 initOV();

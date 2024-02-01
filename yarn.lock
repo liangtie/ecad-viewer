@@ -412,7 +412,7 @@
     "@types/node" "*"
     "@types/qs" "*"
 
-"@types/command-line-args@^5.0.0":
+"@types/command-line-args@^5.0.0", "@types/command-line-args@^5.2.3":
   version "5.2.3"
   resolved "https://registry.npmmirror.com/@types/command-line-args/-/command-line-args-5.2.3.tgz#553ce2fd5acf160b448d307649b38ffc60d39639"
   integrity sha512-uv0aG6R0Y8WHZLTamZwtfsDLVRnOa+n+n5rEvFWL5Na5gZ8V2Teab/duDPFzIIIhs9qizDpcavCusCLJZu62Kw==

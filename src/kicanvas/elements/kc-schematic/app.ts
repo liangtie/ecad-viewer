@@ -4,7 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { html } from "../../../base/web-components";
+import { html, type ElementOrFragment } from "../../../base/web-components";
 import {
     KCViewerAppElement,
     type KicadAssert,
@@ -28,6 +28,9 @@ import type { SchematicViewer } from "../../../viewers/schematic/viewer";
  * basically KiCanvas's version of EESchema.
  */
 export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerElement> {
+    protected override make_activities(): ElementOrFragment[] {
+        throw new Error("Method not implemented.");
+    }
     override on_viewer_select(item?: unknown, previous?: unknown) {
         // Only handle double-selecting/double-clicking on items.
         if (!item || item != previous) {
