@@ -58,7 +58,6 @@ class OnLine3dViewer extends KCUIElement {
             ov-viewer-container {
                 width: 100%;
                 height: 100%;
-                flex: 1;
             }
         `,
     ];
@@ -130,17 +129,27 @@ class OnLine3dViewer extends KCUIElement {
             this.mySource = first;
             this.#viewer = new OvViewerContainer();
             this.#viewer.viewer.LoadModelFromUrlList([first]);
-            await this.update();            await this.update();
-
+            await this.update();
+            await this.update();
         }
     }
 
     override render() {
         if (!this.loaded) return html``;
-        // this.#viewer =
-        //     html`<ov-viewer-container></ov-viewer-container>` as OvViewerContainer;
-        // this.#viewer.viewer.LoadModelFromUrlList([this.mySource]);
-        return html` ${this.#viewer}`;
+        return html`<style>
+                :host {
+                    display: block;
+                    touch-action: none;
+                    width: 100%;
+                    height: 100%;
+                }
+                canvas {
+                    width: 100%;
+                    height: 100%;
+                    border: solid 1px rgb(24, 144, 255);
+                }
+            </style>
+            ${this.#viewer}`;
     }
 }
 
