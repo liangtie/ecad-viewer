@@ -3,7 +3,6 @@ import { KCUIElement } from "../../kc-ui/element";
 import { later } from "../../base/async";
 import { CSS, attribute, css, html } from "../../base/web-components";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
-import { Project } from "../../kicanvas/project";
 import type { ECadSource } from "../utils/ecad_source";
 
 class OvViewerContainer extends HTMLElement {
@@ -11,6 +10,11 @@ class OvViewerContainer extends HTMLElement {
 
     public get viewer(): OV.EmbeddedViewer {
         return this._viewer;
+    }
+
+    public LoadModelFromUrlList(urls: string[]) {
+        this.viewer.LoadModelFromUrlList(urls);
+        this.viewer.Resize();
     }
 
     public constructor() {
@@ -58,16 +62,20 @@ class OnLine3dViewer extends KCUIElement {
             ov-viewer-container {
                 width: 100%;
                 height: 100%;
+                flex: 1;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+                border: solid 1px rgb(24, 144, 255);
             }
         `,
     ];
 
     constructor() {
         super();
-        this.provideContext("project", this.#project);
+        this.#viewer_container = new OvViewerContainer();
     }
-
-    #project: Project = new Project();
 
     @attribute({ type: String })
     src: string | null;
@@ -90,8 +98,7 @@ class OnLine3dViewer extends KCUIElement {
     @attribute({ type: String })
     zoom: "objects" | "page" | string | null;
 
-    #viewer: OvViewerContainer;
-    private mySource: string;
+    #viewer_container: OvViewerContainer;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -126,30 +133,13 @@ class OnLine3dViewer extends KCUIElement {
         } else {
             this.loaded = true;
             this.loading = false;
-            this.mySource = first;
-            this.#viewer = new OvViewerContainer();
-            this.#viewer.viewer.LoadModelFromUrlList([first]);
-            await this.update();
+            this.#viewer_container.LoadModelFromUrlList([first]);
             await this.update();
         }
     }
 
     override render() {
-        if (!this.loaded) return html``;
-        return html`<style>
-                :host {
-                    display: block;
-                    touch-action: none;
-                    width: 100%;
-                    height: 100%;
-                }
-                canvas {
-                    width: 100%;
-                    height: 100%;
-                    border: solid 1px rgb(24, 144, 255);
-                }
-            </style>
-            ${this.#viewer}`;
+        return html` ${this.#viewer_container}`;
     }
 }
 
