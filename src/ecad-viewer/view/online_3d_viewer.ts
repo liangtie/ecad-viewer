@@ -1,4 +1,4 @@
-import * as OV from "online-3d-viewer";
+import * as OV from "../../../../Online3DViewer/source/engine/main";
 import { KCUIElement } from "../../kc-ui/element";
 import { later } from "../../base/async";
 import { CSS, attribute, css, html } from "../../base/web-components";
@@ -25,6 +25,12 @@ class OvViewerContainer extends HTMLElement {
         super();
 
         this._viewer = new OV.EmbeddedViewer(this, {
+            camera: new OV.Camera(
+                new OV.Coord3D(0, 0, 3.0),
+                new OV.Coord3D(0.0, 0.0, 0.0),
+                new OV.Coord3D(0.0, 1.0, 0.0),
+                45.0,
+            ),
             backgroundColor: new OV.RGBAColor(255, 255, 255, 255),
             defaultColor: new OV.RGBColor(200, 200, 200),
             edgeSettings: new OV.EdgeSettings(
