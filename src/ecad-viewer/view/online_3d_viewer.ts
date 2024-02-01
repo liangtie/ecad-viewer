@@ -13,7 +13,6 @@ class OvViewerContainer extends HTMLElement {
     }
 
     public LoadModelFromUrlList(urls: string[]) {
-        this.viewer.Resize();
         this.viewer.LoadModelFromUrlList(urls);
         this.viewer.Resize();
     }
