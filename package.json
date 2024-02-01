@@ -52,7 +52,6 @@
     },
     "homepage": "https://github.com/theacodes/kicanvas.js#readme",
     "dependencies": {
-        "chevrotain": "^11.0.3",
         "online-3d-viewer": "^0.12.0"
     }
 }
