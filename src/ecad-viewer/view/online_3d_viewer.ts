@@ -1,4 +1,4 @@
-import * as OV from "online-3d-viewer/build/engine/o3dv.module";
+import * as OV from "online-3d-viewer/source/engine/main";
 import { KCUIElement } from "../../kc-ui/element";
 import { later } from "../../base/async";
 import { CSS, attribute, css, html } from "../../base/web-components";
