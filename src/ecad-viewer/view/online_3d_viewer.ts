@@ -39,6 +39,7 @@ class OvViewerContainer extends HTMLElement {
                 1,
             ),
         });
+        this.viewer.navigation?.SetNavigationMode(OV.NavigationMode.FreeOrbit);
     }
 }
 
