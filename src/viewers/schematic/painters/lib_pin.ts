@@ -29,6 +29,8 @@ import { SchematicItemPainter } from "./base";
  *
  */
 export class LibSymbolPinPainter extends SchematicItemPainter {
+    public static PinNameColor = new Color(0, 100 / 255, 100 / 255);
+
     override classes = [schematic_items.LibSymbolPin];
 
     override layers_for(item: schematic_items.LibSymbolPin) {
@@ -258,16 +260,16 @@ export class LibSymbolPinPainter extends SchematicItemPainter {
                   );
         }
 
-        // if (name_placement) {
-        //     PinLabelInternals.draw(
-        //         gfx,
-        //         name,
-        //         pin.position,
-        //         name_placement,
-        //         def.name.effects,
-        //         gfx.state.stroke,
-        //     );
-        // }
+        if (name_placement) {
+            PinLabelInternals.draw(
+                gfx,
+                name,
+                pin.position,
+                name_placement,
+                def.name.effects,
+                LibSymbolPinPainter.PinNameColor,
+            );
+        }
 
         if (num_placement) {
             PinLabelInternals.draw(

@@ -40,7 +40,6 @@ class KicadSymbolViewer extends KCUIElement {
                 display: contents;
             }
 
-            kc-board-app,
             kc-schematic-app {
                 width: 100%;
                 height: 100%;
@@ -139,11 +138,11 @@ class KicadSymbolViewer extends KCUIElement {
             return html``;
         }
 
-
         this.#schematic_app = html`<kc-schematic-app
             sidebarcollapsed
             controls="${this.controls}"
-            controlslist="${this.controlslist}">        </kc-schematic-app>` as KCSchematicAppElement;
+            controlslist="${this.controlslist}">
+        </kc-schematic-app>` as KCSchematicAppElement;
         return html` ${this.#schematic_app}`;
     }
 }

@@ -10,3 +10,6 @@ import "./ecad-viewer/utils/set_up_sprite";
 import "./kc-ui/select";
 import "./kicanvas/elements/kicanvas-shell";
 import "./kicanvas/elements/kicanvas-embed";
+import "./ecad-viewer/view/kicad_footprint_viewer";
+import "./ecad-viewer/view/kicad_symbol_viewer";
+import "./ecad-viewer/view/online_3d_viewer";
