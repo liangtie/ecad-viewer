@@ -36,7 +36,7 @@ class KicadFootprintViewer extends KCUIElement {
             main {
                 display: contents;
             }
-            kc-board-app {
+            footprint-app-element {
                 width: 100%;
                 height: 100%;
                 flex: 1;

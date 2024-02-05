@@ -13,7 +13,7 @@ import {
     FetchFileSystem,
     VirtualFileSystem,
 } from "../../kicanvas/services/vfs";
-import { KCSchematicAppElement } from "../../kicanvas/elements/kc-schematic/app";
+import { SymbolAppElement } from "../../kicanvas/elements/kc-schematic/symbol-app";
 import { ECadSource } from "../utils/ecad_source";
 
 /**
@@ -40,7 +40,7 @@ class KicadSymbolViewer extends KCUIElement {
                 display: contents;
             }
 
-            kc-schematic-app {
+            symbol-app-element {
                 width: 100%;
                 height: 100%;
                 flex: 1;
@@ -76,7 +76,7 @@ class KicadSymbolViewer extends KCUIElement {
     @attribute({ type: String })
     zoom: "objects" | "page" | string | null;
 
-    #schematic_app: KCSchematicAppElement;
+    #symbol_app: SymbolAppElement;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -138,12 +138,12 @@ class KicadSymbolViewer extends KCUIElement {
             return html``;
         }
 
-        this.#schematic_app = html`<kc-schematic-app
+        this.#symbol_app = html`<symbol-app-element
             sidebarcollapsed
             controls="${this.controls}"
             controlslist="${this.controlslist}">
-        </kc-schematic-app>` as KCSchematicAppElement;
-        return html` ${this.#schematic_app}`;
+        </symbol-app-element>` as SymbolAppElement;
+        return html` ${this.#symbol_app}`;
     }
 }
 
