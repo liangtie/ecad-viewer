@@ -22,7 +22,7 @@ export class FootPrintViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
-    private pads: Map<string, board_items.Pad> = new Map();
+    #pads: Map<string, board_items.Pad> = new Map();
 
     get board(): KicadFootprint {
         return this.document;
@@ -30,7 +30,7 @@ export class FootPrintViewer extends DocumentViewer<
 
     override async load(src: KicadFootprint) {
         if (src instanceof KicadFootprint) {
-            for (const v of src.pads) this.pads.set(v.index, v);
+            for (const v of src.pads) this.#pads.set(v.index, v);
         }
         await super.load(src);
     }
@@ -69,17 +69,7 @@ export class FootPrintViewer extends DocumentViewer<
     }
 
     override select(item: board_items.Footprint | string | BBox | null) {
-        if (this.board instanceof board_items.KicadPCB) {
-            // If item is a string, find the footprint by uuid or reference.
-            if (is_string(item)) {
-                item = this.board.find_footprint(item);
-            }
-            // If it's a footprint, use the footprint's nominal bounding box.
-            if (item instanceof board_items.Footprint) {
-                item = item.bbox;
-            }
-            super.select(item);
-        }
+        return;
     }
 
     highlight_net(net: number) {
@@ -88,10 +78,7 @@ export class FootPrintViewer extends DocumentViewer<
     }
 
     private set_layers_opacity(layers: Generator<ViewLayer>, opacity: number) {
-        for (const layer of layers) {
-            layer.opacity = opacity;
-        }
-        this.draw();
+        return;
     }
 
     set track_opacity(value: number) {
@@ -129,14 +116,8 @@ export class FootPrintViewer extends DocumentViewer<
         this.draw();
     }
 
-    zoom_to_board() {
-        const edge_cuts = this.layers.by_name(LayerNames.edge_cuts)!;
-        const board_bbox = edge_cuts.bbox;
-        this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
-    }
-
     findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
-        for (const [, v] of this.pads) {
+        for (const [, v] of this.#pads) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;
             }
@@ -145,6 +126,6 @@ export class FootPrintViewer extends DocumentViewer<
     }
 
     locateItemForCrossHight(idx: string): CrossHightAble | null {
-        return this.pads.get(idx) ?? null;
+        return this.#pads.get(idx) ?? null;
     }
 }

@@ -146,11 +146,11 @@ class KicadFootprintViewer extends KCUIElement {
         }
 
         if (this.#project.has_boards && !this.#board_app) {
-            this.#board_app = html`<kc-board-app
+            this.#board_app = html`<footprint-app-element
                 sidebarcollapsed
                 controls="${this.controls}"
                 controlslist="${this.controlslist}">
-            </kc-board-app> ` as FootprintAppElement;
+            </footprint-app-element> ` as FootprintAppElement;
         }
 
         return html` ${this.#board_app}`;
