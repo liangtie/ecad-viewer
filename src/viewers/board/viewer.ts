@@ -5,9 +5,9 @@
 */
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
+import type { HighlightAble } from "../../base/highlightable";
 import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
-import { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -17,21 +17,20 @@ import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
 
 export class BoardViewer extends DocumentViewer<
-    board_items.KicadPCB | KicadFootprint,
+    board_items.KicadPCB,
     BoardPainter,
     LayerSet,
     BoardTheme
 > {
-    private pads: Map<string, board_items.Pad> = new Map();
+    #highlight_able: HighlightAble[] = [];
 
-    get board(): board_items.KicadPCB | KicadFootprint {
+    #crossHightAble: Map<string, CrossHightAble> = new Map();
+
+    get board(): board_items.KicadPCB {
         return this.document;
     }
 
-    override async load(src: board_items.KicadPCB | KicadFootprint) {
-        if (src instanceof KicadFootprint) {
-            for (const v of src.pads) this.pads.set(v.index, v);
-        }
+    override async load(src: board_items.KicadPCB) {
         await super.load(src);
     }
 
@@ -69,17 +68,15 @@ export class BoardViewer extends DocumentViewer<
     }
 
     override select(item: board_items.Footprint | string | BBox | null) {
-        if (this.board instanceof board_items.KicadPCB) {
-            // If item is a string, find the footprint by uuid or reference.
-            if (is_string(item)) {
-                item = this.board.find_footprint(item);
-            }
-            // If it's a footprint, use the footprint's nominal bounding box.
-            if (item instanceof board_items.Footprint) {
-                item = item.bbox;
-            }
-            super.select(item);
+        // If item is a string, find the footprint by uuid or reference.
+        if (is_string(item)) {
+            item = this.board.find_footprint(item);
         }
+        // If it's a footprint, use the footprint's nominal bounding box.
+        if (item instanceof board_items.Footprint) {
+            item = item.bbox;
+        }
+        super.select(item);
     }
 
     highlight_net(net: number) {
@@ -135,8 +132,8 @@ export class BoardViewer extends DocumentViewer<
         this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
     }
 
-    findHighlightItem(pos: Vec2): CrossHightAble | null {
-        for (const [, v] of this.pads) {
+    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
+        for (const [, v] of this.#crossHightAble) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;
             }
@@ -145,6 +142,6 @@ export class BoardViewer extends DocumentViewer<
     }
 
     locateItemForCrossHight(idx: string): CrossHightAble | null {
-        return this.pads.get(idx) ?? null;
+        return this.#crossHightAble.get(idx) ?? null;
     }
 }

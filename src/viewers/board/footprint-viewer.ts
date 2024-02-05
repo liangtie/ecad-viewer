@@ -135,7 +135,7 @@ export class FootPrintViewer extends DocumentViewer<
         this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
     }
 
-    findHighlightItem(pos: Vec2): CrossHightAble | null {
+    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.pads) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;

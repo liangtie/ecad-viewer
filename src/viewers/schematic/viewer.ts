@@ -97,7 +97,7 @@ export class SchematicViewer extends DocumentViewer<
     protected override create_layer_set() {
         return new LayerSet(this.theme);
     }
-    findHighlightItem(pos: Vec2): CrossHightAble | null {
+    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.libPins) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;

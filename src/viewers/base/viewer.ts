@@ -291,7 +291,7 @@ export abstract class Viewer extends EventTarget {
 
     on_hover() {
         let shouldDraw = false;
-        const item = this.findHighlightItem(this.hover_position);
+        const item = this.findCrossHighlightItem(this.hover_position);
         if (this._cross_hightedItem) {
             this._cross_hightedItem.highlighted = false;
             shouldDraw = true;
@@ -311,7 +311,7 @@ export abstract class Viewer extends EventTarget {
         }
     }
 
-    abstract findHighlightItem(pos: Vec2): CrossHightAble | null;
+    abstract findCrossHighlightItem(pos: Vec2): CrossHightAble | null;
 
     abstract locateItemForCrossHight(idx: string): CrossHightAble | null;
 }
