@@ -24,10 +24,11 @@ export class Project extends EventTarget implements IDisposable {
         string,
         KicadPCB | KicadSch | null | KicadFootprint | KicadSymbolLib
     > = new Map();
-    public active_page_name: string;
+    public active_page_name?: string;
 
     public loaded: Barrier = new Barrier();
     public settings: ProjectSettings = new ProjectSettings();
+    #root_schematic_page?: ProjectPage;
 
     public get filesByIndex() {
         return this.#files_by_name;
@@ -60,6 +61,9 @@ export class Project extends EventTarget implements IDisposable {
                 detail: this,
             }),
         );
+    }
+    public get root_schematic_page() {
+        return this.#root_schematic_page;
     }
 
     async #load_file(filename: string) {
@@ -164,12 +168,39 @@ export class Project extends EventTarget implements IDisposable {
         return await this.#fs.download(name);
     }
 
-    public set_active_page(page_or_path: string) {
+    public activate(page_or_path?: string) {
         this.active_page_name = page_or_path;
         this.dispatchEvent(
             new CustomEvent("change", {
                 detail: this,
             }),
         );
+    }
+}
+
+export class ProjectPage {
+    constructor(
+        public project: Project,
+        public type: "pcb" | "schematic",
+        public filename: string,
+        public sheet_path: string,
+        public name?: string,
+        public page?: string,
+    ) {}
+
+    /**
+     * A unique identifier for this page within the project,
+     * made from the filename and sheet path.
+     */
+    get project_path() {
+        if (this.sheet_path) {
+            return `${this.filename}:${this.sheet_path}`;
+        } else {
+            return this.filename;
+        }
+    }
+
+    get document() {
+        return this.project.file_by_name(this.filename)!;
     }
 }

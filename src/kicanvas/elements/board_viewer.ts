@@ -1,25 +1,12 @@
-/*
-    Copyright (c) 2023 Alethea Katherine Flowers.
-    Published under the standard MIT License.
-    Full text available at: https://opensource.org/licenses/MIT
-*/
-
 import { later } from "../../base/async";
 import { CSS, attribute, css, html } from "../../base/web-components";
 import { KCUIElement } from "../../kc-ui";
 import kc_ui_styles from "../../kc-ui/kc-ui.css";
-import { Project } from "../../kicanvas/project";
-import {
-    FetchFileSystem,
-    VirtualFileSystem,
-} from "../../kicanvas/services/vfs";
-import { KCSchematicAppElement } from "../../kicanvas/elements/kc-schematic/app";
-import { ECadSource } from "../utils/ecad_source";
+import { Project } from "../project";
+import { FetchFileSystem, VirtualFileSystem } from "../services/vfs";
+import { KCBoardAppElement } from "./kc-board/app";
 
-/**
- *
- */
-class KicadSymbolViewer extends KCUIElement {
+class BoardViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -40,6 +27,7 @@ class KicadSymbolViewer extends KCUIElement {
                 display: contents;
             }
 
+            kc-board-app,
             kc-schematic-app {
                 width: 100%;
                 height: 100%;
@@ -52,31 +40,24 @@ class KicadSymbolViewer extends KCUIElement {
         super();
         this.provideContext("project", this.#project);
     }
-
     #project: Project = new Project();
 
     @attribute({ type: String })
-    src: string | null;
-
-    @attribute({ type: Boolean })
-    public loading: boolean;
-
-    @attribute({ type: Boolean })
-    public loaded: boolean;
+    src: string;
 
     @attribute({ type: String })
     controls: "none" | "basic" | "full" | null;
 
+    @attribute({ type: Boolean })
+    public loading: boolean;
+
     @attribute({ type: String })
     controlslist: string | null;
 
-    @attribute({ type: String })
-    theme: string | null;
+    @attribute({ type: Boolean })
+    public loaded: boolean;
 
-    @attribute({ type: String })
-    zoom: "objects" | "page" | string | null;
-
-    #schematic_app: KCSchematicAppElement;
+    #board_app: KCBoardAppElement;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -89,29 +70,10 @@ class KicadSymbolViewer extends KCUIElement {
 
     async #load_src() {
         const sources = [];
+
         if (this.src) {
             sources.push(this.src);
         }
-
-        for (const src_elm of this.querySelectorAll<ECadSource>(
-            "ecad-source",
-        )) {
-            if (src_elm.src) {
-                sources.push(src_elm.src);
-            }
-        }
-
-        if (sources.length == 0) {
-            console.warn("No valid sources specified");
-            return;
-        }
-
-        if (sources.length == 0) {
-            console.warn("No valid sources specified");
-            return;
-        }
-
-        this.provideContext("alter_source", []);
 
         const vfs = new FetchFileSystem(sources);
         await this.#setup_project(vfs);
@@ -127,24 +89,21 @@ class KicadSymbolViewer extends KCUIElement {
             this.loaded = true;
             await this.update();
 
-            this.#project.activate(this.#project.active_page_name!);
+            this.#project.activate();
         } finally {
             this.loading = false;
         }
     }
 
     override render() {
-        if (!this.loaded) {
-            return html``;
-        }
+        if (!this.loaded) return html``;
 
-        this.#schematic_app = html`<kc-schematic-app
-            sidebarcollapsed
-            controls="${this.controls}"
-            controlslist="${this.controlslist}">
-        </kc-schematic-app>` as KCSchematicAppElement;
-        return html` ${this.#schematic_app}`;
+        if (!this.#board_app)
+            this.#board_app = html`<kc-board-app controls="${this.controls}">
+            </kc-board-app>` as KCBoardAppElement;
+
+        return html` ${this.#board_app} `;
     }
 }
 
-window.customElements.define("kicad-symbol-viewer", KicadSymbolViewer);
+window.customElements.define("board-viewer", BoardViewer);

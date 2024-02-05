@@ -134,7 +134,7 @@ class KicadFootprintViewer extends KCUIElement {
             this.loaded = true;
             await this.update();
 
-            this.#project.set_active_page(this.#project.active_page_name!);
+            this.#project.activate(this.#project.active_page_name!);
         } finally {
             this.loading = false;
         }

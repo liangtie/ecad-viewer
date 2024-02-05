@@ -6,6 +6,7 @@
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
+import { is_string } from "../../base/types";
 import { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
@@ -68,15 +69,17 @@ export class BoardViewer extends DocumentViewer<
     }
 
     override select(item: board_items.Footprint | string | BBox | null) {
-        // If item is a string, find the footprint by uuid or reference.
-        // if (is_string(item)) {
-        //     item = this.board.find_footprint(item);
-        // }
-        // // If it's a footprint, use the footprint's nominal bounding box.
-        // if (item instanceof board_items.Footprint) {
-        //     item = item.bbox;
-        // }
-        // super.select(item);
+        if (this.board instanceof board_items.KicadPCB) {
+            // If item is a string, find the footprint by uuid or reference.
+            if (is_string(item)) {
+                item = this.board.find_footprint(item);
+            }
+            // If it's a footprint, use the footprint's nominal bounding box.
+            if (item instanceof board_items.Footprint) {
+                item = item.bbox;
+            }
+            super.select(item);
+        }
     }
 
     highlight_net(net: number) {

@@ -47,7 +47,7 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
         const fn = this.project.filesByIndex.get(idx.name);
 
         if (fn) {
-            this.project.set_active_page(idx.name);
+            this.project.activate(idx.name);
         }
     }
 

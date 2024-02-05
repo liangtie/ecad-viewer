@@ -20,7 +20,7 @@ import { later } from "../../base/async";
 const log = new Logger("kicanvas:viewer");
 
 type ViewableDocument = DrawingSheetDocument &
-    PaintableDocument & { filename: string };
+    PaintableDocument & { filename: string } & { bbox: BBox };
 const zoom_speed = 0.005;
 const delta = 3;
 
@@ -115,23 +115,6 @@ export abstract class DocumentViewer<
         // log.info("Painting items");
         this.painter = this.create_painter();
         this.painter.paint(this.document);
-
-        // // Paint the drawing sheet
-        // log.info("Painting drawing sheet");
-        // new DrawingSheetPainter(this.renderer, this.layers, this.theme).paint(
-        //     this.drawing_sheet,
-        // );
-
-        // // Create the grid
-        // log.info("Painting grid");
-        // this.grid = new Grid(
-        //     this.renderer,
-        //     this.viewport.camera,
-        //     this.layers.by_name(ViewLayerNames.grid)!,
-        //     this.grid_origin,
-        //     this.theme.grid,
-        //     this.theme.grid_axes,
-        // );
     }
 
     public override zoom_to_page() {
@@ -161,8 +144,7 @@ export abstract class DocumentViewer<
     public override move(pos: Vec2): void {}
 
     public override zoom_fit_top_item() {
-        const c = this.document as unknown as any;
-        this.viewport.camera.bbox = c.bbox.grow(
+        this.viewport.camera.bbox = this.document.bbox.grow(
             DocumentViewer.FACTOR_zoom_fit_top_item,
         );
         this.draw();

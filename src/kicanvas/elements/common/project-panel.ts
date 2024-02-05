@@ -114,7 +114,7 @@ export class KCProjectPanelElement extends KCUIElement {
 
     @no_self_recursion
     private change_current_project_page(name: string | null) {
-        this.project.set_active_page(name);
+        this.project.activate(name);
     }
 
     override render() {
