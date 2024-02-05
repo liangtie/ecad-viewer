@@ -24,7 +24,7 @@ export class Project extends EventTarget implements IDisposable {
         string,
         KicadPCB | KicadSch | null | KicadFootprint | KicadSymbolLib
     > = new Map();
-    public active_page_name?: string;
+    public active_page_name: string;
 
     public loaded: Barrier = new Barrier();
     public settings: ProjectSettings = new ProjectSettings();
@@ -168,8 +168,8 @@ export class Project extends EventTarget implements IDisposable {
         return await this.#fs.download(name);
     }
 
-    public activate(page_or_path?: string) {
-        this.active_page_name = page_or_path;
+    public activate(page_or_path?: string | null) {
+        this.active_page_name = page_or_path ?? this.first_page!.filename;
         this.dispatchEvent(
             new CustomEvent("change", {
                 detail: this,

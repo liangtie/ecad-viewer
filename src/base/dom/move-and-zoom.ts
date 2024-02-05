@@ -9,7 +9,6 @@ import { BBox, Camera2, Vec2 } from "../math";
 const line_delta_multiplier = 8;
 const page_delta_multiplier = 24;
 const zoom_speed = 0.005;
-const pan_speed = 1;
 
 export type MoveAndZoomCallback = () => void;
 
@@ -82,24 +81,6 @@ export class MoveAndZoom {
             e.clientX - this.#rect.left,
             e.clientY - this.#rect.top,
         );
-    }
-
-    #handle_pan(dx: number, dy: number) {
-        const delta = new Vec2(dx * pan_speed, dy * pan_speed).multiply(
-            1 / this.camera.zoom,
-        );
-
-        let center = this.camera.center.add(delta);
-
-        if (this.bounds) {
-            center = this.bounds.constrain_point(center);
-        }
-
-        this.camera.center.set(center);
-
-        if (this.callback) {
-            this.callback();
-        }
     }
 
     #handle_zoom(delta: number, mouse: Vec2) {

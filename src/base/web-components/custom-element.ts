@@ -87,12 +87,12 @@ export class CustomElement extends HTMLElement {
         return html``;
     }
 
-    async load(src: string) {
-        this.on_content_changed(src);
+    async load(src: unknown) {
+        // this.on_content_changed(src);
         await this.update();
     }
 
-    on_content_changed(content: string): void {}
+    // on_content_changed(content: string): void {}
 
     renderedCallback(): void | undefined {}
 

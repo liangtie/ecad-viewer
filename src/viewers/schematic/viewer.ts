@@ -24,7 +24,7 @@ import { LayerSet } from "./layers";
 import { SchematicPainter } from "./painter";
 
 export class SchematicViewer extends DocumentViewer<
-    KicadSch | KicadSymbolLib,
+    KicadSch,
     SchematicPainter,
     LayerSet,
     SchematicTheme
@@ -39,7 +39,7 @@ export class SchematicViewer extends DocumentViewer<
 
     private _symbolLib?: KicadSymbolLib;
 
-    get schematic(): KicadSch | KicadSymbolLib {
+    get schematic(): KicadSch {
         return this.document;
     }
 
@@ -68,27 +68,6 @@ export class SchematicViewer extends DocumentViewer<
         }
     }
 
-    override async load(src: KicadSch | KicadSymbolLib) {
-        if (src instanceof KicadSch) {
-            return await super.load(src);
-        }
-
-        this.libPins = new Map();
-
-        if (src instanceof KicadSymbolLib) {
-            this._symbolLib = src;
-            for (const i of src.items()) {
-                this.build_libPins(i);
-            }
-            for (let i = 0; i < src.alter_symbol_parts; i++)
-                this._alter_footprint_parts.push(
-                    `Part ${String.fromCharCode(0x41 + i)}`,
-                );
-        }
-
-        this.document = null!;
-        return await super.load(src);
-    }
 
     protected override create_painter() {
         return new SchematicPainter(this.renderer, this.layers, this.theme);

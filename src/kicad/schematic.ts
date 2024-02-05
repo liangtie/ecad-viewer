@@ -4,6 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import { DrawingSheet } from ".";
 import { Color } from "../base/color";
 import type { CrossHightAble } from "../base/cross_highlight_able";
 import type { HighlightAble } from "../base/highlightable";
@@ -82,6 +83,10 @@ export class KicadSch {
     sheet_instances?: SheetInstances;
     symbol_instances?: SymbolInstances;
     sheets: SchematicSheet[] = [];
+
+    public get bbox() {
+        return DrawingSheet.default().page_bbox;
+    }
 
     constructor(
         public filename: string,

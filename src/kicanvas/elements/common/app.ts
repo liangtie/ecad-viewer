@@ -169,6 +169,7 @@ export abstract class KCViewerAppElement<
                 (this.#viewer_elm.viewer as SchematicViewer)
                     .alter_footprint_parts,
             );
+        return;
     }
 
     #has_more_than_one_page() {
