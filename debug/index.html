@@ -1,6 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
             /* Apply styles to the container div */
             .flex-container {
@@ -16,16 +18,44 @@
             }
         </style>
         <link rel="stylesheet" href="./style.css" />
+        <title>ECAD Viewer</title>
     </head>
     <body>
-        <main>
-            <div class="flex-container">
-                <board-viewer
-                    src="examples/complex_hierarchy.kicad_pcb"
-                    controls="full">
-                </board-viewer>
+        <!-- Container div for the horizontal layout -->
+        <div class="flex-container">
+            <board-viewer
+                src="examples/complex_hierarchy.kicad_pcb"
+                controls="full">
+            </board-viewer>
+        </div>
+        <div class="flex-container">
+            <!-- Individual canvas containers within the container -->
+            <div class="canvas-container">
+                <!-- For multiple parts , there will be a combobox -->
+                <kicad-symbol-viewer controls="basic">
+                    <ecad-source
+                        src="ul_AD5541ABRMZ/KiCADv6/2024-02-01_08-47-31.kicad_sym"></ecad-source>
+                </kicad-symbol-viewer>
             </div>
-        </main>
+            <div class="canvas-container">
+                <kicad-footprint-viewer controls="basic">
+                    <!-- Show different sizes of footprints -->
+                    <ecad-source
+                        src="ul_AD5541ABRMZ/KiCADv6/footprints.pretty/RM_10_ADI.kicad_mod"></ecad-source>
+                </kicad-footprint-viewer>
+            </div>
+            <div class="canvas-container">
+                <online-3d-viewer>
+                    <ecad-source
+                        src="ul_AD5541ABRMZ/RM_10_ADI.step"></ecad-source>
+                </online-3d-viewer>
+            </div>
+            <div class="canvas-container">
+                <online-3d-viewer>
+                    <ecad-source src="vrml/SMDIP-42_W15.24mm.wrl"></ecad-source>
+                </online-3d-viewer>
+            </div>
+        </div>
     </body>
     <script type="module" src="./ecad_viewer/ecad-viewer.js"></script>
 </html>

@@ -13,7 +13,7 @@ import {
     FetchFileSystem,
     VirtualFileSystem,
 } from "../../kicanvas/services/vfs";
-import { KCBoardAppElement } from "../../kicanvas/elements/kc-board/app";
+import { FootprintAppElement } from "../../kicanvas/elements/kc-board/footprint-app";
 import { ECadSource } from "../utils/ecad_source";
 
 class KicadFootprintViewer extends KCUIElement {
@@ -72,7 +72,7 @@ class KicadFootprintViewer extends KCUIElement {
     @attribute({ type: String })
     zoom: "objects" | "page" | string | null;
 
-    #board_app: KCBoardAppElement;
+    #board_app: FootprintAppElement;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -150,7 +150,7 @@ class KicadFootprintViewer extends KCUIElement {
                 sidebarcollapsed
                 controls="${this.controls}"
                 controlslist="${this.controlslist}">
-            </kc-board-app> ` as KCBoardAppElement;
+            </kc-board-app> ` as FootprintAppElement;
         }
 
         return html` ${this.#board_app}`;
