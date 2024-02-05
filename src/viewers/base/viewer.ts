@@ -38,7 +38,7 @@ export abstract class Viewer extends EventTarget {
 
     #selected: BBox | null;
 
-    private _cross_hightedItem: CrossHightAble | null = null;
+    #cross_hightedItem: CrossHightAble | null = null;
 
     constructor(
         public canvas: HTMLCanvasElement,
@@ -227,15 +227,15 @@ export abstract class Viewer extends EventTarget {
 
     @no_self_recursion
     public sync_hover(it: CrossHightAble | null) {
-        const item = it ? this.locateItemForCrossHight(it.cross_index) : null;
+        const item = it ? this.findItemForCrossHight(it.cross_index) : null;
         let shouldDraw = false;
-        if (this._cross_hightedItem) {
-            this._cross_hightedItem.highlighted = false;
+        if (this.#cross_hightedItem) {
+            this.#cross_hightedItem.highlighted = false;
             shouldDraw = true;
         }
-        this._cross_hightedItem = item;
-        if (this._cross_hightedItem) {
-            this._cross_hightedItem.highlighted = true;
+        this.#cross_hightedItem = item;
+        if (this.#cross_hightedItem) {
+            this.#cross_hightedItem.highlighted = true;
             shouldDraw = true;
         }
         if (shouldDraw) {
@@ -291,14 +291,14 @@ export abstract class Viewer extends EventTarget {
 
     on_hover() {
         let shouldDraw = false;
-        const item = this.findCrossHighlightItem(this.hover_position);
-        if (this._cross_hightedItem) {
-            this._cross_hightedItem.highlighted = false;
+        const item = this.findHighlightItem(this.hover_position);
+        if (this.#cross_hightedItem) {
+            this.#cross_hightedItem.highlighted = false;
             shouldDraw = true;
         }
-        this._cross_hightedItem = item;
-        if (this._cross_hightedItem) {
-            this._cross_hightedItem.highlighted = true;
+        this.#cross_hightedItem = item;
+        if (this.#cross_hightedItem) {
+            this.#cross_hightedItem.highlighted = true;
             shouldDraw = true;
         }
         if (shouldDraw) {
@@ -307,11 +307,11 @@ export abstract class Viewer extends EventTarget {
         }
 
         for (const v of ViewerMaps) {
-            if (v !== this) v.sync_hover(this._cross_hightedItem ?? null);
+            if (v !== this) v.sync_hover(this.#cross_hightedItem ?? null);
         }
     }
 
-    abstract findCrossHighlightItem(pos: Vec2): CrossHightAble | null;
+    abstract findHighlightItem(pos: Vec2): CrossHightAble | null;
 
-    abstract locateItemForCrossHight(idx: string): CrossHightAble | null;
+    abstract findItemForCrossHight(idx: string): CrossHightAble | null;
 }

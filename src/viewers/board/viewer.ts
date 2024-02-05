@@ -5,7 +5,6 @@
 */
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
-import type { HighlightAble } from "../../base/highlightable";
 import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
 import { Renderer } from "../../graphics";
@@ -22,8 +21,6 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
-    #highlight_able: HighlightAble[] = [];
-
     #crossHightAble: Map<string, CrossHightAble> = new Map();
 
     get board(): board_items.KicadPCB {
@@ -132,7 +129,7 @@ export class BoardViewer extends DocumentViewer<
         this.viewport.camera.bbox = board_bbox.grow(board_bbox.w * 0.1);
     }
 
-    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
+    findHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.#crossHightAble) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;
@@ -141,7 +138,7 @@ export class BoardViewer extends DocumentViewer<
         return null;
     }
 
-    locateItemForCrossHight(idx: string): CrossHightAble | null {
+    findItemForCrossHight(idx: string): CrossHightAble | null {
         return this.#crossHightAble.get(idx) ?? null;
     }
 }

@@ -20,6 +20,11 @@ import {
 import { P, T, parse_expr, type Parseable } from "./parser";
 import type { List } from "./tokenizer";
 
+import type { BoardNodeType } from "./board_node_type";
+export interface BoardNode {
+    typeId: BoardNodeType;
+}
+
 export type Drawing =
     | GrLine
     | GrCircle
@@ -29,7 +34,8 @@ export type Drawing =
     | GrText
     | Dimension;
 
-export class KicadPCB {
+export class KicadPCB implements BoardNode {
+    typeId: BoardNodeType = "KicadPCB";
     project?: Project;
     version: number;
     generator?: string;
@@ -136,7 +142,8 @@ export class KicadPCB {
     }
 }
 
-export class Property {
+export class Property implements BoardNode {
+    typeId: BoardNodeType = "Property";
     name: string;
     value: string;
 
@@ -153,7 +160,8 @@ export class Property {
     }
 }
 
-export class LineSegment {
+export class LineSegment implements BoardNode {
+    typeId: BoardNodeType = "LineSegment";
     start: Vec2;
     end: Vec2;
     width: number;
@@ -189,7 +197,8 @@ export class LineSegment {
     }
 }
 
-export class ArcSegment {
+export class ArcSegment implements BoardNode {
+    typeId: BoardNodeType = "ArcSegment";
     start: Vec2;
     mid: Vec2;
     end: Vec2;
@@ -228,7 +237,8 @@ export class ArcSegment {
     }
 }
 
-export class Via {
+export class Via implements BoardNode {
+    typeId: BoardNodeType = "Via";
     type: "blind" | "micro" | "through-hole" = "through-hole";
     at: At;
     size: number;
@@ -263,7 +273,8 @@ export class Via {
     }
 }
 
-export class Zone {
+export class Zone implements BoardNode {
+    typeId: BoardNodeType = "Zone";
     locked = false;
     net: number;
     net_name: string;
@@ -329,7 +340,8 @@ export class Zone {
     }
 }
 
-export class ZoneKeepout {
+export class ZoneKeepout implements BoardNode {
+    typeId: BoardNodeType = "ZoneKeepout";
     tracks: "allowed" | "not_allowed";
     vias: "allowed" | "not_allowed";
     pads: "allowed" | "not_allowed";
@@ -352,7 +364,8 @@ export class ZoneKeepout {
     }
 }
 
-export class ZoneFill {
+export class ZoneFill implements BoardNode {
+    typeId: BoardNodeType = "ZoneFill";
     fill = false;
     mode: "solid" | "hatch" = "solid";
     thermal_gap: number;
@@ -405,7 +418,8 @@ export class ZoneFill {
     }
 }
 
-export class Layer {
+export class Layer implements BoardNode{
+    typeId: BoardNodeType = "Layer";
     ordinal: number = 0;
     canonical_name: string = LayerNames.f_cu;
     type: "jumper" | "mixed" | "power" | "signal" | "user" = "signal";
@@ -426,8 +440,9 @@ export class Layer {
     }
 }
 
-export class Setup {
+export class Setup  implements BoardNode  {
     // stackup: Stackup;
+    typeId: BoardNodeType = "Setup";
     pad_to_mask_clearance: number;
     solder_mask_min_width: number;
     pad_to_paste_clearance: number;
@@ -456,7 +471,8 @@ export class Setup {
     }
 }
 
-export class PCBPlotParams {
+export class PCBPlotParams implements BoardNode {
+    typeId: BoardNodeType = "PCBPlotParams";
     layerselection: number;
     disableapertmacros = false;
     usegerberextensions = false;
@@ -539,7 +555,8 @@ export class PCBPlotParams {
     }
 }
 
-export class Stackup {
+export class Stackup implements BoardNode{
+    typeId: BoardNodeType = "Stackup";
     layers: StackupLayer[];
     copper_finish: string;
     dielectric_constraints = false;
@@ -564,7 +581,8 @@ export class Stackup {
     }
 }
 
-export class StackupLayer {
+export class StackupLayer implements BoardNode {
+    typeId: BoardNodeType = "StackupLayer"
     name: string;
     type: string;
     color: string;
@@ -591,7 +609,8 @@ export class StackupLayer {
     }
 }
 
-export class Net {
+export class Net implements BoardNode {
+    typeId: BoardNodeType = "Net";
     number: number;
     name: string;
 
@@ -609,7 +628,8 @@ export class Net {
     }
 }
 
-export class Dimension {
+export class Dimension implements BoardNode{
+    typeId: BoardNodeType = "Dimension";
     locked = false;
     type: "aligned" | "leader" | "center" | "orthogonal" | "radial";
     layer: string;
@@ -672,7 +692,8 @@ export enum DimensionFormatUnitsFormat {
     parenthesis,
 }
 
-export class DimensionFormat {
+export class DimensionFormat implements BoardNode {
+    typeId: BoardNodeType = "DimensionFormat";
     prefix: string;
     suffix: string;
     units: DimensionFormatUnits;
@@ -712,7 +733,8 @@ export enum DimensionStyleTextFrame {
     roundrect,
 }
 
-export class DimensionStyle {
+export class DimensionStyle implements BoardNode  {
+    typeId: BoardNodeType = "DimensionStyle"
     thickness: number;
     arrow_length: number;
     text_position_mode: DimensionStyleTextPositionMode;

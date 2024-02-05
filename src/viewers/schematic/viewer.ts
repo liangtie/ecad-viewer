@@ -68,7 +68,6 @@ export class SchematicViewer extends DocumentViewer<
         }
     }
 
-
     protected override create_painter() {
         return new SchematicPainter(this.renderer, this.layers, this.theme);
     }
@@ -76,7 +75,7 @@ export class SchematicViewer extends DocumentViewer<
     protected override create_layer_set() {
         return new LayerSet(this.theme);
     }
-    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
+    findHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.libPins) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;
@@ -85,7 +84,7 @@ export class SchematicViewer extends DocumentViewer<
         return null;
     }
 
-    locateItemForCrossHight(idx: string): CrossHightAble | null {
+    findItemForCrossHight(idx: string): CrossHightAble | null {
         return this.libPins.get(idx) ?? null;
     }
 

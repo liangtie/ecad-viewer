@@ -116,7 +116,7 @@ export class FootPrintViewer extends DocumentViewer<
         this.draw();
     }
 
-    findCrossHighlightItem(pos: Vec2): CrossHightAble | null {
+    findHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.#pads) {
             if (v.boundingBox.contains_point(pos)) {
                 return v;
@@ -125,7 +125,7 @@ export class FootPrintViewer extends DocumentViewer<
         return null;
     }
 
-    locateItemForCrossHight(idx: string): CrossHightAble | null {
+    findItemForCrossHight(idx: string): CrossHightAble | null {
         return this.#pads.get(idx) ?? null;
     }
 }
