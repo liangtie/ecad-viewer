@@ -1066,17 +1066,32 @@ export class BoardPainter extends DocumentPainter {
         this.filter_net = null;
     }
 
-    paint_highlight(item: HighlightAble) {
-        const layer = this.layers.overlay;
+    paint_highlight(item: HighlightAble | null) {
+        if (this.highlight_item == item) return false;
 
         this.highlight_item = item;
+
+        const layer = this.layers.overlay;
 
         layer.clear();
         layer.color = Color.white;
         this.gfx.start_layer(layer.name);
+        if (item)
+            this.gfx.line(
+                [
+                    item.bbox.top_left,
+                    item.bbox.top_right,
+                    item.bbox.bottom_right,
+                    item.bbox.bottom_left,
+                    item.bbox.top_left,
+                ],
+                0.3,
+                item.highlightColor,
+            );
 
         layer.graphics = this.gfx.end_layer();
         layer.graphics.composite_operation = "overlay";
         this.filter_net = null;
+        return true;
     }
 }

@@ -6,5 +6,5 @@ export interface HighlightAble {
 
     highlighted: boolean;
 
-    boundingBox: BBox;
+    bbox: BBox;
 }

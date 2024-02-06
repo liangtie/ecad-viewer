@@ -4,6 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import type { At } from "../../kicad/common";
 import { Matrix3 } from "./matrix3";
 import { Vec2 } from "./vec2";
 

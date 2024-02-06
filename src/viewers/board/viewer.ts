@@ -6,15 +6,19 @@
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
-import { is_string } from "../../base/types";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
 import * as board_items from "../../kicad/board";
+import {
+    BoardBBoxVisitor,
+    BoardHighlightItem,
+} from "../../kicad/board_bbox_visitor";
 import { DocumentViewer } from "../base/document-viewer";
 import { ViewerType } from "../base/viewer";
 import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
+import { OrderedMap } from "immutable";
 
 export class BoardViewer extends DocumentViewer<
     board_items.KicadPCB,
@@ -24,13 +28,25 @@ export class BoardViewer extends DocumentViewer<
 > {
     override type: ViewerType = ViewerType.PCB;
 
-    #crossHightAble: Map<string, CrossHightAble> = new Map();
+    #crossHightAble: OrderedMap<number, Map<string, BoardHighlightItem>> =
+        OrderedMap();
 
     get board(): board_items.KicadPCB {
         return this.document;
     }
 
     override async load(src: board_items.KicadPCB) {
+        const visitor = new BoardBBoxVisitor();
+        visitor.visit(src);
+
+        for (const e of visitor.highlight_item) {
+            if (!this.#crossHightAble.has(e.depth))
+                this.#crossHightAble = this.#crossHightAble.set(
+                    e.depth,
+                    new Map(),
+                );
+            this.#crossHightAble.get(e.depth)?.set(e.index, e);
+        }
         await super.load(src);
     }
 
@@ -68,15 +84,15 @@ export class BoardViewer extends DocumentViewer<
     }
 
     override select(item: board_items.Footprint | string | BBox | null) {
-        // If item is a string, find the footprint by uuid or reference.
-        if (is_string(item)) {
-            item = this.board.find_footprint(item);
-        }
-        // If it's a footprint, use the footprint's nominal bounding box.
-        if (item instanceof board_items.Footprint) {
-            item = item.bbox;
-        }
-        super.select(item);
+        // // If item is a string, find the footprint by uuid or reference.
+        // if (is_string(item)) {
+        //     item = this.board.find_footprint(item);
+        // }
+        // // If it's a footprint, use the footprint's nominal bounding box.
+        // if (item instanceof board_items.Footprint) {
+        //     item = item.bbox;
+        // }
+        // super.select(item);
     }
 
     highlight_net(net: number) {
@@ -133,16 +149,25 @@ export class BoardViewer extends DocumentViewer<
     }
 
     findHighlightItem(pos: Vec2): CrossHightAble | null {
-        for (const [, v] of this.#crossHightAble) {
-            if (v.boundingBox.contains_point(pos)) {
-                return v;
-            }
+        for (const [k, v] of this.#crossHightAble) {
+            console.log(k);
+            for (const [, e] of v)
+                if (e.bbox.contains_point(pos)) {
+                    return e;
+                }
         }
         return null;
     }
 
     findItemForCrossHight(idx: string): CrossHightAble | null {
-        return this.#crossHightAble.get(idx) ?? null;
+        return null;
     }
-    override on_hover() {}
+    override on_hover() {
+        if (
+            this.painter.paint_highlight(
+                this.findHighlightItem(this.hover_position),
+            )
+        )
+            this.draw();
+    }
 }

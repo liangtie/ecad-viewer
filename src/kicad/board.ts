@@ -1406,7 +1406,7 @@ export class GrText extends Text {
 export class Pad implements CrossHightAble, BoardNode {
     typeId: BoardNodeType = "Pad";
     public static MyHighlightColor = new Color(0, 100, 100);
-    public get boundingBox() {
+    public get bbox() {
         return new BBox(
             this.at.position.x - this.size.x / 2,
             this.at.position.y - this.size.y / 2,

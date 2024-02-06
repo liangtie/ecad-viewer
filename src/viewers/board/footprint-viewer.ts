@@ -6,7 +6,6 @@
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
-import { is_string } from "../../base/types";
 import { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
@@ -110,7 +109,7 @@ export class FootPrintViewer extends DocumentViewer<
 
     findHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.#pads) {
-            if (v.boundingBox.contains_point(pos)) {
+            if (v.bbox.contains_point(pos)) {
                 return v;
             }
         }

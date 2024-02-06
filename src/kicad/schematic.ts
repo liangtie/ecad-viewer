@@ -1386,7 +1386,7 @@ export class PinInstance implements HighlightAble, IndexAble {
             ),
         );
     }
-    boundingBox: BBox;
+    bbox: BBox;
 
     get definition() {
         return this.parent.lib_symbol.pin_by_number(
@@ -1441,7 +1441,7 @@ export class LibSymbolPin implements CrossHightAble {
     ) {
         this.orientation = angle_to_orientation(definition.at.rotation);
     }
-    public get boundingBox() {
+    public get bbox() {
         const defaultLen = 1;
         switch (this.orientation) {
             case "up":

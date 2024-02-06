@@ -102,7 +102,7 @@ export class SymbolViewer extends DocumentViewer<
     }
     findHighlightItem(pos: Vec2): CrossHightAble | null {
         for (const [, v] of this.libPins) {
-            if (v.boundingBox.contains_point(pos)) {
+            if (v.bbox.contains_point(pos)) {
                 return v;
             }
         }
