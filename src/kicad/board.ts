@@ -23,6 +23,7 @@ import type { List } from "./tokenizer";
 import type { BoardNodeType } from "./board_node_type";
 export interface BoardNode {
     typeId: BoardNodeType;
+    getChildren?: () => BoardNode[];
 }
 
 export type Drawing =
@@ -52,6 +53,16 @@ export class KicadPCB implements BoardNode {
     vias: Via[] = [];
     drawings: Drawing[] = [];
     groups: Group[] = [];
+
+    public getChildren() {
+        return [
+            ...this.footprints,
+            ...this.nets,
+            ...this.zones,
+            ...this.vias,
+            ...this.drawings,
+        ];
+    }
 
     constructor(
         public filename: string,
@@ -142,8 +153,7 @@ export class KicadPCB implements BoardNode {
     }
 }
 
-export class Property implements BoardNode {
-    typeId: BoardNodeType = "Property";
+export class Property {
     name: string;
     value: string;
 
@@ -418,7 +428,7 @@ export class ZoneFill implements BoardNode {
     }
 }
 
-export class Layer implements BoardNode{
+export class Layer implements BoardNode {
     typeId: BoardNodeType = "Layer";
     ordinal: number = 0;
     canonical_name: string = LayerNames.f_cu;
@@ -440,7 +450,7 @@ export class Layer implements BoardNode{
     }
 }
 
-export class Setup  implements BoardNode  {
+export class Setup implements BoardNode {
     // stackup: Stackup;
     typeId: BoardNodeType = "Setup";
     pad_to_mask_clearance: number;
@@ -555,7 +565,7 @@ export class PCBPlotParams implements BoardNode {
     }
 }
 
-export class Stackup implements BoardNode{
+export class Stackup implements BoardNode {
     typeId: BoardNodeType = "Stackup";
     layers: StackupLayer[];
     copper_finish: string;
@@ -582,7 +592,7 @@ export class Stackup implements BoardNode{
 }
 
 export class StackupLayer implements BoardNode {
-    typeId: BoardNodeType = "StackupLayer"
+    typeId: BoardNodeType = "StackupLayer";
     name: string;
     type: string;
     color: string;
@@ -628,7 +638,7 @@ export class Net implements BoardNode {
     }
 }
 
-export class Dimension implements BoardNode{
+export class Dimension implements BoardNode {
     typeId: BoardNodeType = "Dimension";
     locked = false;
     type: "aligned" | "leader" | "center" | "orthogonal" | "radial";
@@ -733,8 +743,8 @@ export enum DimensionStyleTextFrame {
     roundrect,
 }
 
-export class DimensionStyle implements BoardNode  {
-    typeId: BoardNodeType = "DimensionStyle"
+export class DimensionStyle implements BoardNode {
+    typeId: BoardNodeType = "DimensionStyle";
     thickness: number;
     arrow_length: number;
     text_position_mode: DimensionStyleTextPositionMode;
@@ -763,7 +773,8 @@ export class DimensionStyle implements BoardNode  {
 
 type FootprintDrawings = FpLine | FpCircle | FpArc | FpPoly | FpRect | FpText;
 
-export class Footprint {
+export class Footprint implements BoardNode {
+    typeId: BoardNodeType = "Footprint";
     at: At;
     reference: string;
     value: string;
@@ -814,6 +825,10 @@ export class Footprint {
     models: Model[] = [];
     #bbox: BBox;
     fp_texts: FpText[];
+
+    public getChildren() {
+        return [...this.pads, ...this.drawings];
+    }
 
     constructor(
         expr: Parseable,
@@ -980,7 +995,8 @@ export class Footprint {
     }
 }
 
-class GraphicItem {
+export class GraphicItem implements BoardNode {
+    typeId: BoardNodeType = "GraphicItem";
     parent?: Footprint;
     layer: string;
     tstamp: string;
@@ -1285,7 +1301,8 @@ export class FpRect extends Rect {
     static override expr_start = "fp_rect";
 }
 
-export class TextRenderCache {
+export class TextRenderCache implements BoardNode {
+    typeId: BoardNodeType = "TextRenderCache";
     text: string;
     angle: 0;
     polygons: Poly[];
@@ -1308,7 +1325,8 @@ export class TextRenderCache {
     }
 }
 
-export class Text {
+export class Text implements BoardNode {
+    typeId: BoardNodeType = "Text";
     parent?: Footprint | Dimension | KicadPCB;
     text: string;
     at: At;
@@ -1385,7 +1403,8 @@ export class GrText extends Text {
     }
 }
 
-export class Pad implements CrossHightAble {
+export class Pad implements CrossHightAble, BoardNode {
+    typeId: BoardNodeType = "Pad";
     public static MyHighlightColor = new Color(0, 100, 100);
     public get boundingBox() {
         return new BBox(
@@ -1500,7 +1519,8 @@ export class Pad implements CrossHightAble {
     }
 }
 
-export class PadDrill {
+export class PadDrill implements BoardNode {
+    typeId: BoardNodeType = "PadDrill";
     oval = false;
     diameter = 0;
     width = 0;

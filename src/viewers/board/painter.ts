@@ -27,6 +27,7 @@ import {
     virtual_layer_for,
 } from "./layers";
 import type { BoardTheme } from "../../kicad";
+import type { HighlightAble } from "../../base/highlightable";
 
 abstract class BoardItemPainter extends ItemPainter {
     override view_painter: BoardPainter;
@@ -1039,6 +1040,8 @@ export class BoardPainter extends DocumentPainter {
     // should use this to determine whether to draw or skip the current item.
     filter_net: number | null = null;
 
+    highlight_item: HighlightAble | null = null;
+
     paint_net(board: board_items.KicadPCB, net: number) {
         const layer = this.layers.overlay;
 
@@ -1057,6 +1060,20 @@ export class BoardPainter extends DocumentPainter {
 
             this.paint_item(layer, item);
         }
+
+        layer.graphics = this.gfx.end_layer();
+        layer.graphics.composite_operation = "overlay";
+        this.filter_net = null;
+    }
+
+    paint_highlight(item: HighlightAble) {
+        const layer = this.layers.overlay;
+
+        this.highlight_item = item;
+
+        layer.clear();
+        layer.color = Color.white;
+        this.gfx.start_layer(layer.name);
 
         layer.graphics = this.gfx.end_layer();
         layer.graphics.composite_operation = "overlay";

@@ -12,6 +12,7 @@ import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
 import * as board_items from "../../kicad/board";
 import { DocumentViewer } from "../base/document-viewer";
+import { ViewerType } from "../base/viewer";
 import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
 
@@ -21,6 +22,8 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    override type: ViewerType = ViewerType.PCB;
+
     #crossHightAble: Map<string, CrossHightAble> = new Map();
 
     get board(): board_items.KicadPCB {
@@ -77,7 +80,7 @@ export class BoardViewer extends DocumentViewer<
     }
 
     highlight_net(net: number) {
-        // this.painter.paint_net(this.board, net);
+        this.painter.paint_net(this.board, net);
         this.draw();
     }
 
@@ -141,4 +144,5 @@ export class BoardViewer extends DocumentViewer<
     findItemForCrossHight(idx: string): CrossHightAble | null {
         return this.#crossHightAble.get(idx) ?? null;
     }
+    override on_hover() {}
 }

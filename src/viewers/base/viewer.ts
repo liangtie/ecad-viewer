@@ -22,6 +22,11 @@ import type { CrossHightAble } from "../../base/cross_highlight_able";
 
 const ViewerMaps: Viewer[] = [];
 
+export enum ViewerType {
+    SCHEMATIC,
+    PCB,
+}
+
 export abstract class Viewer extends EventTarget {
     public renderer: Renderer;
     public viewport: Viewport;
@@ -29,6 +34,8 @@ export abstract class Viewer extends EventTarget {
     public mouse_position: Vec2 = new Vec2(0, 0);
     public hover_position = new Vec2(0, 0);
     public loaded = new Barrier();
+
+    abstract type: ViewerType;
 
     public static MinZoom = 0.5;
     public static MaxZoom = 190;
@@ -307,7 +314,9 @@ export abstract class Viewer extends EventTarget {
         }
 
         for (const v of ViewerMaps) {
-            if (v !== this) v.sync_hover(this.#cross_hightedItem ?? null);
+            if (v.type !== this.type) {
+                v.sync_hover(this.#cross_hightedItem ?? null);
+            }
         }
     }
 

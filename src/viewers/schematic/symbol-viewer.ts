@@ -20,6 +20,7 @@ import {
     SchematicSymbol,
 } from "../../kicad/schematic";
 import { DocumentViewer } from "../base/document-viewer";
+import { ViewerType } from "../base/viewer";
 import { LayerSet } from "./layers";
 import { SchematicPainter } from "./painter";
 
@@ -29,6 +30,8 @@ export class SymbolViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
+    override type: ViewerType = ViewerType.SCHEMATIC;
+
     private _alter_footprint_parts: string[] = [];
 
     public get alter_footprint_parts() {

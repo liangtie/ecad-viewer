@@ -13,6 +13,7 @@ import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
 import * as board_items from "../../kicad/board";
 import { DocumentViewer } from "../base/document-viewer";
+import { ViewerType } from "../base/viewer";
 import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
 
@@ -22,6 +23,8 @@ export class FootPrintViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    override type: ViewerType = ViewerType.PCB;
+
     #pads: Map<string, board_items.Pad> = new Map();
 
     get board(): KicadFootprint {
@@ -55,18 +58,7 @@ export class FootPrintViewer extends DocumentViewer<
     protected override on_pick(
         mouse: Vec2,
         items: Generator<{ layer: ViewLayer; bbox: BBox }, void, unknown>,
-    ): void {
-        let selected = null;
-
-        for (const { layer: _, bbox } of items) {
-            if (bbox.context instanceof board_items.Footprint) {
-                selected = bbox.context;
-                break;
-            }
-        }
-
-        this.select(selected);
-    }
+    ): void {}
 
     override select(item: board_items.Footprint | string | BBox | null) {
         return;
@@ -74,7 +66,7 @@ export class FootPrintViewer extends DocumentViewer<
 
     highlight_net(net: number) {
         // this.painter.paint_net(this.board, net);
-        this.draw();
+        // this.draw();
     }
 
     private set_layers_opacity(layers: Generator<ViewLayer>, opacity: number) {
