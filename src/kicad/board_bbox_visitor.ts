@@ -71,7 +71,7 @@ export class BoxInteractiveItem implements Interactive {
 
         layer.highlighted = true;
         layer.graphics = painter.gfx.end_layer();
-        layer.graphics.composite_operation = "overlay";
+        layer.graphics.composite_operation = "source-over";
     }
     select(): void {
         throw new Error("Method not implemented.");
@@ -166,7 +166,7 @@ export class LineInteractiveItem implements Interactive {
 
         layer.highlighted = true;
         layer.graphics = painter.gfx.end_layer();
-        layer.graphics.composite_operation = "overlay";
+        layer.graphics.composite_operation = "source-over";
     }
     select(): void {
         throw new Error("Method not implemented.");
