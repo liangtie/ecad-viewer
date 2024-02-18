@@ -1,6 +1,7 @@
-import type { CrossHightAble } from "../base/cross_highlight_able";
+import type { Interactive } from "../base/interactive";
 import { Angle, BBox, Matrix3, Vec2 } from "../base/math";
 import { Color } from "../graphics";
+import type { DocumentPainter } from "../viewers/base/painter";
 import {
     LineSegment,
     ArcSegment,
@@ -31,22 +32,144 @@ export enum Depth {
     GRAPHICS = START,
     VIA,
     PAD,
+    LINE_SEGMENTS,
+
     FOOT_PRINT,
     END,
 }
 
-export class BoardHighlightItem implements CrossHightAble {
-    public highlighted = true;
-    public highlightColor: Color = Color.from_css("#2ee0bf");
-    public index: string;
-    public cross_index: string;
-    public constructor(
-        public bbox: BBox,
-        idx: number,
+export interface BoardInteractiveItem extends Interactive {
+    depth: number;
+}
+
+export class BoxInteractiveItem implements Interactive {
+    #bbox: BBox;
+    constructor(
+        bbox: BBox,
         public depth: number,
     ) {
-        this.index = `${idx}`;
-        this.cross_index = `cross_${idx}`;
+        this.#bbox = bbox;
+    }
+    contains(pos: Vec2): boolean {
+        return this.#bbox.contains_point(pos);
+    }
+    highlight(painter: DocumentPainter): void {
+        const layer = painter.layers.overlay;
+        layer.clear();
+        painter.gfx.start_layer(layer.name);
+        painter.gfx.line(
+            [
+                this.#bbox.top_left,
+                this.#bbox.top_right,
+                this.#bbox.bottom_right,
+                this.#bbox.bottom_left,
+                this.#bbox.top_left,
+            ],
+            0.2,
+            Color.cyan,
+        );
+
+        layer.highlighted = true;
+        layer.graphics = painter.gfx.end_layer();
+        layer.graphics.composite_operation = "overlay";
+    }
+    select(): void {
+        throw new Error("Method not implemented.");
+    }
+}
+
+export interface BoardLine {
+    start: Vec2;
+    end: Vec2;
+    width: number;
+}
+
+function pointOnLineSegment(p0: Vec2, p1: Vec2, p2: Vec2, width: number) {
+    // Function to calculate the perpendicular distance from a point to a line
+    function pointToLineDistance(point: Vec2, lineStart: Vec2, lineEnd: Vec2) {
+        const lineVector = {
+            x: lineEnd.x - lineStart.x,
+            y: lineEnd.y - lineStart.y,
+        };
+        const pointVector = {
+            x: point.x - lineStart.x,
+            y: point.y - lineStart.y,
+        };
+
+        const crossProduct =
+            pointVector.x * lineVector.y - pointVector.y * lineVector.x;
+        return (
+            Math.abs(crossProduct) /
+            Math.sqrt(lineVector.x ** 2 + lineVector.y ** 2)
+        );
+    }
+
+    // Function to check if a point is within the extended range of a line segment
+    function isPointOnExtendedLineSegment(
+        point: Vec2,
+        lineStart: Vec2,
+        lineEnd: Vec2,
+        extendedWidth: number,
+    ) {
+        const minX = Math.min(lineStart.x, lineEnd.x) - extendedWidth;
+        const maxX = Math.max(lineStart.x, lineEnd.x) + extendedWidth;
+        const minY = Math.min(lineStart.y, lineEnd.y) - extendedWidth;
+        const maxY = Math.max(lineStart.y, lineEnd.y) + extendedWidth;
+
+        return (
+            point.x >= minX &&
+            point.x <= maxX &&
+            point.y >= minY &&
+            point.y <= maxY
+        );
+    }
+
+    // Calculate the extended width based on half of the line width
+    const extendedWidth = width / 2;
+
+    // Check if P0 is within the extended range of the line segment
+    if (isPointOnExtendedLineSegment(p0, p1, p2, extendedWidth)) {
+        // Calculate the perpendicular distance
+        const distance = pointToLineDistance(p0, p1, p2);
+
+        // Check if the distance is within half of the width
+        return distance <= extendedWidth;
+    }
+
+    return false;
+}
+export class LineInteractiveItem implements Interactive {
+    #line: BoardLine;
+    constructor(
+        public depth: number,
+        line: BoardLine,
+    ) {
+        this.#line = line;
+    }
+    contains(pos: Vec2): boolean {
+        return pointOnLineSegment(
+            pos,
+            this.#line.start,
+            this.#line.end,
+            this.#line.width,
+        );
+    }
+    highlight(painter: DocumentPainter): void {
+        const layer = painter.layers.overlay;
+        layer.clear();
+        painter.gfx.start_layer(layer.name);
+        painter.gfx.line(
+            [this.#line.start, this.#line.end],
+            this.#line.width,
+            Color.cyan,
+        );
+
+        layer.highlighted = true;
+        layer.graphics = painter.gfx.end_layer();
+        layer.graphics.composite_operation = "overlay";
+    }
+    select(): void {
+        throw new Error("Method not implemented.");
     }
 }
 
@@ -55,14 +178,16 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         return this.#highlight_items;
     }
 
-    #highlight_items: BoardHighlightItem[] = [];
-    #index = 0;
-
-    get next_index() {
-        return ++this.#index;
-    }
+    #highlight_items: BoardInteractiveItem[] = [];
 
     protected override visitLineSegment(lineSegment: LineSegment) {
+        this.highlight_item.push(
+            new LineInteractiveItem(Depth.LINE_SEGMENTS, {
+                start: lineSegment.start,
+                end: lineSegment.end,
+                width: lineSegment.width,
+            }),
+        );
         return true;
     }
 
@@ -71,14 +196,13 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitVia(via: Via) {
         this.highlight_item.push(
-            new BoardHighlightItem(
+            new BoxInteractiveItem(
                 new BBox(
                     via.at.position.x,
                     via.at.position.y,
                     via.size,
                     via.size,
                 ),
-                this.next_index,
                 Depth.VIA,
             ),
         );
@@ -122,18 +246,12 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitFootprint(footprint: Footprint) {
         const bb = footprint.bbox;
-        this.highlight_item.push(
-            new BoardHighlightItem(bb, this.next_index, Depth.FOOT_PRINT),
-        );
+        this.highlight_item.push(new BoxInteractiveItem(bb, Depth.FOOT_PRINT));
         return true;
     }
     protected override visitGraphicItem(graphicItem: GraphicItem) {
         this.highlight_item.push(
-            new BoardHighlightItem(
-                graphicItem.bbox,
-                this.next_index,
-                Depth.GRAPHICS,
-            ),
+            new BoxInteractiveItem(graphicItem.bbox, Depth.GRAPHICS),
         );
         return true;
     }
@@ -202,9 +320,8 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         }
 
         this.highlight_item.push(
-            new BoardHighlightItem(
+            new BoxInteractiveItem(
                 bbox.transform(position_mat).transform(M1),
-                this.next_index,
                 Depth.PAD,
             ),
         );
@@ -213,14 +330,13 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitPadDrill(padDrill: PadDrill) {
         this.highlight_item.push(
-            new BoardHighlightItem(
+            new BoxInteractiveItem(
                 new BBox(
                     padDrill.offset.x,
                     padDrill.offset.y,
                     padDrill.width,
                     padDrill.width,
                 ),
-                this.next_index,
                 Depth.VIA,
             ),
         );

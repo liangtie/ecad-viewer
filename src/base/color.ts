@@ -32,6 +32,14 @@ export class Color {
         return new Color(1, 0, 0, 1);
     }
 
+    static get green() {
+        return new Color(0, 1, 0, 1);
+    }
+
+    static get cyan() {
+        return new Color(81 / 255, 255 / 255, 159 / 255, 1);
+    }
+
     static from_css(str: string) {
         let r, g, b, a;
 

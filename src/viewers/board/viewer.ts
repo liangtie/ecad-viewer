@@ -12,7 +12,7 @@ import type { BoardTheme } from "../../kicad";
 import * as board_items from "../../kicad/board";
 import {
     BoardBBoxVisitor,
-    BoardHighlightItem,
+    type BoardInteractiveItem,
     Depth,
 } from "../../kicad/board_bbox_visitor";
 import { DocumentViewer } from "../base/document-viewer";
@@ -29,10 +29,9 @@ export class BoardViewer extends DocumentViewer<
 > {
     override type: ViewerType = ViewerType.PCB;
 
-    #crossHightAble: OrderedMap<number, Map<string, BoardHighlightItem>> =
-        OrderedMap();
+    #interactive: OrderedMap<number, BoardInteractiveItem[]> = OrderedMap();
 
-    #hightItem: BoardHighlightItem[] = [];
+    #last_hover: BoardInteractiveItem | null = null;
 
     get board(): board_items.KicadPCB {
         return this.document;
@@ -42,14 +41,12 @@ export class BoardViewer extends DocumentViewer<
         const visitor = new BoardBBoxVisitor();
         visitor.visit(src);
 
-        for (let k = Depth.START; k < Depth.END; k++) {
-            this.#crossHightAble = this.#crossHightAble.set(k, new Map());
-        }
+        for (let k = Depth.START; k < Depth.END; k++)
+            this.#interactive = this.#interactive.set(k, []);
 
         for (const e of visitor.highlight_item)
-            this.#crossHightAble.get(e.depth)?.set(e.index, e);
+            this.#interactive.get(e.depth)?.push(e);
 
-        this.#hightItem = visitor.highlight_item;
         await super.load(src);
     }
 
@@ -152,10 +149,13 @@ export class BoardViewer extends DocumentViewer<
     }
 
     findHighlightItem(pos: Vec2): CrossHightAble | null {
-        for (const [k, v] of this.#crossHightAble) {
-            console.log(k);
-            for (const [, e] of v)
-                if (e.bbox.contains_point(pos)) {
+        return null;
+    }
+
+    findInteractive(pos: Vec2) {
+        for (const [, v] of this.#interactive) {
+            for (const e of v)
+                if (e.contains(pos)) {
                     return e;
                 }
         }
@@ -166,11 +166,11 @@ export class BoardViewer extends DocumentViewer<
         return null;
     }
     override on_hover() {
-        if (
-            this.painter.paint_highlight(
-                this.findHighlightItem(this.hover_position),
-            )
-        )
-            this.draw();
+        const hover_item = this.findInteractive(this.hover_position);
+        if (hover_item === this.#last_hover) return;
+        if (hover_item) hover_item.highlight(this.painter);
+        else this.painter.clear_highlight();
+        this.draw();
+        this.#last_hover = hover_item;
     }
 }
