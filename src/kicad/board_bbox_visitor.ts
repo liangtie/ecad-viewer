@@ -1,5 +1,5 @@
 import type { CrossHightAble } from "../base/cross_highlight_able";
-import { BBox } from "../base/math";
+import { Angle, BBox, Matrix3, Vec2 } from "../base/math";
 import { Color } from "../graphics";
 import {
     LineSegment,
@@ -27,10 +27,12 @@ import {
 import { BoardVisitorBase } from "./board_visitor_base";
 
 export enum Depth {
+    START,
+    GRAPHICS = START,
     VIA,
-    PAD = VIA,
+    PAD,
     FOOT_PRINT,
-    GRAPHICS,
+    END,
 }
 
 export class BoardHighlightItem implements CrossHightAble {
@@ -54,7 +56,6 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
 
     #highlight_items: BoardHighlightItem[] = [];
-
     #index = 0;
 
     get next_index() {
@@ -119,12 +120,9 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         return true;
     }
     protected override visitFootprint(footprint: Footprint) {
+        const bb = footprint.bbox;
         this.highlight_item.push(
-            new BoardHighlightItem(
-                footprint.bbox,
-                this.next_index,
-                Depth.FOOT_PRINT,
-            ),
+            new BoardHighlightItem(bb, this.next_index, Depth.FOOT_PRINT),
         );
         return true;
     }
@@ -144,10 +142,72 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     protected override visitText(text: Text) {
         return true;
     }
-    protected override visitPad(pad: Pad) {
-        this.highlight_item.push(
-            new BoardHighlightItem(pad.bbox, this.next_index, Depth.PAD),
+
+    private getPadBBox(pad: Pad): BBox {
+        const position_mat = Matrix3.translation(
+            pad.at.position.x,
+            pad.at.position.y,
         );
+
+        position_mat.rotate_self(-Angle.deg_to_rad(pad.parent.at.rotation));
+        position_mat.rotate_self(Angle.deg_to_rad(pad.at.rotation));
+
+        const center = new Vec2(0, 0);
+        switch (pad.shape) {
+            case "circle": {
+                const r = pad.size.x / 2;
+                return new BBox(-r, -r, 2 * r, 2 * r);
+            }
+            case "rect":
+            case "roundrect":
+            case "trapezoid":
+                return new BBox(
+                    -pad.size.x / 2,
+                    -pad.size.y / 2,
+                    pad.size.x,
+                    pad.size.y,
+                );
+            case "oval": {
+                const pad_pos = center.add(pad.drill?.offset || new Vec2(0, 0));
+                return new BBox(
+                    pad_pos.x - pad.size.x / 2,
+                    pad_pos.y - pad.size.y / 2,
+                    pad.size.x,
+                    pad.size.y,
+                );
+            }
+
+            default:
+                return new BBox();
+        }
+    }
+
+    protected override visitPad(pad: Pad) {
+        const bbox = this.getPadBBox(pad);
+        const fp = pad.parent;
+        const M1 = Matrix3.translation(
+            fp.at.position.x,
+            fp.at.position.y,
+        ).rotate(Angle.deg_to_rad(fp.at.rotation));
+
+        const position_mat = Matrix3.translation(
+            pad.at.position.x,
+            pad.at.position.y,
+        );
+        position_mat.rotate_self(-Angle.deg_to_rad(pad.parent.at.rotation));
+        position_mat.rotate_self(Angle.deg_to_rad(pad.at.rotation));
+        if (pad.drill?.offset) {
+            position_mat.translate_self(pad.drill.offset.x, pad.drill.offset.y);
+        }
+
+        this.highlight_item.push(
+            new BoardHighlightItem(
+                bbox.transform(position_mat).transform(M1),
+                this.next_index,
+                Depth.PAD,
+            ),
+        );
+
         return true;
     }
     protected override visitPadDrill(padDrill: PadDrill) {

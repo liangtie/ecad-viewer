@@ -3,8 +3,6 @@
     Published under the standard MIT License.
     Full text available at: https://opensource.org/licenses/MIT
 */
-
-import type { At } from "../../kicad/common";
 import { Matrix3 } from "./matrix3";
 import { Vec2 } from "./vec2";
 
@@ -278,5 +276,11 @@ export class BBox {
         }
 
         return end;
+    }
+
+    move(x: number, y: number) {
+        this.x += x;
+        this.y += y;
+        return this;
     }
 }

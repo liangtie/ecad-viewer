@@ -13,6 +13,7 @@ import * as board_items from "../../kicad/board";
 import {
     BoardBBoxVisitor,
     BoardHighlightItem,
+    Depth,
 } from "../../kicad/board_bbox_visitor";
 import { DocumentViewer } from "../base/document-viewer";
 import { ViewerType } from "../base/viewer";
@@ -31,6 +32,8 @@ export class BoardViewer extends DocumentViewer<
     #crossHightAble: OrderedMap<number, Map<string, BoardHighlightItem>> =
         OrderedMap();
 
+    #hightItem: BoardHighlightItem[] = [];
+
     get board(): board_items.KicadPCB {
         return this.document;
     }
@@ -39,14 +42,14 @@ export class BoardViewer extends DocumentViewer<
         const visitor = new BoardBBoxVisitor();
         visitor.visit(src);
 
-        for (const e of visitor.highlight_item) {
-            if (!this.#crossHightAble.has(e.depth))
-                this.#crossHightAble = this.#crossHightAble.set(
-                    e.depth,
-                    new Map(),
-                );
-            this.#crossHightAble.get(e.depth)?.set(e.index, e);
+        for (let k = Depth.START; k < Depth.END; k++) {
+            this.#crossHightAble = this.#crossHightAble.set(k, new Map());
         }
+
+        for (const e of visitor.highlight_item)
+            this.#crossHightAble.get(e.depth)?.set(e.index, e);
+
+        this.#hightItem = visitor.highlight_item;
         await super.load(src);
     }
 
