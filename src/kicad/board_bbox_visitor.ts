@@ -65,6 +65,7 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     protected override visitLineSegment(lineSegment: LineSegment) {
         return true;
     }
+
     protected override visitArcSegment(arcSegment: ArcSegment) {
         return true;
     }

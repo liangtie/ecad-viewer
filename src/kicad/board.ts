@@ -61,6 +61,7 @@ export class KicadPCB implements BoardNode {
             ...this.zones,
             ...this.vias,
             ...this.drawings,
+            ...this.segments,
         ];
     }
 

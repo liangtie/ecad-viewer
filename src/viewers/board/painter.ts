@@ -1074,9 +1074,11 @@ export class BoardPainter extends DocumentPainter {
         const layer = this.layers.overlay;
 
         layer.clear();
-        layer.color = Color.white;
+
         this.gfx.start_layer(layer.name);
-        if (item)
+        if (item) {
+            layer.color = item.highlightColor;
+
             this.gfx.line(
                 [
                     item.bbox.top_left,
@@ -1085,13 +1087,16 @@ export class BoardPainter extends DocumentPainter {
                     item.bbox.bottom_left,
                     item.bbox.top_left,
                 ],
-                0.3,
-                item.highlightColor,
+                0.2,
+                Color.red,
             );
-
+        }
+        layer.highlighted = true;
         layer.graphics = this.gfx.end_layer();
-        layer.graphics.composite_operation = "overlay";
+        layer.graphics.composite_operation = "xor";
+
         this.filter_net = null;
+
         return true;
     }
 }

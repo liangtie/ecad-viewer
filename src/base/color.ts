@@ -28,6 +28,10 @@ export class Color {
         return new Color(1, 1, 1, 1);
     }
 
+    static get red() {
+        return new Color(1, 0, 0, 1);
+    }
+
     static from_css(str: string) {
         let r, g, b, a;
 
