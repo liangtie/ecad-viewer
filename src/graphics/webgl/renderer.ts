@@ -46,8 +46,8 @@ export class WebGL2Renderer extends Renderer {
         this.gl = gl;
 
         gl.enable(gl.BLEND);
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        // gl.blendEquation(gl.FUNC_ADD);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.GREATER);
@@ -218,14 +218,10 @@ class WebGL2RenderLayer extends RenderLayer {
         const total_transform =
             this.renderer.projection_matrix.multiply(transform);
 
-        if (this.composite_operation != "source-over") {
-            gl.blendFunc(gl.ONE_MINUS_DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
-        }
+        // gl.blendFunc(gl.ONE_MINUS_DST_COLOR, gl.ONE_MINUS_SRC_ALPHA);
 
         this.geometry.render(total_transform, depth, global_alpha);
 
-        if (this.composite_operation != "source-over") {
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        }
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 }
