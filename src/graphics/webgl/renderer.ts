@@ -214,7 +214,7 @@ class WebGL2RenderLayer extends RenderLayer {
     }
 
     render(transform: Matrix3, depth: number, global_alpha = 1) {
-        const gl = this.renderer.gl!;
+        // const gl = this.renderer.gl!;
         const total_transform =
             this.renderer.projection_matrix.multiply(transform);
 
