@@ -5,7 +5,8 @@
 */
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
-import { BBox, Vec2 } from "../../base/math";
+import { listen } from "../../base/events";
+import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -68,32 +69,16 @@ export class BoardViewer extends DocumentViewer<
         return new Vec2(0, 0);
     }
 
-    protected override on_pick(
-        mouse: Vec2,
-        items: Generator<{ layer: ViewLayer; bbox: BBox }, void, unknown>,
-    ): void {
-        let selected = null;
+    override async setup() {
+        await super.setup();
 
-        for (const { layer: _, bbox } of items) {
-            if (bbox.context instanceof board_items.Footprint) {
-                selected = bbox.context;
-                break;
-            }
-        }
-
-        this.select(selected);
-    }
-
-    override select(item: board_items.Footprint | string | BBox | null) {
-        // // If item is a string, find the footprint by uuid or reference.
-        // if (is_string(item)) {
-        //     item = this.board.find_footprint(item);
-        // }
-        // // If it's a footprint, use the footprint's nominal bounding box.
-        // if (item instanceof board_items.Footprint) {
-        //     item = item.bbox;
-        // }
-        // super.select(item);
+        this.disposables.add(
+            listen(this.canvas, "click", (e) => {
+                if (this.#last_hover && this.#last_hover.net) {
+                    this.painter.paint_net(this.board, this.#last_hover.net);
+                }
+            }),
+        );
     }
 
     highlight_net(net: number) {
@@ -169,8 +154,7 @@ export class BoardViewer extends DocumentViewer<
     override on_hover() {
         const hover_item = this.findInteractive(this.hover_position);
         if (hover_item === this.#last_hover) return;
-        if (hover_item) hover_item.highlight(this.painter);
-        else this.painter.clear_highlight();
+        this.painter.highlight(hover_item);
         this.draw();
         this.#last_hover = hover_item;
     }

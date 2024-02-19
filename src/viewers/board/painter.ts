@@ -27,6 +27,11 @@ import {
     virtual_layer_for,
 } from "./layers";
 import type { BoardTheme } from "../../kicad";
+import {
+    BoxInteractiveItem,
+    LineInteractiveItem,
+    type BoardInteractiveItem,
+} from "../../kicad/board_bbox_visitor";
 
 abstract class BoardItemPainter extends ItemPainter {
     override view_painter: BoardPainter;
@@ -1063,12 +1068,31 @@ export class BoardPainter extends DocumentPainter {
         this.filter_net = null;
     }
 
-    clear_highlight() {
-        const layer = this.layers.overlay;
+    highlight(item: BoardInteractiveItem | null) {
+        const layer = this.layers.source_over;
         layer.clear();
         this.gfx.start_layer(layer.name);
-        layer.highlighted = true;
+        if (item) {
+            if (item instanceof LineInteractiveItem)
+                this.gfx.line(
+                    [item.line.start, item.line.end],
+                    item.line.width,
+                    Color.cyan,
+                );
+            else if (item instanceof BoxInteractiveItem)
+                this.gfx.line(
+                    [
+                        item.bbox.top_left,
+                        item.bbox.top_right,
+                        item.bbox.bottom_right,
+                        item.bbox.bottom_left,
+                        item.bbox.top_left,
+                    ],
+                    0.2,
+                    Color.cyan,
+                );
+        }
         layer.graphics = this.gfx.end_layer();
-        return true;
+        layer.graphics.composite_operation = "source-over";
     }
 }

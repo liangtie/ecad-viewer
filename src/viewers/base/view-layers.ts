@@ -14,6 +14,7 @@ import { Color, RenderLayer } from "../../graphics";
  */
 export enum ViewLayerNames {
     overlay = ":Overlay",
+    source_over = ":SourceOver",
     drawing_sheet = ":DrawingSheet",
     grid = ":Grid",
 }
@@ -140,6 +141,7 @@ export class ViewLayerSet implements IDisposable {
     #layer_list: ViewLayer[] = [];
     #layer_map: Map<string, ViewLayer> = new Map();
     #overlay: ViewLayer;
+    #source_over: ViewLayer;
 
     /**
      * Create a new LayerSet
@@ -148,6 +150,13 @@ export class ViewLayerSet implements IDisposable {
         this.#overlay = new ViewLayer(
             this,
             ViewLayerNames.overlay,
+            true,
+            false,
+            Color.white,
+        );
+        this.#source_over = new ViewLayer(
+            this,
+            ViewLayerNames.source_over,
             true,
             false,
             Color.white,
@@ -210,6 +219,8 @@ export class ViewLayerSet implements IDisposable {
         }
 
         yield this.#overlay;
+
+        yield this.#source_over;
     }
 
     /**
@@ -236,6 +247,10 @@ export class ViewLayerSet implements IDisposable {
      */
     get overlay() {
         return this.#overlay;
+    }
+
+    get source_over() {
+        return this.#source_over;
     }
 
     /**

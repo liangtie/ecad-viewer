@@ -96,6 +96,11 @@ export class Color {
         return `rgba(${this.r_255}, ${this.g_255}, ${this.b_255}, ${this.a})`;
     }
 
+    get grayscale() {
+        const luminosity = this.r * 0.299 + this.g * 0.587 + this.b * 0.114;
+        return new Color(luminosity, luminosity, luminosity, this.a);
+    }
+
     to_array(): [number, number, number, number] {
         return [this.r, this.g, this.b, this.a];
     }

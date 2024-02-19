@@ -107,13 +107,6 @@ export abstract class Viewer extends EventTarget {
                     this.on_mouse_change(e as MouseEvent);
                 }),
             );
-
-            this.disposables.add(
-                listen(this.canvas, "click", (e) => {
-                    const items = this.layers.query_point(this.mouse_position);
-                    this.on_pick(this.mouse_position, items);
-                }),
-            );
         }
 
         this.setup_finished.open();

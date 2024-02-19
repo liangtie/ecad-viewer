@@ -1,7 +1,5 @@
 import type { Interactive } from "../base/interactive";
 import { Angle, BBox, Matrix3, Vec2 } from "../base/math";
-import { Color } from "../graphics";
-import type { DocumentPainter } from "../viewers/base/painter";
 import {
     LineSegment,
     ArcSegment,
@@ -40,38 +38,25 @@ export enum Depth {
 
 export interface BoardInteractiveItem extends Interactive {
     depth: number;
+    net: number | null;
 }
 
-export class BoxInteractiveItem implements Interactive {
+export class BoxInteractiveItem implements BoardInteractiveItem {
     #bbox: BBox;
+
+    get bbox() {
+        return this.#bbox;
+    }
+
     constructor(
         bbox: BBox,
         public depth: number,
+        public net: number | null,
     ) {
         this.#bbox = bbox;
     }
     contains(pos: Vec2): boolean {
         return this.#bbox.contains_point(pos);
-    }
-    highlight(painter: DocumentPainter): void {
-        const layer = painter.layers.overlay;
-        layer.clear();
-        painter.gfx.start_layer(layer.name);
-        painter.gfx.line(
-            [
-                this.#bbox.top_left,
-                this.#bbox.top_right,
-                this.#bbox.bottom_right,
-                this.#bbox.bottom_left,
-                this.#bbox.top_left,
-            ],
-            0.2,
-            Color.cyan,
-        );
-
-        layer.highlighted = true;
-        layer.graphics = painter.gfx.end_layer();
-        layer.graphics.composite_operation = "source-over";
     }
     select(): void {
         throw new Error("Method not implemented.");
@@ -84,92 +69,89 @@ export interface BoardLine {
     width: number;
 }
 
-function pointOnLineSegment(p0: Vec2, p1: Vec2, p2: Vec2, width: number) {
-    // Function to calculate the perpendicular distance from a point to a line
-    function pointToLineDistance(point: Vec2, lineStart: Vec2, lineEnd: Vec2) {
-        const lineVector = {
-            x: lineEnd.x - lineStart.x,
-            y: lineEnd.y - lineStart.y,
-        };
-        const pointVector = {
-            x: point.x - lineStart.x,
-            y: point.y - lineStart.y,
-        };
-
-        const crossProduct =
-            pointVector.x * lineVector.y - pointVector.y * lineVector.x;
-        return (
-            Math.abs(crossProduct) /
-            Math.sqrt(lineVector.x ** 2 + lineVector.y ** 2)
-        );
-    }
-
-    // Function to check if a point is within the extended range of a line segment
-    function isPointOnExtendedLineSegment(
-        point: Vec2,
-        lineStart: Vec2,
-        lineEnd: Vec2,
-        extendedWidth: number,
-    ) {
-        const minX = Math.min(lineStart.x, lineEnd.x) - extendedWidth;
-        const maxX = Math.max(lineStart.x, lineEnd.x) + extendedWidth;
-        const minY = Math.min(lineStart.y, lineEnd.y) - extendedWidth;
-        const maxY = Math.max(lineStart.y, lineEnd.y) + extendedWidth;
-
-        return (
-            point.x >= minX &&
-            point.x <= maxX &&
-            point.y >= minY &&
-            point.y <= maxY
-        );
-    }
-
-    // Calculate the extended width based on half of the line width
-    const extendedWidth = width / 2;
-
-    // Check if P0 is within the extended range of the line segment
-    if (isPointOnExtendedLineSegment(p0, p1, p2, extendedWidth)) {
-        // Calculate the perpendicular distance
-        const distance = pointToLineDistance(p0, p1, p2);
-
-        // Check if the distance is within half of the width
-        return distance <= extendedWidth;
-    }
-
-    return false;
-}
-export class LineInteractiveItem implements Interactive {
+export class LineInteractiveItem implements BoardInteractiveItem {
     #line: BoardLine;
+
+    get line() {
+        return this.#line;
+    }
+
     constructor(
         public depth: number,
         line: BoardLine,
+        public net: number,
     ) {
         this.#line = line;
     }
     contains(pos: Vec2): boolean {
-        return pointOnLineSegment(
+        return LineInteractiveItem.pointOnLineSegment(
             pos,
             this.#line.start,
             this.#line.end,
             this.#line.width,
         );
     }
-    highlight(painter: DocumentPainter): void {
-        const layer = painter.layers.overlay;
-        layer.clear();
-        painter.gfx.start_layer(layer.name);
-        painter.gfx.line(
-            [this.#line.start, this.#line.end],
-            this.#line.width,
-            Color.cyan,
-        );
-
-        layer.highlighted = true;
-        layer.graphics = painter.gfx.end_layer();
-        layer.graphics.composite_operation = "source-over";
-    }
     select(): void {
         throw new Error("Method not implemented.");
+    }
+
+    static pointOnLineSegment(p0: Vec2, p1: Vec2, p2: Vec2, width: number) {
+        // Function to calculate the perpendicular distance from a point to a line
+        function pointToLineDistance(
+            point: Vec2,
+            lineStart: Vec2,
+            lineEnd: Vec2,
+        ) {
+            const lineVector = {
+                x: lineEnd.x - lineStart.x,
+                y: lineEnd.y - lineStart.y,
+            };
+            const pointVector = {
+                x: point.x - lineStart.x,
+                y: point.y - lineStart.y,
+            };
+
+            const crossProduct =
+                pointVector.x * lineVector.y - pointVector.y * lineVector.x;
+            return (
+                Math.abs(crossProduct) /
+                Math.sqrt(lineVector.x ** 2 + lineVector.y ** 2)
+            );
+        }
+
+        // Function to check if a point is within the extended range of a line segment
+        function isPointOnExtendedLineSegment(
+            point: Vec2,
+            lineStart: Vec2,
+            lineEnd: Vec2,
+            extendedWidth: number,
+        ) {
+            const minX = Math.min(lineStart.x, lineEnd.x) - extendedWidth;
+            const maxX = Math.max(lineStart.x, lineEnd.x) + extendedWidth;
+            const minY = Math.min(lineStart.y, lineEnd.y) - extendedWidth;
+            const maxY = Math.max(lineStart.y, lineEnd.y) + extendedWidth;
+
+            return (
+                point.x >= minX &&
+                point.x <= maxX &&
+                point.y >= minY &&
+                point.y <= maxY
+            );
+        }
+
+        // Calculate the extended width based on half of the line width
+        const extendedWidth = width / 2;
+
+        // Check if P0 is within the extended range of the line segment
+        if (isPointOnExtendedLineSegment(p0, p1, p2, extendedWidth)) {
+            // Calculate the perpendicular distance
+            const distance = pointToLineDistance(p0, p1, p2);
+
+            // Check if the distance is within half of the width
+            return distance <= extendedWidth;
+        }
+
+        return false;
     }
 }
 
@@ -182,11 +164,15 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
 
     protected override visitLineSegment(lineSegment: LineSegment) {
         this.highlight_item.push(
-            new LineInteractiveItem(Depth.LINE_SEGMENTS, {
-                start: lineSegment.start,
-                end: lineSegment.end,
-                width: lineSegment.width,
-            }),
+            new LineInteractiveItem(
+                Depth.LINE_SEGMENTS,
+                {
+                    start: lineSegment.start,
+                    end: lineSegment.end,
+                    width: lineSegment.width,
+                },
+                lineSegment.net,
+            ),
         );
         return true;
     }
@@ -204,6 +190,7 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
                     via.size,
                 ),
                 Depth.VIA,
+                via.net,
             ),
         );
         return true;
@@ -246,12 +233,14 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitFootprint(footprint: Footprint) {
         const bb = footprint.bbox;
-        this.highlight_item.push(new BoxInteractiveItem(bb, Depth.FOOT_PRINT));
+        this.highlight_item.push(
+            new BoxInteractiveItem(bb, Depth.FOOT_PRINT, null),
+        );
         return true;
     }
     protected override visitGraphicItem(graphicItem: GraphicItem) {
         this.highlight_item.push(
-            new BoxInteractiveItem(graphicItem.bbox, Depth.GRAPHICS),
+            new BoxInteractiveItem(graphicItem.bbox, Depth.GRAPHICS, null),
         );
         return true;
     }
@@ -323,23 +312,13 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
             new BoxInteractiveItem(
                 bbox.transform(position_mat).transform(M1),
                 Depth.PAD,
+                pad?.net?.number,
             ),
         );
 
         return true;
     }
     protected override visitPadDrill(padDrill: PadDrill) {
-        this.highlight_item.push(
-            new BoxInteractiveItem(
-                new BBox(
-                    padDrill.offset.x,
-                    padDrill.offset.y,
-                    padDrill.width,
-                    padDrill.width,
-                ),
-                Depth.VIA,
-            ),
-        );
         return true;
     }
 }
