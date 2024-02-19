@@ -5,7 +5,7 @@
 */
 
 import { css, html } from "../../../base/web-components";
-import { KCUIElement } from "../../../kc-ui";
+import { KCUIElement, KCUIPanelTitleElement } from "../../../kc-ui";
 import { Footprint } from "../../../kicad/board";
 import type { BoardInspectItem } from "../../../kicad/board_bbox_visitor";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
@@ -14,6 +14,9 @@ import { BoardViewer } from "../../../viewers/board/viewer";
 export class KCBoardPropertiesPanelElement extends KCUIElement {
     viewer: BoardViewer;
     selected_item?: BoardInspectItem;
+    #title = html`
+        <kc-ui-panel-title title="Properties"></kc-ui-panel-title>
+    ` as KCUIPanelTitleElement;
     static override styles = [
         ...KCUIElement.styles,
         css`
@@ -25,57 +28,6 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
                 overflow: hidden;
                 min-width: calc(max(20%, 200px));
                 max-width: calc(max(20%, 200px));
-            }
-
-            div {
-                display: flex;
-                overflow: hidden;
-                flex-direction: column;
-            }
-
-            div.bar {
-                flex-grow: 0;
-                flex-shrink: 0;
-                height: 100%;
-                z-index: 1;
-                display: flex;
-                flex-direction: column;
-                background: var(--activity-bar-bg);
-                color: var(--activity-bar-fg);
-                padding: 0.2em;
-                user-select: none;
-            }
-
-            div.start {
-                flex: 1;
-            }
-
-            div.activities {
-                flex-grow: 1;
-            }
-
-            kc-ui-button {
-                --button-bg: transparent;
-                --button-fg: var(--activity-bar-fg);
-                --button-hover-bg: var(--activity-bar-active-bg);
-                --button-hover-fg: var(--activity-bar-active-fg);
-                --button-selected-bg: var(--activity-bar-active-bg);
-                --button-selected-fg: var(--activity-bar-active-fg);
-                --button-focus-outline: none;
-                margin-bottom: 0.25em;
-            }
-
-            kc-ui-button:last-child {
-                margin-bottom: 0;
-            }
-
-            ::slotted(kc-ui-activity) {
-                display: none;
-                height: 100%;
-            }
-
-            ::slotted(kc-ui-activity[active]) {
-                display: block;
             }
         `,
     ];
@@ -92,10 +44,15 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
     private setup_events() {
         this.addDisposable(
             this.viewer.addEventListener(KiCanvasSelectEvent.type, (e) => {
+                this.hidden = false;
                 this.selected_item = e.detail.item as BoardInspectItem;
                 this.update();
             }),
         );
+
+        this.#title.close.addEventListener("click", (e) => {
+            this.hidden = true;
+        });
     }
 
     override render() {
@@ -180,7 +137,7 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
 
         return html`
             <kc-ui-panel>
-                <kc-ui-panel-title title="Properties"></kc-ui-panel-title>
+                ${this.#title}
                 <kc-ui-panel-body>
                     <kc-ui-property-list> ${entries} </kc-ui-property-list>
                 </kc-ui-panel-body>

@@ -5,6 +5,7 @@
 */
 
 import { css, html } from "../base/web-components";
+import type { KCUIButtonElement } from "./button";
 import { KCUIElement } from "./element";
 
 /**
@@ -41,20 +42,33 @@ export class KCUIPanelElement extends KCUIElement {
 window.customElements.define("kc-ui-panel", KCUIPanelElement);
 
 export class KCUIPanelTitleElement extends KCUIElement {
+    #close = html`<kc-ui-button
+        slot="right"
+        variant="toolbar"
+        name="reset"
+        title="reset"
+        icon="svg:close">
+    </kc-ui-button>` as KCUIButtonElement;
+
+    get close() {
+        return this.#close;
+    }
+
     static override styles = [
         ...KCUIElement.styles,
         css`
             :host {
-                flex: 0;
+                flex: 0 1;
                 width: 100%;
                 text-align: left;
                 padding: 0.2em 0.8em 0.2em 0.4em;
                 display: flex;
                 align-items: center;
-                background: var(--panel-title-bg);
-                color: var(--panel-title-fg);
+                background: #484848;
+                color: white;
                 border-top: var(--panel-title-border);
                 user-select: none;
+                height: 10%;
             }
 
             div.title {
@@ -75,7 +89,8 @@ export class KCUIPanelTitleElement extends KCUIElement {
         return html`<div class="title">${this.title}</div>
             <div class="actions">
                 <slot name="actions"></slot>
-            </div>`;
+            </div>
+            <div>${this.#close}</div> `;
     }
 }
 
@@ -93,6 +108,8 @@ export class KCUIPanelBodyElement extends KCUIElement {
                 flex: 1 0;
                 font-weight: 300;
                 font-size: 1em;
+                color: white;
+                background: #282828;
             }
 
             :host([padded]) {
