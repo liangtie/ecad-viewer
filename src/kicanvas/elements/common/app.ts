@@ -50,11 +50,11 @@ export interface SourceSelection {
 export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
-    #viewer_elm: ViewerElementT;
+    viewer_elm: ViewerElementT;
     select: KCUISelectElement = html`<kc-ui-select>
     </kc-ui-select> ` as KCUISelectElement;
 
-    #activity_bar: KCUIActivitySideBarElement | null;
+    activity_bar: KCUIActivitySideBarElement | null;
 
     top_toolbar: HTMLElement;
 
@@ -67,7 +67,7 @@ export abstract class KCViewerAppElement<
     }
 
     get viewer() {
-        return this.#viewer_elm.viewer;
+        return this.viewer_elm.viewer;
     }
 
     @attribute({ type: String })
@@ -117,13 +117,13 @@ export abstract class KCViewerAppElement<
                 }
             }),
         );
-
-        this.select.select.addEventListener("change", (e) => {
-            this.apply_alter_src({
-                idx: this.select.select.selectedIndex,
-                name: this.select.select.value,
+        if (this.select.select)
+            this.select.select.addEventListener("change", (e) => {
+                this.apply_alter_src({
+                    idx: this.select.select.selectedIndex,
+                    name: this.select.select.value,
+                });
             });
-        });
 
         // Handle item selection in the viewers.
         this.addDisposable(
@@ -158,15 +158,15 @@ export abstract class KCViewerAppElement<
     override async load(src: KicadAssert) {
         await this.viewerReady;
         if (this.can_load(src)) {
-            await this.#viewer_elm.load(src);
+            await this.viewer_elm.load(src);
             this.hidden = false;
         } else {
             this.hidden = true;
         }
 
-        if (this.#viewer_elm.viewer instanceof SchematicViewer)
+        if (this.viewer_elm.viewer instanceof SchematicViewer)
             this.select.addSelections(
-                (this.#viewer_elm.viewer as SchematicViewer)
+                (this.viewer_elm.viewer as SchematicViewer)
                     .alter_footprint_parts,
             );
         return;
@@ -218,15 +218,15 @@ export abstract class KCViewerAppElement<
     protected abstract make_activities(): ElementOrFragment[];
 
     protected change_activity(name?: string) {
-        this.#activity_bar?.change_activity(name);
+        this.activity_bar?.change_activity(name);
     }
 
     protected abstract make_viewer_element(): ViewerElementT;
 
     override render() {
         const controls = this.controls ?? "none";
-        this.#viewer_elm = this.make_viewer_element();
-        this.#viewer_elm.disableinteraction = controls == "none";
+        this.viewer_elm = this.make_viewer_element();
+        this.viewer_elm.disableinteraction = controls == "none";
         const bottom_toolbar = html`<kc-viewer-bottom-toolbar></kc-viewer-bottom-toolbar>`;
         this.top_toolbar = html`<kc-ui-floating-toolbar>
             ${this.select}
@@ -243,9 +243,9 @@ export abstract class KCViewerAppElement<
 
         return html`<kc-ui-split-view vertical>
             <kc-ui-view class="grow">
-                ${this.top_toolbar} ${this.#viewer_elm} ${bottom_toolbar}
+                ${this.top_toolbar} ${this.viewer_elm} ${bottom_toolbar}
             </kc-ui-view>
-            ${this.#activity_bar}
+            ${this.activity_bar}
         </kc-ui-split-view>`;
     }
 

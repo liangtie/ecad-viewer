@@ -4,6 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { listen } from "../../base/events";
 import { Vec2 } from "../../base/math";
@@ -17,6 +18,7 @@ import {
     Depth,
 } from "../../kicad/board_bbox_visitor";
 import { DocumentViewer } from "../base/document-viewer";
+import { KiCanvasSelectEvent } from "../base/events";
 import { ViewerType } from "../base/viewer";
 import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
@@ -74,16 +76,25 @@ export class BoardViewer extends DocumentViewer<
 
         this.disposables.add(
             listen(this.canvas, "click", (e) => {
-                if (this.#last_hover && this.#last_hover.net) {
-                    this.painter.paint_net(this.board, this.#last_hover.net);
-                }
+                if (this.#last_hover && this.#last_hover.item)
+                    this.dispatchEvent(
+                        new KiCanvasSelectEvent({
+                            item: this.#last_hover.item,
+                            previous: null,
+                        }),
+                    );
+                later(() => {
+                    this.painter.paint_net(
+                        this.board,
+                        this.#last_hover?.net ?? null,
+                    );
+                });
             }),
         );
     }
 
     highlight_net(net: number) {
         this.painter.paint_net(this.board, net);
-        this.draw();
     }
 
     private set_layers_opacity(layers: Generator<ViewLayer>, opacity: number) {

@@ -1044,7 +1044,7 @@ export class BoardPainter extends DocumentPainter {
     // should use this to determine whether to draw or skip the current item.
     filter_net: number | null = null;
 
-    paint_net(board: board_items.KicadPCB, net: number) {
+    paint_net(board: board_items.KicadPCB, net: number | null) {
         const layer = this.layers.overlay;
 
         this.filter_net = net;

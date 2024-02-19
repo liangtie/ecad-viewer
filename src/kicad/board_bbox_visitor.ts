@@ -36,9 +36,12 @@ export enum Depth {
     END,
 }
 
+export type BoardInspectItem = Footprint | Pad | LineSegment;
+
 export interface BoardInteractiveItem extends Interactive {
     depth: number;
     net: number | null;
+    item: BoardInspectItem | null;
 }
 
 export class BoxInteractiveItem implements BoardInteractiveItem {
@@ -52,6 +55,7 @@ export class BoxInteractiveItem implements BoardInteractiveItem {
         bbox: BBox,
         public depth: number,
         public net: number | null,
+        public item: BoardInspectItem | null,
     ) {
         this.#bbox = bbox;
     }
@@ -80,6 +84,7 @@ export class LineInteractiveItem implements BoardInteractiveItem {
         public depth: number,
         line: BoardLine,
         public net: number,
+        public item: BoardInspectItem,
     ) {
         this.#line = line;
     }
@@ -172,6 +177,7 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
                     width: lineSegment.width,
                 },
                 lineSegment.net,
+                lineSegment,
             ),
         );
         return true;
@@ -191,6 +197,7 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
                 ),
                 Depth.VIA,
                 via.net,
+                null,
             ),
         );
         return true;
@@ -234,13 +241,18 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     protected override visitFootprint(footprint: Footprint) {
         const bb = footprint.bbox;
         this.highlight_item.push(
-            new BoxInteractiveItem(bb, Depth.FOOT_PRINT, null),
+            new BoxInteractiveItem(bb, Depth.FOOT_PRINT, null, footprint),
         );
         return true;
     }
     protected override visitGraphicItem(graphicItem: GraphicItem) {
         this.highlight_item.push(
-            new BoxInteractiveItem(graphicItem.bbox, Depth.GRAPHICS, null),
+            new BoxInteractiveItem(
+                graphicItem.bbox,
+                Depth.GRAPHICS,
+                null,
+                null,
+            ),
         );
         return true;
     }
@@ -313,6 +325,7 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
                 bbox.transform(position_mat).transform(M1),
                 Depth.PAD,
                 pad?.net?.number,
+                pad,
             ),
         );
 

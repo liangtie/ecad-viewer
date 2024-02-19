@@ -4,7 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { html } from "../../../base/web-components";
+import { html, type ElementOrFragment } from "../../../base/web-components";
 import { KicadPCB } from "../../../kicad";
 import {
     KCViewerAppElement,
@@ -25,6 +25,7 @@ import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
 import { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
+import type { KCBoardPropertiesPanelElement } from "./properties-panel";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -32,6 +33,13 @@ import { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footp
  * basically KiCanvas's version of PCBNew.
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
+    protected override make_activities(): ElementOrFragment[] {
+        return [];
+    }
+
+    #property_panel: KCBoardPropertiesPanelElement =
+        html`<kc-board-properties-panel></kc-board-properties-panel>` as KCBoardPropertiesPanelElement;
+
     override on_viewer_select(item?: unknown, previous?: unknown) {
         // Selecting the same item twice should show the properties panel.
         if (item && item == previous) {
@@ -55,45 +63,13 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
         return html`<kc-board-viewer></kc-board-viewer>` as KCBoardViewerElement;
     }
 
-    override make_activities() {
-        return [
-            // Layers
-            html`<kc-ui-activity slot="activities" name="Layers" icon="layers">
-                <kc-board-layers-panel></kc-board-layers-panel>
-            </kc-ui-activity>`,
-            // Objects
-            html`<kc-ui-activity
-                slot="activities"
-                name="Objects"
-                icon="category">
-                <kc-board-objects-panel></kc-board-objects-panel>
-            </kc-ui-activity>`,
-            // Footprints
-            html`<kc-ui-activity
-                slot="activities"
-                name="Footprints"
-                icon="memory">
-                <kc-board-footprints-panel></kc-board-footprints-panel>
-            </kc-ui-activity>`,
-            // Nets
-            html`<kc-ui-activity slot="activities" name="Nets" icon="hub">
-                <kc-board-nets-panel></kc-board-nets-panel>
-            </kc-ui-activity>`,
-            // Properties
-            html`<kc-ui-activity
-                slot="activities"
-                name="Properties"
-                icon="list">
-                <kc-board-properties-panel></kc-board-properties-panel>
-            </kc-ui-activity>`,
-            // Board info
-            html`<kc-ui-activity
-                slot="activities"
-                name="Board info"
-                icon="info">
-                <kc-board-info-panel></kc-board-info-panel>
-            </kc-ui-activity>`,
-        ];
+    override render() {
+        this.viewer_elm = this.make_viewer_element();
+
+        return html`<kc-ui-split-view vertical>
+            <kc-ui-view class="grow"> ${this.viewer_elm} </kc-ui-view>
+            ${this.#property_panel}
+        </kc-ui-split-view>`;
     }
 }
 
