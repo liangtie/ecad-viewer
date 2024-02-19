@@ -6,7 +6,7 @@
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { BBox, Vec2 } from "../../base/math";
-import { Renderer } from "../../graphics";
+import { Color, Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
 import * as board_items from "../../kicad/board";
@@ -52,6 +52,7 @@ export class BoardViewer extends DocumentViewer<
 
     protected override create_renderer(canvas: HTMLCanvasElement): Renderer {
         const renderer = new WebGL2Renderer(canvas);
+        renderer.background_color = Color.gray;
         return renderer;
     }
 

@@ -40,6 +40,10 @@ export class Color {
         return new Color(81 / 255, 255 / 255, 159 / 255, 1);
     }
 
+    static get gray() {
+        return new Color(200 / 255, 200 / 255, 200 / 255, 1);
+    }
+
     static from_css(str: string) {
         let r, g, b, a;
 

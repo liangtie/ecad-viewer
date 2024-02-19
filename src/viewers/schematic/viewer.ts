@@ -9,7 +9,7 @@ import { first } from "../../base/iterator";
 import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
 import { KicadSymbolLib } from "../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
-import { Renderer } from "../../graphics";
+import { Color, Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { type SchematicTheme } from "../../kicad";
 import {
@@ -51,6 +51,7 @@ export class SchematicViewer extends DocumentViewer<
         renderer.state.fill = this.theme.note;
         renderer.state.stroke = this.theme.note;
         renderer.state.stroke_width = 0.1524;
+        renderer.background_color = Color.gray;
         return renderer;
     }
 

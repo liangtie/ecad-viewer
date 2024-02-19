@@ -18,7 +18,7 @@ await context.watch();
 
 let { host, port } = await context.serve({
     servedir: "./debug",
-    port: 8001,
+    port: 8080,
 });
 
 console.log(`[serve] listening at http://${host}:${port}`);
