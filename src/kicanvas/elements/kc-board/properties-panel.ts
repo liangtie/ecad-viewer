@@ -192,7 +192,7 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
             ${this.header("Pad properties")} ${this.entry("Type", itm.type)}
             ${this.entry("Shape", itm.shape)}
             ${this.entry("Drill", itm.drill.diameter)}
-            ${this.entry("Net", itm.net.name)}
+            ${this.entry("Net", itm?.net?.name ?? "")}
             ${this.entry("PinNum", itm.number)}
             ${this.entry("PinType", itm.pintype)}
             ${this.entry("PinFunction", itm.pinfunction)}

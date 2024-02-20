@@ -4,6 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
@@ -36,17 +37,18 @@ export class BoardViewer extends DocumentViewer<
             )
         )
             this.draw();
+        later(() => {
+            this.dispatchEvent(
+                new KiCanvasSelectEvent({
+                    item: this.#last_hover?.contains(pos)
+                        ? this.#last_hover.item
+                        : null,
+                    previous: null,
+                }),
+            );
+        });
     }
-    override on_dblclick(pos: Vec2): void {
-        this.dispatchEvent(
-            new KiCanvasSelectEvent({
-                item: this.#last_hover?.contains(pos)
-                    ? this.#last_hover.item
-                    : null,
-                previous: null,
-            }),
-        );
-    }
+    override on_dblclick(pos: Vec2): void {}
     override type: ViewerType = ViewerType.PCB;
 
     #interactive: OrderedMap<number, BoardInteractiveItem[]> = OrderedMap();
