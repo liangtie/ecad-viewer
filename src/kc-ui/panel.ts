@@ -43,10 +43,9 @@ window.customElements.define("kc-ui-panel", KCUIPanelElement);
 
 export class KCUIPanelTitleElement extends KCUIElement {
     #close = html`<kc-ui-button
-        slot="right"
-        variant="toolbar"
-        name="reset"
-        title="reset"
+        variant="close"
+        name="close"
+        title="close"
         icon="svg:close">
     </kc-ui-button>` as KCUIButtonElement;
 
@@ -58,17 +57,16 @@ export class KCUIPanelTitleElement extends KCUIElement {
         ...KCUIElement.styles,
         css`
             :host {
-                flex: 0 1;
+                flex: 0;
                 width: 100%;
                 text-align: left;
                 padding: 0.2em 0.8em 0.2em 0.4em;
                 display: flex;
                 align-items: center;
-                background: #484848;
-                color: white;
+                background: var(--panel-title-bg);
+                color: var(--panel-title-fg);
                 border-top: var(--panel-title-border);
                 user-select: none;
-                height: 10%;
             }
 
             div.title {
@@ -108,8 +106,6 @@ export class KCUIPanelBodyElement extends KCUIElement {
                 flex: 1 0;
                 font-weight: 300;
                 font-size: 1em;
-                color: white;
-                background: #282828;
             }
 
             :host([padded]) {

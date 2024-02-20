@@ -5,11 +5,7 @@
 */
 
 import { html } from "../../../base/web-components";
-import {
-    KCViewerAppElement,
-    type KicadAssert,
-    type SourceSelection,
-} from "../common/app";
+import { type KicadAssert, type SourceSelection } from "../common/app";
 import { FootprintViewer } from "./footprint-viewer";
 
 // import dependent elements so they're registered before use.
@@ -24,20 +20,14 @@ import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
 import { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
+import { SimplAppElement } from "../common/simple_app";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
  * setting up the actual board viewer as well as interface controls. It's
  * basically KiCanvas's version of PCBNew.
  */
-export class FootprintAppElement extends KCViewerAppElement<FootprintViewer> {
-    override on_viewer_select(item?: unknown, previous?: unknown) {
-        // Selecting the same item twice should show the properties panel.
-        if (item && item == previous) {
-            this.change_activity("properties");
-        }
-    }
-
+export class FootprintAppElement extends SimplAppElement<FootprintViewer> {
     override can_load(src: KicadAssert): boolean {
         return src instanceof KicadFootprint;
     }
@@ -52,10 +42,6 @@ export class FootprintAppElement extends KCViewerAppElement<FootprintViewer> {
 
     override make_viewer_element(): FootprintViewer {
         return html`<footprint-viewer></footprint-viewer>` as FootprintViewer;
-    }
-
-    override make_activities() {
-        return [];
     }
 }
 

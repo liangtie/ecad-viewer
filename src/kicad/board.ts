@@ -53,6 +53,11 @@ export class KicadPCB implements BoardNode {
     vias: Via[] = [];
     drawings: Drawing[] = [];
     groups: Group[] = [];
+    #net_names: Map<number, string> = new Map();
+
+    public getNetName(idx: number) {
+        return this.#net_names.get(idx);
+    }
 
     public getChildren() {
         return [
@@ -107,6 +112,7 @@ export class KicadPCB implements BoardNode {
                 P.collection("groups", "group", T.item(Group)),
             ),
         );
+        for (const net of this.nets) this.#net_names.set(net.number, net.name);
     }
 
     *items() {
@@ -1408,12 +1414,69 @@ export class Pad implements CrossHightAble, BoardNode {
     typeId: BoardNodeType = "Pad";
     public static MyHighlightColor = new Color(0, 100, 100);
     public get bbox() {
-        return new BBox(
-            this.at.position.x - this.size.x / 2,
-            this.at.position.y - this.size.y / 2,
-            this.size.x,
-            this.size.y,
+        const ccc = this.#bbox();
+
+        const fp = this.parent;
+        const M1 = Matrix3.translation(
+            fp.at.position.x,
+            fp.at.position.y,
+        ).rotate(Angle.deg_to_rad(fp.at.rotation));
+
+        const position_mat = Matrix3.translation(
+            this.at.position.x,
+            this.at.position.y,
         );
+        position_mat.rotate_self(-Angle.deg_to_rad(this.parent.at.rotation));
+        position_mat.rotate_self(Angle.deg_to_rad(this.at.rotation));
+        if (this.drill?.offset) {
+            position_mat.translate_self(
+                this.drill.offset.x,
+                this.drill.offset.y,
+            );
+        }
+
+        return ccc.transform(position_mat).transform(M1);
+    }
+
+    #bbox() {
+        const position_mat = Matrix3.translation(
+            this.at.position.x,
+            this.at.position.y,
+        );
+
+        position_mat.rotate_self(-Angle.deg_to_rad(this.parent.at.rotation));
+        position_mat.rotate_self(Angle.deg_to_rad(this.at.rotation));
+
+        const center = new Vec2(0, 0);
+        switch (this.shape) {
+            case "circle": {
+                const r = this.size.x / 2;
+                return new BBox(-r, -r, 2 * r, 2 * r);
+            }
+            case "rect":
+            case "roundrect":
+            case "trapezoid":
+                return new BBox(
+                    -this.size.x / 2,
+                    -this.size.y / 2,
+                    this.size.x,
+                    this.size.y,
+                );
+            case "oval": {
+                const pad_pos = center.add(
+                    this.drill?.offset || new Vec2(0, 0),
+                );
+                return new BBox(
+                    pad_pos.x - this.size.x / 2,
+                    pad_pos.y - this.size.y / 2,
+                    this.size.x,
+                    this.size.y,
+                );
+            }
+
+            default:
+                return new BBox();
+        }
     }
 
     number: string; // I hate this

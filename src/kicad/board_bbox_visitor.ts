@@ -1,5 +1,5 @@
 import type { Interactive } from "../base/interactive";
-import { Angle, BBox, Matrix3, Vec2 } from "../base/math";
+import { BBox, Vec2 } from "../base/math";
 import {
     LineSegment,
     ArcSegment,
@@ -263,70 +263,9 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         return true;
     }
 
-    private getPadBBox(pad: Pad): BBox {
-        const position_mat = Matrix3.translation(
-            pad.at.position.x,
-            pad.at.position.y,
-        );
-
-        position_mat.rotate_self(-Angle.deg_to_rad(pad.parent.at.rotation));
-        position_mat.rotate_self(Angle.deg_to_rad(pad.at.rotation));
-
-        const center = new Vec2(0, 0);
-        switch (pad.shape) {
-            case "circle": {
-                const r = pad.size.x / 2;
-                return new BBox(-r, -r, 2 * r, 2 * r);
-            }
-            case "rect":
-            case "roundrect":
-            case "trapezoid":
-                return new BBox(
-                    -pad.size.x / 2,
-                    -pad.size.y / 2,
-                    pad.size.x,
-                    pad.size.y,
-                );
-            case "oval": {
-                const pad_pos = center.add(pad.drill?.offset || new Vec2(0, 0));
-                return new BBox(
-                    pad_pos.x - pad.size.x / 2,
-                    pad_pos.y - pad.size.y / 2,
-                    pad.size.x,
-                    pad.size.y,
-                );
-            }
-
-            default:
-                return new BBox();
-        }
-    }
-
     protected override visitPad(pad: Pad) {
-        const bbox = this.getPadBBox(pad);
-        const fp = pad.parent;
-        const M1 = Matrix3.translation(
-            fp.at.position.x,
-            fp.at.position.y,
-        ).rotate(Angle.deg_to_rad(fp.at.rotation));
-
-        const position_mat = Matrix3.translation(
-            pad.at.position.x,
-            pad.at.position.y,
-        );
-        position_mat.rotate_self(-Angle.deg_to_rad(pad.parent.at.rotation));
-        position_mat.rotate_self(Angle.deg_to_rad(pad.at.rotation));
-        if (pad.drill?.offset) {
-            position_mat.translate_self(pad.drill.offset.x, pad.drill.offset.y);
-        }
-
         this.highlight_item.push(
-            new BoxInteractiveItem(
-                bbox.transform(position_mat).transform(M1),
-                Depth.PAD,
-                pad?.net?.number,
-                pad,
-            ),
+            new BoxInteractiveItem(pad.bbox, Depth.PAD, pad?.net?.number, pad),
         );
 
         return true;

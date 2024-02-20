@@ -98,3 +98,86 @@ export class KCUIResizerElement extends KCUIElement {
 }
 
 window.customElements.define("kc-ui-resizer", KCUIResizerElement);
+
+export class HorizontalResizerElement extends KCUIElement {
+    #target: KCUIElement;
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                z-index: 999;
+                user-select: none;
+                display: block;
+                width: 6px;
+                height: 100%;
+                margin-left: -6px;
+                cursor: col-resize;
+                background: transparent;
+                opacity: 0;
+                transition: opacity var(--transition-time-medium, 500) ease;
+            }
+
+            :host(:hover) {
+                background: var(--resizer-bg, rebeccapurple);
+                opacity: 1;
+                transition: opacity var(--transition-time-short) ease;
+            }
+
+            :host(:hover.active),
+            :host(.active) {
+                background: var(--resizer-active-bg, rebeccapurple);
+            }
+        `,
+    ];
+
+    public constructor(handel: KCUIElement) {
+        super();
+        this.#target = handel;
+    }
+
+    override initialContentCallback() {
+        this.addEventListener("mousedown", (e) => {
+            const mouse_x = e.clientX;
+            const width = this.#target.getBoundingClientRect().width;
+
+            // prevent cursor flashing
+            document.body.style.cursor = "col-resize";
+
+            // prevent selection and pointer
+            this.#target.style.pointerEvents = "none";
+            this.#target.style.userSelect = "none";
+
+            this.#target.style.width = `${width}px`;
+            this.#target.style.maxWidth = "unset";
+
+            this.classList.add("active");
+
+            const mouse_move = (e: MouseEvent) => {
+                const ex = e.clientX;
+                const dx = mouse_x - ex;
+                const max_width =
+                    (document.querySelector("board-viewer")?.clientWidth ??
+                        document.body.clientWidth) * 0.4;
+                const now = width + dx;
+                if (now < max_width)
+                    this.#target.style.width = `${width + dx}px`;
+            };
+
+            const mouse_move_listener = this.addDisposable(
+                listen(window, "mousemove", mouse_move),
+            );
+
+            const mouse_up = (e: MouseEvent) => {
+                document.body.style.cursor = "";
+                this.#target.style.pointerEvents = "";
+                this.#target.style.userSelect = "";
+                this.classList.remove("active");
+                mouse_move_listener.dispose();
+            };
+
+            window.addEventListener("mouseup", mouse_up, { once: true });
+        });
+    }
+}
+
+window.customElements.define("ui-resizer", HorizontalResizerElement);

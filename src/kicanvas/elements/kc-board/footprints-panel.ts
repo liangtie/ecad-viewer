@@ -49,7 +49,7 @@ export class KCBoardFootprintsPanelElement extends KCUIElement {
                 return;
             }
 
-            this.viewer.select(item.name);
+            // this.viewer.select(item.name);
         });
 
         // Update the selected item in the list whenever the viewer's

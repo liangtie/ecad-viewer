@@ -28,7 +28,7 @@ import type { SchematicViewer } from "../../../viewers/schematic/viewer";
  * basically KiCanvas's version of EESchema.
  */
 export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerElement> {
-    protected override make_activities(): ElementOrFragment[] {
+    protected override make_property_element(): ElementOrFragment {
         throw new Error("Method not implemented.");
     }
     override on_viewer_select(item?: unknown, previous?: unknown) {
@@ -44,10 +44,6 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
             );
             return;
         }
-
-        // Otherwise, selecting the same item twice should show the
-        // properties panel.
-        this.change_activity("properties");
     }
 
     override apply_alter_src(idx: SourceSelection) {

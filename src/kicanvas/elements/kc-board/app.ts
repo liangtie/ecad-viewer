@@ -24,8 +24,6 @@ import "./nets-panel";
 import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
-import { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
-import type { KCBoardPropertiesPanelElement } from "./properties-panel";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -33,22 +31,16 @@ import type { KCBoardPropertiesPanelElement } from "./properties-panel";
  * basically KiCanvas's version of PCBNew.
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
-    protected override make_activities(): ElementOrFragment[] {
-        return [];
+    protected override make_property_element(): ElementOrFragment {
+        return html`<kc-board-properties-panel></kc-board-properties-panel>`;
     }
-
-    #property_panel: KCBoardPropertiesPanelElement =
-        html`<kc-board-properties-panel></kc-board-properties-panel>` as KCBoardPropertiesPanelElement;
 
     override on_viewer_select(item?: unknown, previous?: unknown) {
         // Selecting the same item twice should show the properties panel.
-        if (item && item == previous) {
-            this.change_activity("properties");
-        }
     }
 
     override can_load(src: KicadAssert): boolean {
-        return src instanceof KicadPCB || src instanceof KicadFootprint;
+        return src instanceof KicadPCB;
     }
 
     override apply_alter_src(idx: SourceSelection) {
@@ -61,15 +53,6 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
 
     override make_viewer_element(): KCBoardViewerElement {
         return html`<kc-board-viewer></kc-board-viewer>` as KCBoardViewerElement;
-    }
-
-    override render() {
-        this.viewer_elm = this.make_viewer_element();
-
-        return html`<kc-ui-split-view vertical>
-            <kc-ui-view class="grow"> ${this.viewer_elm} </kc-ui-view>
-            ${this.#property_panel}
-        </kc-ui-split-view>`;
     }
 }
 

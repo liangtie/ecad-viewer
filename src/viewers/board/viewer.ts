@@ -76,13 +76,12 @@ export class BoardViewer extends DocumentViewer<
 
         this.disposables.add(
             listen(this.canvas, "click", (e) => {
-                if (this.#last_hover && this.#last_hover.item)
-                    this.dispatchEvent(
-                        new KiCanvasSelectEvent({
-                            item: this.#last_hover.item,
-                            previous: null,
-                        }),
-                    );
+                this.dispatchEvent(
+                    new KiCanvasSelectEvent({
+                        item: this.#last_hover?.item ?? null,
+                        previous: null,
+                    }),
+                );
                 later(() => {
                     this.painter.paint_net(
                         this.board,

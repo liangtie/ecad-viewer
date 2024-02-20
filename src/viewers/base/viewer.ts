@@ -53,6 +53,9 @@ export abstract class Viewer extends EventTarget {
     ) {
         super();
         ViewerMaps.push(this);
+        canvas.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
     }
 
     dispose() {

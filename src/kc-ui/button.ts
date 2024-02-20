@@ -74,6 +74,10 @@ export class KCUIButtonElement extends KCUIElement {
                 background: var(--button-outline-bg);
                 color: var(--button-outline-fg);
             }
+            button.close {
+                background: var(--button-close-bg);
+                color: var(--button-close-fg);
+            }
 
             button.outline:hover {
                 background: var(--button-outline-hover-bg);
