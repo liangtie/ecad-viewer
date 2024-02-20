@@ -31,6 +31,11 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
     protected override make_property_element(): ElementOrFragment {
         throw new Error("Method not implemented.");
     }
+
+    protected override make_fitter_menu(): ElementOrFragment {
+        throw new Error("Method not implemented.");
+    }
+
     override on_viewer_select(item?: unknown, previous?: unknown) {
         // Only handle double-selecting/double-clicking on items.
         if (!item || item != previous) {

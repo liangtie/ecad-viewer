@@ -7,7 +7,7 @@
 import { css, html } from "../../../base/web-components";
 import {
     KCUIElement,
-    KCUIPanelTitleElement,
+    KCUIPanelTitleWithCloseElement,
     HorizontalResizerElement,
 } from "../../../kc-ui";
 import { Footprint, LineSegment, Pad } from "../../../kicad/board";
@@ -80,8 +80,9 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
         let entries;
 
         const title = html`
-            <kc-ui-panel-title title="Properties"></kc-ui-panel-title>
-        ` as KCUIPanelTitleElement;
+            <kc-ui-panel-title-with-close
+                title="Properties"></kc-ui-panel-title-with-close>
+        ` as KCUIPanelTitleWithCloseElement;
 
         title.close.addEventListener("click", (e) => {
             this.hidden = true;

@@ -42,6 +42,48 @@ export class KCUIPanelElement extends KCUIElement {
 window.customElements.define("kc-ui-panel", KCUIPanelElement);
 
 export class KCUIPanelTitleElement extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                flex: 0;
+                width: 100%;
+                text-align: left;
+                padding: 0.2em 0.8em 0.2em 0.4em;
+                display: flex;
+                align-items: center;
+                background: var(--panel-title-bg);
+                color: var(--panel-title-fg);
+                border-top: var(--panel-title-border);
+                user-select: none;
+            }
+
+            div.title {
+                flex: 1;
+                padding: 0.4em;
+            }
+
+            div.actions {
+                flex: 0 1;
+                display: flex;
+                flex-direction: row;
+                /* cheeky hack to work around scrollbar causing placement to be off. */
+                padding-right: 6px;
+            }
+        `,
+    ];
+
+    override render() {
+        return html`<div class="title">${this.title}</div>
+            <div class="actions">
+                <slot name="actions"></slot>
+            </div> `;
+    }
+}
+
+window.customElements.define("kc-ui-panel-title", KCUIPanelTitleElement);
+
+export class KCUIPanelTitleWithCloseElement extends KCUIElement {
     #close = html`<kc-ui-button
         variant="close"
         name="close"
@@ -71,6 +113,7 @@ export class KCUIPanelTitleElement extends KCUIElement {
 
             div.title {
                 flex: 1;
+                padding: 0.4em;
             }
 
             div.actions {
@@ -92,7 +135,10 @@ export class KCUIPanelTitleElement extends KCUIElement {
     }
 }
 
-window.customElements.define("kc-ui-panel-title", KCUIPanelTitleElement);
+window.customElements.define(
+    "kc-ui-panel-title-with-close",
+    KCUIPanelTitleWithCloseElement,
+);
 
 export class KCUIPanelBodyElement extends KCUIElement {
     static override styles = [

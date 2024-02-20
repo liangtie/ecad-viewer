@@ -5,13 +5,39 @@
 */
 
 import { delegate } from "../../../base/events";
-import { html } from "../../../base/web-components";
+import { css, html } from "../../../base/web-components";
 import { KCUIElement, type KCUIRangeElement } from "../../../kc-ui";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
 export class KCBoardObjectsPanelElement extends KCUIElement {
     viewer: BoardViewer;
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                display: block;
+                height: 100%;
+                width: 100%;
 
+                overflow-y: auto;
+                overflow-x: hidden;
+                user-select: none;
+            }
+
+            kc-ui-panel-title button {
+                all: unset;
+                flex-shrink: 0;
+                margin-left: 1em;
+                color: white;
+                border: 0 none;
+                background: transparent;
+                padding: 0 0.25em 0 0.25em;
+                margin-right: -0.25em;
+                display: flex;
+                align-items: center;
+            }
+        `,
+    ];
     override connectedCallback() {
         (async () => {
             this.viewer = await this.requestLazyContext("viewer");
@@ -54,7 +80,6 @@ export class KCBoardObjectsPanelElement extends KCUIElement {
     override render() {
         return html`
             <kc-ui-panel>
-                <kc-ui-panel-title title="Objects"></kc-ui-panel-title>
                 <kc-ui-panel-body padded>
                     <kc-ui-control-list>
                         <kc-ui-control>

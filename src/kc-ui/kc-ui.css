@@ -83,6 +83,9 @@
     --button-menu-hover-fg: #81eeff;
     --button-menu-disabled-bg: transparent;
     --button-menu-disabled-fg: #888;
+    --tab-border-selected: #3a75ad;
+    --tab-container-border: #131218;
+    --panel-line: #1b1b1b;
 
     --input-bg: #131218;
     --input-fg: #f8f8f0;

@@ -21,6 +21,8 @@ export class KCBoardLayersPanelElement extends KCUIElement {
             :host {
                 display: block;
                 height: 100%;
+                width: 100%;
+
                 overflow-y: auto;
                 overflow-x: hidden;
                 user-select: none;
@@ -232,11 +234,11 @@ export class KCBoardLayersPanelElement extends KCUIElement {
 
         return html`
             <kc-ui-panel>
-                <kc-ui-panel-title title="Layers">
+                <!-- <kc-ui-panel-title>
                     <button slot="actions" type="button">
                         <kc-ui-icon>visibility</kc-ui-icon>
                     </button>
-                </kc-ui-panel-title>
+                </kc-ui-panel-title> -->
                 <kc-ui-panel-body>
                     ${items}
                     <kc-ui-panel-label>Presets</kc-ui-panel-label>
@@ -318,7 +320,7 @@ class KCBoardLayerControlElement extends KCUIElement {
             }
 
             :host(:hover) button {
-                color: var(--list-item-bg);
+                color: var(--list-item-fg);
             }
 
             :host(:hover) button:hover {

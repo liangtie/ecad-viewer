@@ -42,6 +42,7 @@ export abstract class KCViewerAppElement<
 > extends KCUIElement {
     #viewer_elm: ViewerElementT;
     #property_viewer: ElementOrFragment;
+    #fitter_menu: ElementOrFragment;
 
     project: Project;
     viewerReady: DeferredPromise<boolean> = new DeferredPromise<boolean>();
@@ -131,10 +132,15 @@ export abstract class KCViewerAppElement<
 
     protected abstract make_viewer_element(): ViewerElementT;
 
+    protected abstract make_fitter_menu(): ElementOrFragment;
+
     override render() {
+        this.#fitter_menu = this.make_fitter_menu();
         this.#viewer_elm = this.make_viewer_element();
         this.#property_viewer = this.make_property_element();
-        return html` ${this.#viewer_elm} ${this.#property_viewer} `;
+        return html`
+            ${this.#fitter_menu} ${this.#viewer_elm} ${this.#property_viewer}
+        `;
     }
 
     override renderedCallback(): void | undefined {
