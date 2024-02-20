@@ -1045,9 +1045,9 @@ export class BoardPainter extends DocumentPainter {
     filter_net: number | null = null;
 
     paint_net(board: board_items.KicadPCB, net: number | null) {
-        const layer = this.layers.overlay;
-
+        if (this.filter_net === net) return false;
         this.filter_net = net;
+        const layer = this.layers.overlay;
 
         layer.clear();
         layer.color = Color.white;
@@ -1066,6 +1066,7 @@ export class BoardPainter extends DocumentPainter {
         layer.graphics = this.gfx.end_layer();
         layer.graphics.composite_operation = "overlay";
         this.filter_net = null;
+        return true;
     }
 
     highlight(item: BoardInteractiveItem | null) {

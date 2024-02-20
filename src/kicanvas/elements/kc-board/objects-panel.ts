@@ -127,24 +127,6 @@ export class KCBoardObjectsPanelElement extends KCUIElement {
                                 value="1"
                                 name="zones"></kc-ui-range>
                         </kc-ui-control>
-                        <kc-ui-control>
-                            <label>Grid</label>
-                            <kc-ui-range
-                                min="0"
-                                max="1.0"
-                                step="0.01"
-                                value="1"
-                                name="grid"></kc-ui-range>
-                        </kc-ui-control>
-                        <kc-ui-control>
-                            <label>Page</label>
-                            <kc-ui-range
-                                min="0"
-                                max="1.0"
-                                step="0.01"
-                                value="1"
-                                name="page"></kc-ui-range>
-                        </kc-ui-control>
                     </kc-ui-control-list>
                 </kc-ui-panel-body>
             </kc-ui-panel>

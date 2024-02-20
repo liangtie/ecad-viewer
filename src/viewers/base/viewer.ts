@@ -4,16 +4,14 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { Barrier, later } from "../../base/async";
+import { Barrier } from "../../base/async";
 import { Disposables, type IDisposable } from "../../base/disposable";
 import { listen } from "../../base/events";
-import { no_self_recursion } from "../../base/functions";
-import { BBox, Vec2 } from "../../base/math";
-import { Color, Polygon, Polyline, Renderer } from "../../graphics";
+import { Vec2 } from "../../base/math";
+import { Renderer } from "../../graphics";
 import {
     KiCanvasLoadEvent,
     KiCanvasMouseMoveEvent,
-    KiCanvasSelectEvent,
     type KiCanvasEventMap,
 } from "./events";
 import { ViewLayerSet } from "./view-layers";
@@ -28,7 +26,7 @@ export abstract class Viewer extends EventTarget {
     public renderer: Renderer;
     public viewport: Viewport;
     public layers: ViewLayerSet;
-    public mouse_position: Vec2 = new Vec2(0, 0);
+    #mouse_position: Vec2 = new Vec2(0, 0);
     public loaded = new Barrier();
 
     abstract type: ViewerType;
@@ -38,8 +36,6 @@ export abstract class Viewer extends EventTarget {
 
     protected disposables = new Disposables();
     protected setup_finished = new Barrier();
-
-    #selected: BBox | null;
 
     constructor(
         public canvas: HTMLCanvasElement,
@@ -103,6 +99,18 @@ export abstract class Viewer extends EventTarget {
                     this.on_mouse_change(e as MouseEvent);
                 }),
             );
+
+            this.disposables.add(
+                listen(this.canvas, "click", (e) => {
+                    this.on_click(this.#mouse_position);
+                }),
+            );
+
+            this.disposables.add(
+                listen(this.canvas, "dblclick", (e) => {
+                    this.on_dblclick(this.#mouse_position);
+                }),
+            );
         }
 
         this.setup_finished.open();
@@ -120,12 +128,14 @@ export abstract class Viewer extends EventTarget {
             new Vec2(e.clientX - rect.left, e.clientY - rect.top),
         );
         if (
-            this.mouse_position.x != new_position.x ||
-            this.mouse_position.y != new_position.y
+            this.#mouse_position.x != new_position.x ||
+            this.#mouse_position.y != new_position.y
         ) {
-            this.mouse_position.set(new_position);
-            this.on_hover(this.mouse_position);
-            this.dispatchEvent(new KiCanvasMouseMoveEvent(this.mouse_position));
+            this.#mouse_position.set(new_position);
+            this.on_hover(this.#mouse_position);
+            this.dispatchEvent(
+                new KiCanvasMouseMoveEvent(this.#mouse_position),
+            );
         }
     }
 
@@ -176,75 +186,6 @@ export abstract class Viewer extends EventTarget {
         });
     }
 
-    protected on_pick(
-        mouse: Vec2,
-        items: ReturnType<ViewLayerSet["query_point"]>,
-    ) {
-        let selected = null;
-
-        for (const { bbox } of items) {
-            selected = bbox;
-            break;
-        }
-
-        this.select(selected);
-    }
-
-    public select(item: BBox | null) {
-        this.selected = item;
-    }
-
-    public get selected(): BBox | null {
-        return this.#selected;
-    }
-
-    public set selected(bb: BBox | null) {
-        this._set_selected(bb);
-    }
-
-    @no_self_recursion
-    private _set_selected(bb: BBox | null) {
-        const previous = this.#selected;
-        this.#selected = bb?.copy() || null;
-
-        // Notify event listeners
-        this.dispatchEvent(
-            new KiCanvasSelectEvent({
-                item: this.#selected?.context,
-                previous: previous?.context,
-            }),
-        );
-
-        later(() => this.paint_selected());
-    }
-
-    public get selection_color() {
-        return Color.white;
-    }
-
-    protected paint_selected() {
-        const layer = this.layers.overlay;
-
-        layer.clear();
-
-        if (this.#selected) {
-            const bb = this.#selected.copy().grow(this.#selected.w * 0.1);
-            this.renderer.start_layer(layer.name);
-
-            this.renderer.line(
-                Polyline.from_BBox(bb, 0.254, this.selection_color),
-            );
-
-            this.renderer.polygon(Polygon.from_BBox(bb, this.selection_color));
-
-            layer.graphics = this.renderer.end_layer();
-
-            layer.graphics.composite_operation = "overlay";
-        }
-
-        this.draw();
-    }
-
     abstract zoom_to_page(): void;
 
     abstract zoom_fit_top_item(): void;
@@ -255,13 +196,9 @@ export abstract class Viewer extends EventTarget {
 
     abstract move(pos: Vec2): void;
 
-    zoom_to_selection() {
-        if (!this.selected) {
-            return;
-        }
-        this.viewport.camera.bbox = this.selected.grow(10);
-        this.draw();
-    }
-
     abstract on_hover(pos: Vec2): void;
+
+    abstract on_click(pos: Vec2): void;
+
+    abstract on_dblclick(pos: Vec2): void;
 }

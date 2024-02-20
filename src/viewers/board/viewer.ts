@@ -5,7 +5,6 @@
 */
 
 import type { CrossHightAble } from "../../base/cross_highlight_able";
-import { listen } from "../../base/events";
 import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
@@ -29,6 +28,25 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    override on_click(pos: Vec2): void {
+        if (
+            this.painter.paint_net(
+                this.board,
+                this.#last_hover?.contains(pos) ? this.#last_hover?.net : null,
+            )
+        )
+            this.draw();
+    }
+    override on_dblclick(pos: Vec2): void {
+        this.dispatchEvent(
+            new KiCanvasSelectEvent({
+                item: this.#last_hover?.contains(pos)
+                    ? this.#last_hover.item
+                    : null,
+                previous: null,
+            }),
+        );
+    }
     override type: ViewerType = ViewerType.PCB;
 
     #interactive: OrderedMap<number, BoardInteractiveItem[]> = OrderedMap();
@@ -68,34 +86,6 @@ export class BoardViewer extends DocumentViewer<
 
     protected override get grid_origin() {
         return new Vec2(0, 0);
-    }
-
-    override async setup() {
-        await super.setup();
-
-        this.disposables.add(
-            listen(this.canvas, "dblclick", (e) => {
-                this.dispatchEvent(
-                    new KiCanvasSelectEvent({
-                        item: this.#last_hover?.item ?? null,
-                        previous: null,
-                    }),
-                );
-            }),
-        );
-
-        this.disposables.add(
-            listen(this.canvas, "click", (e) => {
-                this.painter.paint_net(
-                    this.board,
-                    this.#last_hover?.net ?? null,
-                );
-            }),
-        );
-    }
-
-    highlight_net(net: number) {
-        this.painter.paint_net(this.board, net);
     }
 
     private set_layers_opacity(layers: Generator<ViewLayer>, opacity: number) {

@@ -81,11 +81,6 @@ export abstract class DocumentViewer<
             // Mark the viewer as loaded and notify event listeners
             this.resolve_loaded(true);
 
-            // Deselect any selected items.
-            if (this.selected) {
-                this.selected = null;
-            }
-
             // Draw
             this.draw();
         });
@@ -160,14 +155,4 @@ export abstract class DocumentViewer<
         super.draw();
     }
 
-    public override select(item: BBox | null): void {
-        // If value wasn't explicitly null and no item was found, give up.
-        if (item != null && !(item instanceof BBox)) {
-            throw new Error(
-                `Unable to select item ${item}, could not find an object that matched.`,
-            );
-        }
-
-        this.selected = item ?? null;
-    }
 }

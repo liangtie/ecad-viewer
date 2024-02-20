@@ -6,7 +6,6 @@
 
 import { css, html } from "../../../base/web-components";
 import { KCUIElement, type KCUIButtonElement } from "../../../kc-ui";
-import { KiCanvasMouseMoveEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 
 export class KCViewerBottomToolbarElement extends KCUIElement {
@@ -30,7 +29,6 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
     ];
 
     viewer: Viewer;
-    #position_elm: HTMLOutputElement;
     #reset: KCUIButtonElement;
     #zoom_in: KCUIButtonElement;
     #zoom_out: KCUIButtonElement;
@@ -41,15 +39,6 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
             await this.viewer.loaded;
 
             super.connectedCallback();
-
-            this.addDisposable(
-                this.viewer.addEventListener(
-                    KiCanvasMouseMoveEvent.type,
-                    () => {
-                        this.update_position();
-                    },
-                ),
-            );
 
             this.#reset.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -68,18 +57,7 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
         })();
     }
 
-    private update_position() {
-        const pos = this.viewer.mouse_position;
-        this.#position_elm.value = `${pos.x.toFixed(2)}, ${pos.y.toFixed(
-            2,
-        )} mm`;
-    }
-
     override render() {
-        this.#position_elm = html`<output
-            slot="left"
-            class="toolbar"></output>` as HTMLOutputElement;
-
         this.#reset = html`<kc-ui-button
             slot="right"
             variant="toolbar"
@@ -104,7 +82,6 @@ export class KCViewerBottomToolbarElement extends KCUIElement {
             icon="svg:zoom_out">
         </kc-ui-button>` as KCUIButtonElement;
 
-        this.update_position();
         return html`<kc-ui-floating-toolbar location="bottom">
             ${this.#zoom_out} ${this.#reset} ${this.#zoom_in}
         </kc-ui-floating-toolbar>`;
