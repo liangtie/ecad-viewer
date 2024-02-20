@@ -200,11 +200,9 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
 
     getLineSegmentProperties(itm: LineSegment) {
         return html`
-            ${this.header("Basic properties")}
             ${this.entry("X", itm.start.x.toFixed(4), "mm")}
             ${this.entry("Y", itm.start.y.toFixed(4), "mm")}
             ${this.entry("Width", itm.width.toFixed(4), "mm")}
-            ${this.header("Segment properties")}
             ${this.entry("Layer", itm.layer)}
             ${this.entry("Net", this.viewer.board.getNetName(itm.net))}
         `;
