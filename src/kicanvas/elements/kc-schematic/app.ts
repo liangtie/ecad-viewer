@@ -5,11 +5,7 @@
 */
 
 import { html, type ElementOrFragment } from "../../../base/web-components";
-import {
-    KCViewerAppElement,
-    type KicadAssert,
-    type SourceSelection,
-} from "../common/app";
+import { KCViewerAppElement, type KicadAssert } from "../common/app";
 import { KCSchematicViewerElement } from "./viewer";
 
 // import dependent elements so they're registered before use.
@@ -19,8 +15,6 @@ import "./symbols-panel";
 import "./viewer";
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
-import { KicadSymbolLib } from "../../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
-import type { SchematicViewer } from "../../../viewers/schematic/viewer";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -51,11 +45,8 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
         }
     }
 
-    override apply_alter_src(idx: SourceSelection) {
-        (this.viewer as SchematicViewer).set_active_part_unit(idx.idx);
-    }
     override can_load(src: KicadAssert): boolean {
-        return src instanceof KicadSch || src instanceof KicadSymbolLib;
+        return src instanceof KicadSch;
     }
 
     override make_viewer_element(): KCSchematicViewerElement {

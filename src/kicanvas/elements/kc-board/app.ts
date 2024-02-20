@@ -6,11 +6,7 @@
 
 import { html, type ElementOrFragment } from "../../../base/web-components";
 import { KicadPCB } from "../../../kicad";
-import {
-    KCViewerAppElement,
-    type KicadAssert,
-    type SourceSelection,
-} from "../common/app";
+import { KCViewerAppElement, type KicadAssert } from "../common/app";
 import { KCBoardViewerElement } from "./viewer";
 
 // import dependent elements so they're registered before use.
@@ -62,14 +58,6 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
 
     override can_load(src: KicadAssert): boolean {
         return src instanceof KicadPCB;
-    }
-
-    override apply_alter_src(idx: SourceSelection) {
-        const fn = this.project.filesByIndex.get(idx.name);
-
-        if (fn) {
-            this.project.activate(idx.name);
-        }
     }
 
     override make_viewer_element(): KCBoardViewerElement {

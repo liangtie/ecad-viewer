@@ -5,7 +5,6 @@
 */
 
 import { Angle, BBox, Arc as MathArc, Matrix3, Vec2 } from "../../base/math";
-import { KicadSymbolLib } from "../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import {
     Arc,
     Circle,
@@ -72,40 +71,6 @@ class RectanglePainter extends SchematicItemPainter {
         }
 
         this.gfx.polygon(new Polygon(pts, color));
-    }
-}
-
-class KicadSymbolLibPainter extends SchematicItemPainter {
-    classes = [KicadSymbolLib];
-
-    layers_for(item: KicadSymbolLib) {
-        const layers = [
-            LayerNames.interactive,
-            LayerNames.symbol_foreground,
-            LayerNames.symbol_background,
-            LayerNames.symbol_field,
-            LayerNames.symbol_pin,
-            LayerNames.label,
-
-            LayerNames.junction,
-            LayerNames.notes,
-            LayerNames.bitmap,
-
-            LayerNames.drawing_sheet,
-            LayerNames.grid,
-
-            LayerNames.marks,
-        ];
-        return layers;
-    }
-
-    paint(layer: ViewLayer, pl: KicadSymbolLib) {
-        console.log(pl.symbols.length);
-
-        for (const g of pl.symbols) {
-            this.view_painter.paint_item(layer, g);
-            break;
-        }
     }
 }
 
@@ -657,7 +622,6 @@ export class SchematicPainter extends BaseSchematicPainter {
             new GlobalLabelPainter(this, gfx),
             new HierarchicalLabelPainter(this, gfx),
             new SchematicSheetPainter(this, gfx),
-            new KicadSymbolLibPainter(this, gfx),
             new LibSymbolPinPainter(this, gfx),
         ];
     }

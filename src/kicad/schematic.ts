@@ -11,7 +11,6 @@ import type { HighlightAble } from "../base/highlightable";
 import type { IndexAble } from "../base/index_able";
 import * as log from "../base/log";
 import { BBox, Arc as MathArc, Vec2 } from "../base/math";
-import type { KicadSymbolLib } from "../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import type { Project } from "../kicanvas/project";
 import {
     At,
@@ -768,7 +767,7 @@ export class LibSymbol {
 
     constructor(
         expr: Parseable,
-        public parent: LibSymbol | KicadSch | KicadSymbolLib,
+        public parent: LibSymbol | KicadSch,
     ) {
         console.log(parent);
         Object.assign(

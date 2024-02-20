@@ -7,8 +7,6 @@
 import { DeferredPromise } from "../../../base/async";
 import { delegate, listen } from "../../../base/events";
 import { html, type ElementOrFragment } from "../../../base/web-components";
-import type { KicadFootprint } from "../../../ecad-viewer/model/footprint/kicad_footprint";
-import type { KicadSymbolLib } from "../../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import { KCUISelectElement, KCUIElement } from "../../../kc-ui";
 import type { KicadPCB, KicadSch } from "../../../kicad";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
@@ -18,10 +16,9 @@ import type { Project } from "../../project";
 // import dependent elements so they're registered before use.
 import "./help-panel";
 import "./preferences-panel";
-import "./project-panel";
 import "./viewer-bottom-toolbar";
 
-export type KicadAssert = KicadSymbolLib | KicadFootprint | KicadPCB | KicadSch;
+export type KicadAssert = KicadPCB | KicadSch;
 
 interface ViewerElement extends HTMLElement {
     viewer: Viewer;
@@ -55,8 +52,6 @@ export abstract class KCViewerAppElement<
     get viewer() {
         return this.#viewer_elm.viewer;
     }
-
-    abstract apply_alter_src(idx: SourceSelection): void;
 
     override connectedCallback() {
         this.hidden = true;

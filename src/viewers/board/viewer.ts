@@ -4,7 +4,6 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { listen } from "../../base/events";
 import { Vec2 } from "../../base/math";
@@ -75,19 +74,22 @@ export class BoardViewer extends DocumentViewer<
         await super.setup();
 
         this.disposables.add(
-            listen(this.canvas, "click", (e) => {
+            listen(this.canvas, "dblclick", (e) => {
                 this.dispatchEvent(
                     new KiCanvasSelectEvent({
                         item: this.#last_hover?.item ?? null,
                         previous: null,
                     }),
                 );
-                later(() => {
-                    this.painter.paint_net(
-                        this.board,
-                        this.#last_hover?.net ?? null,
-                    );
-                });
+            }),
+        );
+
+        this.disposables.add(
+            listen(this.canvas, "click", (e) => {
+                this.painter.paint_net(
+                    this.board,
+                    this.#last_hover?.net ?? null,
+                );
             }),
         );
     }
@@ -158,11 +160,8 @@ export class BoardViewer extends DocumentViewer<
         return null;
     }
 
-    findItemForCrossHight(idx: string): CrossHightAble | null {
-        return null;
-    }
-    override on_hover() {
-        const hover_item = this.findInteractive(this.hover_position);
+    override on_hover(_pos: Vec2) {
+        const hover_item = this.findInteractive(_pos);
         if (hover_item === this.#last_hover) return;
         this.painter.highlight(hover_item);
         this.draw();

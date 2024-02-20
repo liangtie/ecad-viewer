@@ -4,18 +4,14 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { first } from "../../base/iterator";
 import { BBox, Vec2 } from "../../base/math";
 import { is_string } from "../../base/types";
-import { KicadSymbolLib } from "../../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
 import { Color, Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { type SchematicTheme } from "../../kicad";
 import {
     KicadSch,
-    LibSymbol,
-    LibSymbolPin,
     SchematicSheet,
     SchematicSymbol,
 } from "../../kicad/schematic";
@@ -30,6 +26,9 @@ export class SchematicViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
+    override on_hover(pos: Vec2): void {
+        throw new Error("Method not implemented.");
+    }
     override type: ViewerType = ViewerType.SCHEMATIC;
 
     private _alter_footprint_parts: string[] = [];
@@ -37,10 +36,6 @@ export class SchematicViewer extends DocumentViewer<
     public get alter_footprint_parts() {
         return this._alter_footprint_parts;
     }
-
-    private libPins: Map<string, LibSymbolPin> = new Map();
-
-    private _symbolLib?: KicadSymbolLib;
 
     get schematic(): KicadSch {
         return this.document;
@@ -55,41 +50,12 @@ export class SchematicViewer extends DocumentViewer<
         return renderer;
     }
 
-    build_libPins(lib: LibSymbol) {
-        for (const i of lib.libPins) {
-            this.libPins.set(i.index, i);
-        }
-        for (const c of lib.children) this.build_libPins(c);
-    }
-
-    set_active_part_unit(idx: number) {
-        if (this._symbolLib) {
-            if (this._symbolLib.active_unit_index != idx) {
-                this._symbolLib.set_active_unit_index(idx);
-                this.paint();
-                this.draw();
-            }
-        }
-    }
-
     protected override create_painter() {
         return new SchematicPainter(this.renderer, this.layers, this.theme);
     }
 
     protected override create_layer_set() {
         return new LayerSet(this.theme);
-    }
-    findHighlightItem(pos: Vec2): CrossHightAble | null {
-        for (const [, v] of this.libPins) {
-            if (v.bbox.contains_point(pos)) {
-                return v;
-            }
-        }
-        return null;
-    }
-
-    findItemForCrossHight(idx: string): CrossHightAble | null {
-        return this.libPins.get(idx) ?? null;
     }
 
     public override select(

@@ -6,7 +6,6 @@
 
 import { Color } from "../../base/color";
 import { is_string } from "../../base/types";
-import type { KicadFootprint } from "../../ecad-viewer/model/footprint/kicad_footprint";
 import { KicadPCB, type BoardTheme } from "../../kicad";
 import {
     ViewLayerNames as BaseLayerNames,
@@ -191,7 +190,7 @@ export class LayerSet extends BaseLayerSet {
      * Create a new LayerSet
      */
     constructor(
-        board: KicadPCB | KicadFootprint,
+        board: KicadPCB ,
         public theme: BoardTheme,
     ) {
         super();

@@ -5,10 +5,5 @@
 */
 
 import "./base/livereload";
-import "./ecad-viewer/utils/ecad_source";
-import "./ecad-viewer/utils/set_up_sprite";
 import "./kc-ui/select";
 import "./kicanvas/elements/board_viewer";
-import "./ecad-viewer/view/kicad_footprint_viewer";
-import "./ecad-viewer/view/kicad_symbol_viewer";
-import "./ecad-viewer/view/online_3d_viewer";

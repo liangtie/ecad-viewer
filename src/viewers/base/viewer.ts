@@ -18,9 +18,6 @@ import {
 } from "./events";
 import { ViewLayerSet } from "./view-layers";
 import { Viewport } from "./viewport";
-import type { CrossHightAble } from "../../base/cross_highlight_able";
-
-const ViewerMaps: Viewer[] = [];
 
 export enum ViewerType {
     SCHEMATIC,
@@ -32,7 +29,6 @@ export abstract class Viewer extends EventTarget {
     public viewport: Viewport;
     public layers: ViewLayerSet;
     public mouse_position: Vec2 = new Vec2(0, 0);
-    public hover_position = new Vec2(0, 0);
     public loaded = new Barrier();
 
     abstract type: ViewerType;
@@ -45,14 +41,11 @@ export abstract class Viewer extends EventTarget {
 
     #selected: BBox | null;
 
-    #cross_hightedItem: CrossHightAble | null = null;
-
     constructor(
         public canvas: HTMLCanvasElement,
         protected interactive = true,
     ) {
         super();
-        ViewerMaps.push(this);
         canvas.addEventListener("contextmenu", function (event) {
             event.preventDefault();
         });
@@ -126,17 +119,14 @@ export abstract class Viewer extends EventTarget {
         const new_position = this.viewport.camera.screen_to_world(
             new Vec2(e.clientX - rect.left, e.clientY - rect.top),
         );
-        this.hover_position = this.viewport.camera.screen_to_world(
-            new Vec2(e.clientX - rect.left, e.clientY - rect.top),
-        );
         if (
             this.mouse_position.x != new_position.x ||
             this.mouse_position.y != new_position.y
         ) {
             this.mouse_position.set(new_position);
+            this.on_hover(this.mouse_position);
             this.dispatchEvent(new KiCanvasMouseMoveEvent(this.mouse_position));
         }
-        this.on_hover();
     }
 
     public abstract load(src: any): Promise<void>;
@@ -228,25 +218,6 @@ export abstract class Viewer extends EventTarget {
         later(() => this.paint_selected());
     }
 
-    @no_self_recursion
-    public sync_hover(it: CrossHightAble | null) {
-        const item = it ? this.findItemForCrossHight(it.cross_index) : null;
-        let shouldDraw = false;
-        if (this.#cross_hightedItem) {
-            this.#cross_hightedItem.highlighted = false;
-            shouldDraw = true;
-        }
-        this.#cross_hightedItem = item;
-        if (this.#cross_hightedItem) {
-            this.#cross_hightedItem.highlighted = true;
-            shouldDraw = true;
-        }
-        if (shouldDraw) {
-            this.paint();
-            this.draw();
-        }
-    }
-
     public get selection_color() {
         return Color.white;
     }
@@ -292,31 +263,5 @@ export abstract class Viewer extends EventTarget {
         this.draw();
     }
 
-    on_hover() {
-        let shouldDraw = false;
-        const item = this.findHighlightItem(this.hover_position);
-        if (this.#cross_hightedItem) {
-            this.#cross_hightedItem.highlighted = false;
-            shouldDraw = true;
-        }
-        this.#cross_hightedItem = item;
-        if (this.#cross_hightedItem) {
-            this.#cross_hightedItem.highlighted = true;
-            shouldDraw = true;
-        }
-        if (shouldDraw) {
-            this.paint();
-            this.draw();
-        }
-
-        for (const v of ViewerMaps) {
-            if (v.type !== this.type) {
-                v.sync_hover(this.#cross_hightedItem ?? null);
-            }
-        }
-    }
-
-    abstract findHighlightItem(pos: Vec2): CrossHightAble | null;
-
-    abstract findItemForCrossHight(idx: string): CrossHightAble | null;
+    abstract on_hover(pos: Vec2): void;
 }

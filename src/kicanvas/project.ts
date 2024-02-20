@@ -4,14 +4,11 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { sorted_by_numeric_strings } from "../base/array";
 import { Barrier } from "../base/async";
 import { type IDisposable } from "../base/disposable";
 import { first, length } from "../base/iterator";
 import { Logger } from "../base/log";
-import { is_string, type Constructor } from "../base/types";
-import { KicadFootprint } from "../ecad-viewer/model/footprint/kicad_footprint";
-import { KicadSymbolLib } from "../ecad-viewer/model/lib_symbol/kicad_symbol_lib";
+import { type Constructor } from "../base/types";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
 
 import type { VirtualFileSystem } from "./services/vfs";
@@ -20,10 +17,7 @@ const log = new Logger("kicanvas:project");
 
 export class Project extends EventTarget implements IDisposable {
     #fs: VirtualFileSystem;
-    #files_by_name: Map<
-        string,
-        KicadPCB | KicadSch | null | KicadFootprint | KicadSymbolLib
-    > = new Map();
+    #files_by_name: Map<string, KicadPCB | KicadSch | null> = new Map();
     public active_page_name: string;
 
     public loaded: Barrier = new Barrier();
@@ -75,12 +69,6 @@ export class Project extends EventTarget implements IDisposable {
         if (filename.endsWith(".kicad_pcb")) {
             return await this.#load_doc(KicadPCB, filename);
         }
-        if (filename.endsWith(".kicad_sym")) {
-            return await this.#load_doc(KicadSymbolLib, filename);
-        }
-        if (filename.endsWith(".kicad_mod")) {
-            return await this.#load_doc(KicadFootprint, filename);
-        }
         if (filename.endsWith(".kicad_pro")) {
             return this.#load_meta(filename);
         }
@@ -89,9 +77,7 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     async #load_doc(
-        document_class: Constructor<
-            KicadPCB | KicadSch | KicadSymbolLib | KicadFootprint
-        >,
+        document_class: Constructor<KicadPCB | KicadSch>,
         filename: string,
     ) {
         if (this.#files_by_name.has(filename)) {
@@ -127,7 +113,7 @@ export class Project extends EventTarget implements IDisposable {
 
     public *boards() {
         for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadPCB || value instanceof KicadFootprint) {
+            if (value instanceof KicadPCB) {
                 yield value;
             }
         }
@@ -139,7 +125,7 @@ export class Project extends EventTarget implements IDisposable {
 
     public *schematics() {
         for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadSch || value instanceof KicadSymbolLib) {
+            if (value instanceof KicadSch) {
                 yield value;
             }
         }
