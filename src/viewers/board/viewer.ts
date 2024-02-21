@@ -29,14 +29,12 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    public highlight_net(num: number | null) {
+        if (this.painter.paint_net(this.board, num)) this.draw();
+    }
+
     override on_click(pos: Vec2): void {
-        if (
-            this.painter.paint_net(
-                this.board,
-                this.#last_hover?.contains(pos) ? this.#last_hover?.net : null,
-            )
-        )
-            this.draw();
+        this.highlight_net(this.#last_hover?.net ?? null);
         later(() => {
             this.dispatchEvent(
                 new KiCanvasSelectEvent({

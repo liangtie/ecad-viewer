@@ -15,10 +15,10 @@
     --tooltip-fg: #f8f8f0;
     --tooltip-border: 1px solid #131218;
 
-    --scrollbar-bg: #131218;
-    --scrollbar-fg: #2;
-    --scrollbar-active-fg: #2;
-    --scrollbar-hover-bg: #2;
+    --scrollbar-bg: #f1f1f1;
+    --scrollbar-fg: #999999;
+    --scrollbar-active-fg: #222222;
+    --scrollbar-hover-bg: #222222;
 
     --activity-bar-bg: #282634;
     --activity-bar-fg: #f8f8f0;
@@ -106,7 +106,7 @@
 
     --list-item-bg: var(--panel-bg);
     --list-item-fg: var(--panel-fg);
-    --list-item-active-bg: #131218;
+    --list-item-active-bg: #64cb96;
     --list-item-active-fg: var(--list-item-fg);
     --list-item-hover-bg: #64cb96;
     --list-item-hover-fg: var(--list-item-bg);

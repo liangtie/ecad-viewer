@@ -332,6 +332,11 @@ class KCBoardLayerControlElement extends KCUIElement {
                 color: var(--list-item-fg);
             }
 
+            :host([layer-visible]:hover) {
+                background: var(--list-item-hover-bg);
+                color: var(--list-item-hover-fg);
+            }
+
             :host([layer-highlighted]) {
                 background: var(--list-item-active-bg);
                 color: var(--list-item-active-fg);
@@ -402,8 +407,8 @@ class KCBoardLayerControlElement extends KCUIElement {
                 style="background: ${this.layer_color};"></span>
             <span class="name">${this.layer_name}</span>
             <button type="button" name="${this.layer_name}">
-                <kc-ui-icon class="for-visible">visibility</kc-ui-icon>
-                <kc-ui-icon class="for-hidden">visibility_off</kc-ui-icon>
+                <kc-ui-icon class="for-visible">svg:visibility</kc-ui-icon>
+                <kc-ui-icon class="for-hidden">svg:visibility_off</kc-ui-icon>
             </button>`;
     }
 }

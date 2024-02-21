@@ -23,6 +23,7 @@ import "./viewer";
 import { KCBoardLayersPanelElement } from "./layers-panel";
 import { KCBoardObjectsPanelElement } from "./objects-panel";
 import { TabView } from "../../../kc-ui/tab-view";
+import { KCBoardNetsPanelElement } from "./nets-panel";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -37,7 +38,7 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
     protected override make_fitter_menu(): ElementOrFragment {
         const layer = new KCBoardLayersPanelElement();
         const obj = new KCBoardObjectsPanelElement();
-
+        const nets = new KCBoardNetsPanelElement();
         const tab = new TabView([
             {
                 title: "Layers",
@@ -46,6 +47,10 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
             {
                 title: "Objects",
                 content: obj,
+            },
+            {
+                title: "Nets",
+                content: nets,
             },
         ]);
 

@@ -4,7 +4,7 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { html, query } from "../../../base/web-components";
+import { css, html, query } from "../../../base/web-components";
 import {
     KCUIElement,
     KCUIFilteredListElement,
@@ -15,6 +15,41 @@ import { KicadPCB } from "../../../kicad";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
 export class KCBoardNetsPanelElement extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                display: block;
+                height: 100%;
+                width: 100%;
+
+                overflow-y: auto;
+                overflow-x: hidden;
+                user-select: none;
+            }
+            ::-webkit-scrollbar {
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                margin-left: -6px;
+                background: var(--scrollbar-bg);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                position: absolute;
+                background: var(--scrollbar-fg);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--scrollbar-hover-fg);
+            }
+
+            ::-webkit-scrollbar-thumb:active {
+                background: var(--scrollbar-active-fg);
+            }
+        `,
+    ];
+
     viewer: BoardViewer;
 
     override connectedCallback() {
@@ -69,7 +104,7 @@ export class KCBoardNetsPanelElement extends KCUIElement {
 
         return html`
             <kc-ui-panel>
-                <kc-ui-panel-title title="Nets"></kc-ui-panel-title>
+                <!-- <kc-ui-panel-title title="Nets"></kc-ui-panel-title> -->
                 <kc-ui-panel-body>
                     <kc-ui-text-filter-input></kc-ui-text-filter-input>
                     <kc-ui-filtered-list>

@@ -55,6 +55,8 @@ export class KCUITextFilterInputElement extends KCUIElement {
                 align-items: center;
                 color: var(--input-fg);
                 padding: 0.25em;
+                background-color: transparent;
+                border: none;
             }
 
             button:hover {
@@ -92,10 +94,10 @@ export class KCUITextFilterInputElement extends KCUIElement {
     }
 
     override render() {
-        return html`<kc-ui-icon class="flex before">search</kc-ui-icon>
+        return html`<kc-ui-icon class="flex before"></kc-ui-icon>
             <input style="" type="text" placeholder="search" name="search" />
             <button type="button">
-                <kc-ui-icon>close</kc-ui-icon>
+                <kc-ui-icon>svg:clear</kc-ui-icon>
             </button>`;
     }
 }
