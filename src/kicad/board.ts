@@ -525,6 +525,9 @@ export class PCBPlotParams implements BoardNode {
     plot_on_all_layers_selection: number;
     dashed_line_dash_ratio: number;
     dashed_line_gap_ratio: number;
+    pdf_front_fp_property_popups = false;
+    pdf_back_fp_property_popups = false;
+    plotfptext = false;
 
     constructor(expr: Parseable) {
         Object.assign(
@@ -540,6 +543,9 @@ export class PCBPlotParams implements BoardNode {
                 P.pair("creategerberjobfile", T.boolean),
                 P.pair("gerberprecision", T.number),
                 P.pair("svguseinch", T.boolean),
+                P.pair("pdf_front_fp_property_popups", T.boolean),
+                P.pair("pdf_back_fp_property_popups", T.boolean),
+                P.pair("plotfptext", T.boolean),
                 P.pair("svgprecision", T.number),
                 P.pair("excludeedgelayer", T.boolean),
                 P.pair("plotframeref", T.boolean),
@@ -831,6 +837,8 @@ export class Footprint implements BoardNode {
     zones: Zone[] = [];
     models: Model[] = [];
     #bbox: BBox;
+    sheetname: string = "";
+    sheetfile: string = "";
     fp_texts: FpText[];
 
     public getChildren() {
@@ -857,6 +865,9 @@ export class Footprint implements BoardNode {
                 P.item("at", At),
                 P.pair("descr", T.string),
                 P.pair("tags", T.string),
+                P.pair("sheetname", T.string),
+                P.pair("sheetfile", T.string),
+
                 P.pair("path", T.string),
                 P.pair("autoplace_cost90", T.number),
                 P.pair("autoplace_cost180", T.number),
