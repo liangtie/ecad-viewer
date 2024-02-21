@@ -42,9 +42,6 @@ export abstract class Viewer extends EventTarget {
         protected interactive = true,
     ) {
         super();
-        canvas.addEventListener("contextmenu", function (event) {
-            event.preventDefault();
-        });
     }
 
     dispose() {

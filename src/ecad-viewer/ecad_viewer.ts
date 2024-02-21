@@ -46,6 +46,9 @@ class ECadViewer extends KCUIElement {
     constructor() {
         super();
         this.provideContext("project", this.#project);
+        this.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
     }
     #project: Project = new Project();
 
