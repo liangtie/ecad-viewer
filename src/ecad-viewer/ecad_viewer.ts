@@ -30,15 +30,19 @@ class ECadViewer extends KCUIElement {
                 contain: layout paint;
             }
 
-            main {
-                display: contents;
+            .vertical {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
             }
 
             kc-board-app,
             kc-schematic-app {
-                width: 100%;
-                height: 100%;
                 flex: 1;
+                height: 100%;
+                width: 100%;
             }
         `,
     ];
@@ -104,7 +108,7 @@ class ECadViewer extends KCUIElement {
     override render() {
         if (!this.loaded) return html``;
 
-        const header = html``;
+        const tab_header = html`<tab-header></tab-header>`;
 
         if (this.#project.has_boards && !this.#board_app)
             this.#board_app = html`<kc-board-app>
@@ -114,8 +118,12 @@ class ECadViewer extends KCUIElement {
             this.#schematic_app = html`<kc-schematic-app>
             </kc-schematic-app>` as KCSchematicAppElement;
         }
-
-        return html`${header} ${this.#schematic_app} ${this.#board_app} `;
+        return html`<div class="vertical">
+            ${tab_header}
+            <div class="vertical">
+                ${this.#schematic_app} ${this.#board_app}
+            </div>
+        </div> `;
     }
 }
 

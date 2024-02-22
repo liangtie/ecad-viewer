@@ -4,6 +4,8 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import type { TabKind } from "../../ecad-viewer/constraint";
+
 class KiCanvasEvent<T> extends CustomEvent<T> {
     constructor(name: string, detail: T, bubbles = false) {
         super(name, { detail: detail, composed: true, bubbles: bubbles });
@@ -52,12 +54,39 @@ export class KicadSyncHoverEvent extends KiCanvasEvent<string | null> {
     }
 }
 
+export class TabActivateEvent extends CustomEvent<string> {
+    static readonly type = "kicanvas:tab:activate";
+
+    constructor(tab: TabKind) {
+        super(TabActivateEvent.type, { detail: tab });
+    }
+}
+
+export class MenuCloseEvent extends CustomEvent<string> {
+    static readonly type = "kicanvas:menu:close";
+
+    constructor() {
+        super(MenuCloseEvent.type, { detail: "" });
+    }
+}
+
+export class MenuClickEvent extends CustomEvent<string> {
+    static readonly type = "kicanvas:menu:click";
+
+    constructor(tab: TabKind) {
+        super(MenuClickEvent.type, { detail: tab });
+    }
+}
+
 // Event maps for type safe addEventListener.
 
 export interface KiCanvasEventMap {
     [KiCanvasLoadEvent.type]: KiCanvasLoadEvent;
     [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
     [KiCanvasMouseMoveEvent.type]: KiCanvasMouseMoveEvent;
+    [KicadSyncHoverEvent.type]: KicadSyncHoverEvent;
+    [TabActivateEvent.type]: TabActivateEvent;
+    [MenuCloseEvent.type]: MenuCloseEvent;
 }
 
 declare global {

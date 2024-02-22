@@ -6,7 +6,11 @@
 
 import { DeferredPromise } from "../../../base/async";
 import { delegate, listen } from "../../../base/events";
-import { html, type ElementOrFragment } from "../../../base/web-components";
+import {
+    css,
+    html,
+    type ElementOrFragment,
+} from "../../../base/web-components";
 import { KCUISelectElement, KCUIElement } from "../../../kc-ui";
 import type { KicadPCB, KicadSch } from "../../../kicad";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
@@ -17,7 +21,6 @@ import type { Project } from "../../project";
 import "./help-panel";
 import "./preferences-panel";
 import "./viewer-bottom-toolbar";
-
 export type KicadAssert = KicadPCB | KicadSch;
 
 interface ViewerElement extends HTMLElement {
@@ -37,6 +40,22 @@ export interface SourceSelection {
 export abstract class KCViewerAppElement<
     ViewerElementT extends ViewerElement,
 > extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                margin: 0;
+                display: flex;
+                position: relative;
+                width: 100%;
+                max-height: 100%;
+                aspect-ratio: 1.414;
+                background-color: white;
+                color: var(--fg);
+                contain: layout paint;
+            }
+        `,
+    ];
     #viewer_elm: ViewerElementT;
     #property_viewer: ElementOrFragment;
     #fitter_menu: ElementOrFragment;

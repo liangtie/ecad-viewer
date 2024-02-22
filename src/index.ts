@@ -12,4 +12,7 @@ KCUIIconElement.sprites_url = sprites_url;
 
 import "./base/livereload";
 import "./kc-ui/select";
+import "./ecad-viewer/tab_button";
+
+import "./ecad-viewer/tab_header";
 import "./ecad-viewer/ecad_viewer";
