@@ -6,6 +6,7 @@
 
 import { css, html } from "../base/web-components";
 import { TabMenuVisibleChangeEvent } from "../viewers/base/events";
+import type { KCUIButtonElement } from "./button";
 import { KCUIElement } from "./element";
 
 export interface TabData {
@@ -16,6 +17,7 @@ export interface TabData {
 export class TabView extends KCUIElement {
     #container: HTMLElement;
     #tabs: HTMLElement[] = [];
+    #close: KCUIButtonElement;
     #tabContents: HTMLElement[] = [];
 
     public setHidden(hide: boolean) {
@@ -42,12 +44,13 @@ export class TabView extends KCUIElement {
             }
             .tab-container {
                 display: flex;
-                background: var(--panel-title-bg);
+                background-color: var(--panel-bg);
                 color: var(--panel-title-fg);
                 border-top: var(--panel-line);
                 width: 100%;
                 margin-bottom: 5px;
                 border-bottom: var(--panel-line);
+                flex: 1;
             }
 
             .tab {
@@ -66,6 +69,15 @@ export class TabView extends KCUIElement {
 
             .tab-content.active {
                 display: block;
+            }
+
+            .horizontal {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: left;
+                justify-content: flex-start;
+                padding-right: 5px;
             }
         `,
     ];
@@ -87,7 +99,15 @@ export class TabView extends KCUIElement {
             // Append tab and tab content to the container
             this.#container.appendChild(tab);
         });
-
+        this.#close = html`<kc-ui-button
+            variant="close"
+            name="close"
+            title="close"
+            icon="svg:close">
+        </kc-ui-button>` as KCUIButtonElement;
+        this.#close.addEventListener("click", () => {
+            this.setHidden(true);
+        });
         if (tabData.length) this.showTab(0);
     }
 
@@ -117,7 +137,10 @@ export class TabView extends KCUIElement {
     override initialContentCallback() {}
 
     override render() {
-        return html` ${this.#container} ${this.#tabContents} `;
+        return html`
+            <div class="horizontal">${this.#container}${this.#close}</div>
+            ${this.#tabContents}
+        `;
     }
 }
 
