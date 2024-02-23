@@ -54,27 +54,32 @@ export class KicadSyncHoverEvent extends KiCanvasEvent<string | null> {
     }
 }
 
-export class TabActivateEvent extends CustomEvent<string> {
+export interface TabIndexChange {
+    current: TabKind;
+    previous?: TabKind;
+}
+
+export class TabActivateEvent extends CustomEvent<TabIndexChange> {
     static readonly type = "kicanvas:tab:activate";
 
-    constructor(tab: TabKind) {
-        super(TabActivateEvent.type, { detail: tab });
+    constructor(current: TabIndexChange) {
+        super(TabActivateEvent.type, { detail: current });
     }
 }
 
-export class MenuCloseEvent extends CustomEvent<string> {
-    static readonly type = "kicanvas:menu:close";
+export class TabMenuVisibleChangeEvent extends CustomEvent<boolean> {
+    static readonly type = "kicanvas:tab:menu:visible";
 
-    constructor() {
-        super(MenuCloseEvent.type, { detail: "" });
+    constructor(v: boolean) {
+        super(TabMenuVisibleChangeEvent.type, { detail: v });
     }
 }
 
-export class MenuClickEvent extends CustomEvent<string> {
-    static readonly type = "kicanvas:menu:click";
+export class TabMenuClickEvent extends CustomEvent<TabKind> {
+    static readonly type = "kicanvas:tab:menu:click";
 
     constructor(tab: TabKind) {
-        super(MenuClickEvent.type, { detail: tab });
+        super(TabMenuClickEvent.type, { detail: tab });
     }
 }
 
@@ -86,7 +91,7 @@ export interface KiCanvasEventMap {
     [KiCanvasMouseMoveEvent.type]: KiCanvasMouseMoveEvent;
     [KicadSyncHoverEvent.type]: KicadSyncHoverEvent;
     [TabActivateEvent.type]: TabActivateEvent;
-    [MenuCloseEvent.type]: MenuCloseEvent;
+    [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
 }
 
 declare global {

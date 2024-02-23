@@ -12,7 +12,13 @@ import { Project } from "../kicanvas/project";
 import { FetchFileSystem, VirtualFileSystem } from "../kicanvas/services/vfs";
 import { KCBoardAppElement } from "../kicanvas/elements/kc-board/app";
 import type { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
-
+import type { TabHeaderElement } from "./tab_header";
+import {
+    TabActivateEvent,
+    TabMenuClickEvent,
+    TabMenuVisibleChangeEvent,
+} from "../viewers/base/events";
+import { TabKind } from "./constraint";
 class ECadViewer extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
@@ -55,6 +61,9 @@ class ECadViewer extends KCUIElement {
         });
     }
     #project: Project = new Project();
+    #schematic_app: KCSchematicAppElement;
+    #board_app: KCBoardAppElement;
+    #tab_header: TabHeaderElement;
 
     @attribute({ type: Boolean })
     public loading: boolean;
@@ -64,9 +73,6 @@ class ECadViewer extends KCUIElement {
 
     @attribute({ type: Boolean })
     public loaded: boolean;
-
-    #schematic_app: KCSchematicAppElement;
-    #board_app: KCBoardAppElement;
 
     override initialContentCallback() {
         this.#setup_events();
@@ -108,18 +114,54 @@ class ECadViewer extends KCUIElement {
     override render() {
         if (!this.loaded) return html``;
 
-        const tab_header = html`<tab-header></tab-header>`;
+        this.#tab_header = html`<tab-header></tab-header>` as TabHeaderElement;
+        this.#tab_header.addEventListener(TabActivateEvent.type, (event) => {
+            const tab = (event as TabActivateEvent).detail;
+            if (tab.previous) {
+                switch (tab.previous) {
+                    case TabKind.pcb:
+                        this.#board_app.tabMenuHidden = true;
+                        break;
+                    case TabKind.sch:
+                        break;
+                    case TabKind.bom:
+                        break;
+                }
+            }
+        });
 
-        if (this.#project.has_boards && !this.#board_app)
+        this.#tab_header.addEventListener(TabMenuClickEvent.type, (event) => {
+            const tab = (event as TabMenuClickEvent).detail;
+            switch (tab) {
+                case TabKind.pcb:
+                    this.#board_app.tabMenuHidden =
+                        !this.#board_app.tabMenuHidden;
+                    break;
+                case TabKind.sch:
+                    break;
+                case TabKind.bom:
+                    break;
+            }
+        });
+
+        if (this.#project.has_boards && !this.#board_app) {
             this.#board_app = html`<kc-board-app>
             </kc-board-app>` as KCBoardAppElement;
+            this.#board_app.addEventListener(
+                TabMenuVisibleChangeEvent.type,
+                (event) => {
+                    const visible = (event as TabMenuVisibleChangeEvent).detail;
+                    this.#tab_header.tabMenuChecked = visible;
+                },
+            );
+        }
 
         if (this.#project.has_schematics && !this.#schematic_app) {
             this.#schematic_app = html`<kc-schematic-app>
             </kc-schematic-app>` as KCSchematicAppElement;
         }
         return html`<div class="vertical">
-            ${tab_header}
+            ${this.#tab_header}
             <div class="vertical">
                 ${this.#schematic_app} ${this.#board_app}
             </div>

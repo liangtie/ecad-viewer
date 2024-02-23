@@ -6,7 +6,7 @@
 
 import { attribute, css, html } from "../base/web-components";
 import { KCUIElement } from "../kc-ui/element";
-import { MenuClickEvent, TabActivateEvent } from "../viewers/base/events";
+import { TabMenuClickEvent, TabActivateEvent } from "../viewers/base/events";
 import { Sections, TabKind } from "./constraint";
 
 export interface TabData {
@@ -16,6 +16,14 @@ export interface TabData {
 
 export class TabHeaderElement extends KCUIElement {
     #elements: Map<Sections, Map<TabKind, HTMLElement>>;
+    #current_tab?: TabKind;
+
+    public set tabMenuChecked(activate: boolean) {
+        this.#elements
+            .get(Sections.beginning)!
+            .get(this.#current_tab!)
+            ?.classList.toggle("checked", activate);
+    }
 
     static override styles = [
         ...KCUIElement.styles,
@@ -169,8 +177,44 @@ export class TabHeaderElement extends KCUIElement {
                         icon="svg:full_screen"
                         class="end">
                     </tab-button>` as HTMLElement;
+
+                    const open_file = html` <tab-button
+                        icon="svg:open_file"
+                        class="end">
+                    </tab-button>` as HTMLElement;
+                    section.appendChild(open_file);
                     section.appendChild(download);
                     section.appendChild(full_screen);
+
+                    // const download = () => {
+                    //     document
+                    //         .getElementById("fileInput")!
+                    //         .addEventListener("change", (event) => {
+                    //             const fileInput = event.target;
+                    //             const file = fileInput!.files[0];
+
+                    //             if (file) {
+                    //                 const fn = file.name as string;
+
+                    //                 if (!fn.endsWith(".kicad_pcb")) return;
+                    //                 const reader = new FileReader();
+
+                    //                 reader.onload = (e) => {
+                    //                     const fileContent = e.target.result;
+                    //                     const pcb = new KicadPCB(
+                    //                         file.name,
+                    //                         fileContent,
+                    //                     );
+                    //                     this.#board_app.viewer.load(pcb);
+                    //                     this.#board_app.render();
+
+                    //                     this.#board_app.viewer.zoom_to_page();
+                    //                 };
+
+                    //                 reader.readAsText(file);
+                    //             }
+                    //         });
+                    // };
                 }
                 break;
         }
@@ -185,12 +229,13 @@ export class TabHeaderElement extends KCUIElement {
     }
 
     private activateTab(kind: TabKind) {
+        if (this.#current_tab === kind) return;
+
         for (const [section, elements] of this.#elements) {
             switch (section) {
                 case Sections.beginning:
                     {
                         for (const [k, v] of elements) {
-                            v.classList.remove("checked");
                             if (k === kind) v.classList.add("active");
                             else v.classList.remove("active");
                         }
@@ -207,7 +252,13 @@ export class TabHeaderElement extends KCUIElement {
             }
         }
 
-        this.dispatchEvent(new TabActivateEvent(kind));
+        this.dispatchEvent(
+            new TabActivateEvent({
+                previous: this.#current_tab,
+                current: kind,
+            }),
+        );
+        this.#current_tab = kind;
     }
 
     on_menu_closed() {
@@ -231,7 +282,7 @@ export class TabHeaderElement extends KCUIElement {
                                     v.classList.remove("checked");
                                 }
                                 element.classList.add("checked");
-                                this.dispatchEvent(new MenuClickEvent(kind));
+                                this.dispatchEvent(new TabMenuClickEvent(kind));
                             });
                         }
                         break;

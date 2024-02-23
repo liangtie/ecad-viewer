@@ -5,6 +5,7 @@
 */
 
 import { css, html } from "../base/web-components";
+import { TabMenuVisibleChangeEvent } from "../viewers/base/events";
 import { KCUIElement } from "./element";
 
 export interface TabData {
@@ -16,6 +17,12 @@ export class TabView extends KCUIElement {
     #container: HTMLElement;
     #tabs: HTMLElement[] = [];
     #tabContents: HTMLElement[] = [];
+
+    public setHidden(hide: boolean) {
+        this.hidden = hide;
+        this.dispatchEvent(new TabMenuVisibleChangeEvent(!this.hidden));
+    }
+
     static override styles = [
         ...KCUIElement.styles,
         css`
@@ -81,7 +88,6 @@ export class TabView extends KCUIElement {
             this.#container.appendChild(tab);
         });
 
-        // Show the first tab by default
         if (tabData.length) this.showTab(0);
     }
 
@@ -98,14 +104,11 @@ export class TabView extends KCUIElement {
         return tab;
     }
     private showTab(index: number): void {
-        // Hide all tab contents
-
         for (const i of [this.#tabs, this.#tabContents])
             i.forEach((tab) => {
                 tab.classList.remove("active");
             });
 
-        // Show the selected tab content
         if (this.#tabContents[index]) {
             this.#tabContents[index]!.classList.add("active");
             this.#tabs[index]!.classList.add("active");
