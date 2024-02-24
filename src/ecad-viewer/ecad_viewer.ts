@@ -9,7 +9,11 @@ import {
 import { KCUIElement } from "../kc-ui";
 import kc_ui_styles from "../kc-ui/kc-ui.css";
 import { Project } from "../kicanvas/project";
-import { FetchFileSystem, VirtualFileSystem } from "../kicanvas/services/vfs";
+import {
+    FetchFileSystem,
+    type EcadBlob,
+    type EcadSources,
+} from "../kicanvas/services/vfs";
 import { KCBoardAppElement } from "../kicanvas/elements/kc-board/app";
 import type { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
 import type { TabHeaderElement } from "./tab_header";
@@ -19,7 +23,9 @@ import {
     TabMenuVisibleChangeEvent,
 } from "../viewers/base/events";
 import { TabKind } from "./constraint";
-class ECadViewer extends KCUIElement {
+import type { InputContainer } from "./input_containter";
+
+export class ECadViewer extends KCUIElement implements InputContainer {
     static override styles = [
         ...KCUIElement.styles,
         new CSS(kc_ui_styles),
@@ -55,15 +61,28 @@ class ECadViewer extends KCUIElement {
 
     constructor() {
         super();
+        this.appendChild(this.#file_input);
         this.provideContext("project", this.#project);
         this.addEventListener("contextmenu", function (event) {
             event.preventDefault();
         });
     }
+
+    get input() {
+        return this.#file_input;
+    }
+    public get target() {
+        return this;
+    }
+
     #project: Project = new Project();
     #schematic_app: KCSchematicAppElement;
     #board_app: KCBoardAppElement;
     #tab_header: TabHeaderElement;
+    #file_input: HTMLInputElement = html` <input
+        type="file"
+        id="fileInput"
+        style="display: none" />` as HTMLInputElement;
 
     @attribute({ type: Boolean })
     public loading: boolean;
@@ -84,24 +103,35 @@ class ECadViewer extends KCUIElement {
     async #setup_events() {}
 
     async #load_src() {
-        const sources = [];
+        const files = [];
+        const blobs: EcadBlob[] = [];
         for (const src_elm of this.querySelectorAll<EcadSourceElement>(
             "ecad-source",
         )) {
             if (src_elm.src) {
-                sources.push(src_elm.src);
+                files.push(src_elm.src);
             }
         }
-        const vfs = new FetchFileSystem(sources);
-        await this.#setup_project(vfs);
+
+        for (const blob_elm of this.querySelectorAll<EcadBlobElement>(
+            "ecad-blob",
+        )) {
+            blobs.push({
+                filename: blob_elm.filename,
+                content: blob_elm.content,
+            });
+        }
+
+        const vfs = new FetchFileSystem(files);
+        await this.#setup_project({ vfs, blobs });
     }
 
-    async #setup_project(vfs: VirtualFileSystem) {
+    async #setup_project(sources: EcadSources) {
         this.loaded = false;
         this.loading = true;
 
         try {
-            await this.#project.load(vfs);
+            await this.#project.load(sources);
 
             this.loaded = true;
             await this.update();
@@ -115,6 +145,7 @@ class ECadViewer extends KCUIElement {
         if (!this.loaded) return html``;
 
         this.#tab_header = html`<tab-header></tab-header>` as TabHeaderElement;
+        this.#tab_header.input_container = this;
         this.#tab_header.addEventListener(TabActivateEvent.type, (event) => {
             const tab = (event as TabActivateEvent).detail;
             if (tab.previous) {
@@ -160,12 +191,14 @@ class ECadViewer extends KCUIElement {
             this.#schematic_app = html`<kc-schematic-app>
             </kc-schematic-app>` as KCSchematicAppElement;
         }
-        return html`<div class="vertical">
-            ${this.#tab_header}
+        return html`
             <div class="vertical">
-                ${this.#schematic_app} ${this.#board_app}
+                ${this.#tab_header}
+                <div class="vertical">
+                    ${this.#schematic_app} ${this.#board_app}
+                </div>
             </div>
-        </div> `;
+        `;
     }
 }
 
@@ -184,3 +217,20 @@ class EcadSourceElement extends CustomElement {
 }
 
 window.customElements.define("ecad-source", EcadSourceElement);
+
+class EcadBlobElement extends CustomElement {
+    constructor() {
+        super();
+        this.ariaHidden = "true";
+        this.hidden = true;
+        this.style.display = "none";
+    }
+
+    @attribute({ type: String })
+    filename: string;
+
+    @attribute({ type: String })
+    content: string;
+}
+
+window.customElements.define("ecad-blob", EcadBlobElement);

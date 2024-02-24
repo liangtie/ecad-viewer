@@ -7,6 +7,14 @@
 import { initiate_download } from "../../base/dom/download";
 import { basename } from "../../base/paths";
 
+export interface EcadBlob {
+    filename: string;
+    content: string;
+}
+export interface EcadSources {
+    vfs: VirtualFileSystem;
+    blobs: EcadBlob[];
+}
 /**
  * Virtual file system abstract class.
  *

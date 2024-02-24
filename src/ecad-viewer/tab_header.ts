@@ -8,6 +8,7 @@ import { attribute, css, html } from "../base/web-components";
 import { KCUIElement } from "../kc-ui/element";
 import { TabMenuClickEvent, TabActivateEvent } from "../viewers/base/events";
 import { Sections, TabKind } from "./constraint";
+import type { InputContainer } from "./input_containter";
 
 export interface TabData {
     title: string;
@@ -17,6 +18,8 @@ export interface TabData {
 export class TabHeaderElement extends KCUIElement {
     #elements: Map<Sections, Map<TabKind, HTMLElement>>;
     #current_tab?: TabKind;
+    #open_file_btn = html` <tab-button icon="svg:open_file" class="end">
+    </tab-button>` as HTMLElement;
 
     public set tabMenuChecked(activate: boolean) {
         this.#elements
@@ -114,6 +117,36 @@ export class TabHeaderElement extends KCUIElement {
     @attribute({ type: Boolean })
     has_bom: boolean = true;
 
+    public set input_container(input_container: InputContainer) {
+        this.#open_file_btn.addEventListener("click", () => {
+            input_container.input.click();
+        });
+        input_container.input.addEventListener("change", (e) => {
+            const file = (e.target! as any).files[0];
+            if (file) {
+                const fn = file.name as string;
+                if (!fn.endsWith(".kicad_pcb")) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fileContent = e.target!.result;
+                    const parent = input_container.target.parentElement;
+                    if (parent) {
+                        parent.removeChild(input_container.target);
+                        parent.appendChild(
+                            html`<ecad-viewer>
+                                <ecad-blob
+                                    filename="${fn}"
+                                    content="${fileContent}"></ecad-blob>
+                            </ecad-viewer>`,
+                        );
+                    }
+                };
+
+                reader.readAsText(file);
+            }
+        });
+    }
+
     private createSection(sectionClass: Sections): HTMLDivElement {
         const section = document.createElement("div");
         section.classList.add("bar-section", sectionClass);
@@ -178,43 +211,9 @@ export class TabHeaderElement extends KCUIElement {
                         class="end">
                     </tab-button>` as HTMLElement;
 
-                    const open_file = html` <tab-button
-                        icon="svg:open_file"
-                        class="end">
-                    </tab-button>` as HTMLElement;
-                    section.appendChild(open_file);
+                    section.appendChild(this.#open_file_btn);
                     section.appendChild(download);
                     section.appendChild(full_screen);
-
-                    // const download = () => {
-                    //     document
-                    //         .getElementById("fileInput")!
-                    //         .addEventListener("change", (event) => {
-                    //             const fileInput = event.target;
-                    //             const file = fileInput!.files[0];
-
-                    //             if (file) {
-                    //                 const fn = file.name as string;
-
-                    //                 if (!fn.endsWith(".kicad_pcb")) return;
-                    //                 const reader = new FileReader();
-
-                    //                 reader.onload = (e) => {
-                    //                     const fileContent = e.target.result;
-                    //                     const pcb = new KicadPCB(
-                    //                         file.name,
-                    //                         fileContent,
-                    //                     );
-                    //                     this.#board_app.viewer.load(pcb);
-                    //                     this.#board_app.render();
-
-                    //                     this.#board_app.viewer.zoom_to_page();
-                    //                 };
-
-                    //                 reader.readAsText(file);
-                    //             }
-                    //         });
-                    // };
                 }
                 break;
         }

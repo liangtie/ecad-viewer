@@ -11,7 +11,7 @@ import { Logger } from "../base/log";
 import { type Constructor } from "../base/types";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
 
-import type { VirtualFileSystem } from "./services/vfs";
+import type { EcadBlob, EcadSources, VirtualFileSystem } from "./services/vfs";
 
 const log = new Logger("kicanvas:project");
 
@@ -32,18 +32,26 @@ export class Project extends EventTarget implements IDisposable {
         this.#files_by_name.clear();
     }
 
-    public async load(fs: VirtualFileSystem) {
-        log.info(`Loading project from ${fs.constructor.name}`);
+    public async load(sources: EcadSources) {
+        log.info(`Loading project from ${sources.constructor.name}`);
 
         this.settings = new ProjectSettings();
         this.#files_by_name.clear();
 
-        this.#fs = fs;
+        this.#fs = sources.vfs;
 
         const promises = [];
 
         for (const filename of this.#fs.list()) {
             promises.push(this.#load_file(filename));
+        }
+
+        for (const blob of sources.blobs) {
+            if (blob.filename.endsWith(".kicad_pcb")) {
+                promises.push(this.#load_blob(KicadPCB, blob));
+            } else if (blob.filename.endsWith(".kicad_sch")) {
+                promises.push(this.#load_blob(KicadSch, blob));
+            }
         }
 
         await Promise.all(promises);
@@ -88,6 +96,20 @@ export class Project extends EventTarget implements IDisposable {
         doc.project = this;
 
         this.#files_by_name.set(filename, doc);
+        return;
+    }
+
+    async #load_blob(
+        document_class: Constructor<KicadPCB | KicadSch>,
+        blob: EcadBlob,
+    ) {
+        if (this.#files_by_name.has(blob.filename)) {
+            return this.#files_by_name.get(blob.filename);
+        }
+        const doc = new document_class(blob, blob.content);
+        doc.project = this;
+
+        this.#files_by_name.set(blob.filename, doc);
         return;
     }
 
