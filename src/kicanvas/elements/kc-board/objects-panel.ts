@@ -11,6 +11,7 @@ import { BoardViewer } from "../../../viewers/board/viewer";
 
 export class KCBoardObjectsPanelElement extends KCUIElement {
     viewer: BoardViewer;
+    #check_highlight_track: HTMLInputElement;
     static override styles = [
         ...KCUIElement.styles,
         css`
@@ -78,6 +79,18 @@ export class KCBoardObjectsPanelElement extends KCUIElement {
     }
 
     override render() {
+        this.#check_highlight_track = html` <input
+            type="checkbox"
+            id="exampleCheckbox"
+            name="exampleCheckbox"
+            checked="true" />` as HTMLInputElement;
+
+        this.#check_highlight_track.addEventListener("change", () => {
+            this.viewer.set_highlighted_track(
+                this.#check_highlight_track.checked,
+            );
+        });
+
         return html`
             <kc-ui-panel>
                 <kc-ui-panel-body padded>
@@ -127,6 +140,10 @@ export class KCBoardObjectsPanelElement extends KCUIElement {
                                 value="1"
                                 name="zones"></kc-ui-range>
                         </kc-ui-control>
+                        <kc-ui-h-control-list>
+                            <label>Highlight track:</label>
+                            ${this.#check_highlight_track}
+                        </kc-ui-h-control-list>
                     </kc-ui-control-list>
                 </kc-ui-panel-body>
             </kc-ui-panel>

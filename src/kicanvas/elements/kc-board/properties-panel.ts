@@ -10,7 +10,7 @@ import {
     KCUIPanelTitleWithCloseElement,
     HorizontalResizerElement,
 } from "../../../kc-ui";
-import { Footprint, LineSegment, Pad } from "../../../kicad/board";
+import { Footprint, LineSegment, Pad, Via, Zone } from "../../../kicad/board";
 import type { BoardInspectItem } from "../../../kicad/board_bbox_visitor";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import { BoardViewer } from "../../../viewers/board/viewer";
@@ -116,13 +116,20 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
                 case "Footprint":
                     entries = this.getFootprintProperties(itm as Footprint);
                     break;
-
                 case "Pad":
                     entries = this.getPadProperties(itm as Pad);
                     break;
-
                 case "LineSegment":
                     entries = this.getLineSegmentProperties(itm as LineSegment);
+                    break;
+                case "Via":
+                    entries = this.getViaProperties(itm as Via);
+                    break;
+                case "Zone":
+                    entries = this.getZoneProperties(itm as Zone);
+                    break;
+                default:
+                    entries = this.header("Unknown item type");
                     break;
             }
         }
@@ -208,10 +215,10 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
             ${this.entry("Height", bbox.h.toFixed(4), "mm")}
             ${this.entry("Width", bbox.w.toFixed(4), "mm")}
             ${this.entry("Orientation", itm.at.rotation, "°")}
-            ${this.entry("Layer", itm.parent.layer)}
+            ${this.entry("Layer", itm.parent?.layer)}
             ${this.header("Pad properties")} ${this.entry("Type", itm.type)}
             ${this.entry("Shape", itm.shape)}
-            ${this.entry("Drill", itm.drill.diameter)}
+            ${this.entry("Drill", itm.drill?.diameter)}
             ${this.entry("Net", itm?.net?.name ?? "")}
             ${this.entry("PinNum", itm.number)}
             ${this.entry("PinType", itm.pintype)}
@@ -221,11 +228,57 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
 
     getLineSegmentProperties(itm: LineSegment) {
         return html`
+            ${this.header("Basic properties")}
             ${this.entry("X", itm.start.x.toFixed(4), "mm")}
             ${this.entry("Y", itm.start.y.toFixed(4), "mm")}
             ${this.entry("Width", itm.width.toFixed(4), "mm")}
             ${this.entry("Layer", itm.layer)}
             ${this.entry("Net", this.viewer.board.getNetName(itm.net))}
+            ${this.header("Track properties")}
+            ${this.entry("End X", itm.end.x.toFixed(4), "mm")}
+            ${this.entry("End Y", itm.end.y.toFixed(4), "mm")}
+        `;
+    }
+
+    getViaProperties(itm: Via) {
+        return html`
+            ${this.header("Basic properties")}
+            ${this.entry("X", itm.at.position.x.toFixed(4), "mm")}
+            ${this.entry("Y", itm.at.position.y.toFixed(4), "mm")}
+            ${this.entry("Net", this.viewer.board.getNetName(itm.net))}
+            ${this.entry("Diameter", itm.size.toFixed(4), "mm")}
+            ${this.header("Via properties")}
+            ${this.entry("Hole", itm.drill, "mm")}
+            ${this.entry("Layer Top", itm.layers[0])}
+            ${this.entry(
+                "Layer BOttom",
+                itm.layers[itm.layers.length - 1],
+                "mm",
+            )}
+            ${this.entry("Via Type", itm.type)}
+        `;
+    }
+
+    getZoneProperties(zone: Zone) {
+        return html`
+            ${this.header("Basic properties")} ${this.entry("Name", zone.name)}
+            ${this.entry("Priority", zone.priority)}
+            ${this.entry("Net", zone.net_name)}
+            ${this.header("Zone properties")}
+            ${this.entry("File Mode", zone.fill.mode)}
+            ${this.entry("Clearance Override", zone.connect_pads.clearance)}
+            ${this.entry("Minimum width", zone.min_thickness, "mm")}
+            ${this.entry(
+                "Pad Connections",
+                zone.connect_pads.type ?? "Thermal reliefs",
+            )}
+            ${this.entry("Minimum width", zone.min_thickness, "mm")}
+            ${this.entry("Thermal Relief Gap", zone.fill.thermal_gap, "mm")}
+            ${this.entry(
+                "Thermal Relief Spoke Width",
+                zone.fill.thermal_bridge_width,
+                "mm",
+            )}
         `;
     }
 }

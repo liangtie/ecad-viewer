@@ -18,7 +18,10 @@ export interface TabData {
 export class TabHeaderElement extends KCUIElement {
     #elements: Map<Sections, Map<TabKind, HTMLElement>>;
     #current_tab?: TabKind;
-    #open_file_btn = html` <tab-button icon="svg:open_file" class="end">
+    #open_file_btn = html` <tab-button
+        icon="svg:open_file"
+        class="end"
+        title="Open local file">
     </tab-button>` as HTMLElement;
 
     public set tabMenuChecked(activate: boolean) {
@@ -202,11 +205,13 @@ export class TabHeaderElement extends KCUIElement {
             case Sections.end:
                 {
                     const download = html` <tab-button
+                        title="Download"
                         icon="svg:download"
                         class="end">
                     </tab-button>` as HTMLElement;
 
                     const full_screen = html` <tab-button
+                        title="Switch full screen mode"
                         icon="svg:full_screen"
                         class="end">
                     </tab-button>` as HTMLElement;

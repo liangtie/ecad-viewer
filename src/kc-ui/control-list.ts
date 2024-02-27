@@ -29,6 +29,29 @@ export class KCUIControlListElement extends KCUIElement {
 
 window.customElements.define("kc-ui-control-list", KCUIControlListElement);
 
+export class KCUI_H_ControlListElement extends KCUIElement {
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                margin-top: 1em;
+                background: var(--list-item-bg);
+                color: var(--list-item-fg);
+                margin-top: 0.2em;
+            }
+        `,
+    ];
+
+    override render() {
+        return html`<slot></slot>`;
+    }
+}
+
+window.customElements.define("kc-ui-h-control-list", KCUI_H_ControlListElement);
+
 export class KCUIControlListItemElement extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,

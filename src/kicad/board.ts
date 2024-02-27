@@ -268,6 +268,15 @@ export class Via implements BoardNode {
     net: number;
     tstamp: string;
 
+    get bbox() {
+        return new BBox(
+            this.at.position.x,
+            this.at.position.y,
+            this.size,
+            this.size,
+        ).move(-this.size / 2, -this.size / 2);
+    }
+
     constructor(expr: Parseable) {
         Object.assign(
             this,
@@ -311,6 +320,20 @@ export class Zone implements BoardNode {
     polygons: Poly[];
     filled_polygons: FilledPolygon[];
     tstamp: string;
+
+    get bbox() {
+        let bbox: BBox | undefined = undefined;
+        for (const poly of this.polygons) {
+            if (!bbox) bbox = poly.bbox;
+            else bbox = BBox.combine([bbox, poly.bbox]);
+        }
+        for (const poly of this.filled_polygons) {
+            if (!bbox) bbox = poly.bbox;
+            else bbox = BBox.combine([bbox, poly.bbox]);
+        }
+        if (!bbox) return new BBox();
+        return bbox;
+    }
 
     constructor(
         expr: Parseable,

@@ -14,7 +14,6 @@ import {
     type KCUIMenuItemElement,
 } from "../../../kc-ui";
 import { KicadPCB, type Footprint } from "../../../kicad/board";
-import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
 export class KCBoardFootprintsPanelElement extends KCUIElement {
@@ -54,11 +53,11 @@ export class KCBoardFootprintsPanelElement extends KCUIElement {
 
         // Update the selected item in the list whenever the viewer's
         // selection changes.
-        this.addDisposable(
-            this.viewer.addEventListener(KiCanvasSelectEvent.type, () => {
-                this.menu.selected = this.viewer.selected?.context.uuid ?? null;
-            }),
-        );
+        // this.addDisposable(
+        //     this.viewer.addEventListener(KiCanvasSelectEvent.type, () => {
+        //         this.menu.selected = this.viewer.selected?.context.uuid ?? null;
+        //     }),
+        // );
 
         // Wire up search to filter the list
         this.search_input_elm.addEventListener("input", (e) => {

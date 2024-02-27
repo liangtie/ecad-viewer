@@ -53,6 +53,12 @@ export class BoardViewer extends DocumentViewer<
 
     #last_hover: BoardInteractiveItem | null = null;
 
+    #highlighted_track = true;
+
+    set_highlighted_track(val: boolean) {
+        this.#highlighted_track = val;
+    }
+
     get board(): board_items.KicadPCB {
         return this.document;
     }
@@ -153,7 +159,14 @@ export class BoardViewer extends DocumentViewer<
     override on_hover(_pos: Vec2) {
         const hover_item = this.findInteractive(_pos);
         if (hover_item === this.#last_hover) return;
+
+        if (
+            !this.#highlighted_track &&
+            hover_item?.depth === Depth.LINE_SEGMENTS
+        )
+            return;
         this.painter.highlight(hover_item);
+
         this.draw();
         this.#last_hover = hover_item;
     }

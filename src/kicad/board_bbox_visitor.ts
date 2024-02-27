@@ -33,10 +33,11 @@ export enum Depth {
     LINE_SEGMENTS,
 
     FOOT_PRINT,
+    ZONE,
     END,
 }
 
-export type BoardInspectItem = Footprint | Pad | LineSegment;
+export type BoardInspectItem = Footprint | Pad | LineSegment | Zone | Via;
 
 export interface BoardInteractiveItem extends Interactive {
     depth: number;
@@ -55,7 +56,7 @@ export class BoxInteractiveItem implements BoardInteractiveItem {
         bbox: BBox,
         public depth: number,
         public net: number | null,
-        public item: BoardInspectItem | null,
+        public item: BoardInspectItem,
     ) {
         this.#bbox = bbox;
     }
@@ -188,21 +189,14 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitVia(via: Via) {
         this.highlight_item.push(
-            new BoxInteractiveItem(
-                new BBox(
-                    via.at.position.x,
-                    via.at.position.y,
-                    via.size,
-                    via.size,
-                ),
-                Depth.VIA,
-                via.net,
-                null,
-            ),
+            new BoxInteractiveItem(via.bbox, Depth.VIA, via.net, via),
         );
         return true;
     }
     protected override visitZone(zone: Zone) {
+        this.highlight_item.push(
+            new BoxInteractiveItem(zone.bbox, Depth.ZONE, null, zone),
+        );
         return true;
     }
     protected override visitZoneKeepout(zoneKeepout: ZoneKeepout) {
@@ -246,14 +240,6 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         return true;
     }
     protected override visitGraphicItem(graphicItem: GraphicItem) {
-        this.highlight_item.push(
-            new BoxInteractiveItem(
-                graphicItem.bbox,
-                Depth.GRAPHICS,
-                null,
-                null,
-            ),
-        );
         return true;
     }
     protected override visitTextRenderCache(textRenderCache: TextRenderCache) {
