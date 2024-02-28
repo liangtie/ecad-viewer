@@ -158,16 +158,18 @@ export class BoardViewer extends DocumentViewer<
 
     override on_hover(_pos: Vec2) {
         const hover_item = this.findInteractive(_pos);
+
         if (hover_item === this.#last_hover) return;
+
+        this.#last_hover = hover_item;
 
         if (
             !this.#highlighted_track &&
             hover_item?.depth === Depth.LINE_SEGMENTS
         )
             return;
-        this.painter.highlight(hover_item);
 
+        this.painter.highlight(hover_item);
         this.draw();
-        this.#last_hover = hover_item;
     }
 }
