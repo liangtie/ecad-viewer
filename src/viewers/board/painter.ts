@@ -316,7 +316,7 @@ class PadPainter extends BoardItemPainter {
 
     layers_for(pad: board_items.Pad): string[] {
         // TODO: Port KiCAD's logic over.
-        const layers: string[] = [LayerNames.pad_num];
+        const layers: string[] = [];
 
         for (const layer of pad.layers) {
             if (layer == "*.Cu") {
@@ -405,10 +405,6 @@ class PadPainter extends BoardItemPainter {
 
     paint(layer: ViewLayer, pad: board_items.Pad) {
         if (this.filter_net && pad.net?.number != this.filter_net) {
-            return;
-        }
-        if (layer.name === LayerNames.pad_num) {
-            this.paintPadNumber(layer, pad);
             return;
         }
 
