@@ -25,7 +25,6 @@ export class KCBoardLayersPanelElement extends KCUIElement {
 
                 overflow-y: auto;
                 overflow-x: hidden;
-                user-select: none;
             }
 
             kc-ui-panel-title button {
@@ -64,8 +63,6 @@ export class KCBoardLayersPanelElement extends KCUIElement {
     ];
 
     viewer: BoardViewer;
-
-    #menu: HTMLMenuElement;
 
     @query("kc-ui-panel-body", true)
     private panel_body!: KCUIPanelBodyElement;
@@ -176,6 +173,11 @@ export class KCBoardLayersPanelElement extends KCUIElement {
                         l.visible = true;
                     }
                     break;
+                case "none":
+                    for (const l of ui_layers) {
+                        l.visible = false;
+                    }
+                    break;
                 case "front":
                     for (const l of ui_layers) {
                         l.visible =
@@ -254,34 +256,18 @@ export class KCBoardLayersPanelElement extends KCUIElement {
             );
         }
 
-        this.#menu = html`<menu type="context" id="myContextMenu">
-            <menuitem label="Option 1" onclick="handleOption1()"></menuitem>
-            <menuitem label="Option 2" onclick="handleOption2()"></menuitem>
-            <menuitem label="Option 3" onclick="handleOption3()"></menuitem>
-        </menu>` as HTMLMenuElement;
-
-        for (const it of items) {
-            it.addEventListener("contextmenu", (e) => {
-                console.log("==");
-                e.preventDefault();
-                this.#menu.style.top = `${e.clientY}px`;
-                this.#menu.style.left = `${e.clientX}px`;
-                this.#menu.setAttribute("open", "true");
-            });
-        }
-
         return html`
             <kc-ui-panel>
-                <!-- <kc-ui-panel-title>
+                <kc-ui-panel-title>
                     <button slot="actions" type="button">
                         <kc-ui-icon>visibility</kc-ui-icon>
                     </button>
-                </kc-ui-panel-title> -->
+                </kc-ui-panel-title>
                 <kc-ui-panel-body>
-                    ${this.#menu} ${items}
-                    <kc-ui-panel-label>Presets</kc-ui-panel-label>
+                    ${items}
                     <kc-ui-menu id="presets" class="outline">
                         <kc-ui-menu-item name="all">All</kc-ui-menu-item>
+                        <kc-ui-menu-item name="none">None</kc-ui-menu-item>
                         <kc-ui-menu-item name="front">Front</kc-ui-menu-item>
                         <kc-ui-menu-item name="back">Back</kc-ui-menu-item>
                         <kc-ui-menu-item name="copper">Copper</kc-ui-menu-item>
