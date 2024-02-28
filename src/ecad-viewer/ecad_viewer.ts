@@ -63,9 +63,9 @@ export class ECadViewer extends KCUIElement implements InputContainer {
         super();
         this.appendChild(this.#file_input);
         this.provideContext("project", this.#project);
-        // this.addEventListener("contextmenu", function (event) {
-        //     event.preventDefault();
-        // });
+        this.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
     }
 
     get input() {

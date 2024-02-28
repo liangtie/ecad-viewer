@@ -168,16 +168,6 @@ export class KCBoardLayersPanelElement extends KCUIElement {
             const ui_layers = this.viewer.layers.in_ui_order();
 
             switch (item.name) {
-                case "all":
-                    for (const l of ui_layers) {
-                        l.visible = true;
-                    }
-                    break;
-                case "none":
-                    for (const l of ui_layers) {
-                        l.visible = false;
-                    }
-                    break;
                 case "front":
                     for (const l of ui_layers) {
                         l.visible =
@@ -260,14 +250,12 @@ export class KCBoardLayersPanelElement extends KCUIElement {
             <kc-ui-panel>
                 <kc-ui-panel-title>
                     <button slot="actions" type="button">
-                        <kc-ui-icon>visibility</kc-ui-icon>
+                        <kc-ui-icon>Show/Hide all</kc-ui-icon>
                     </button>
                 </kc-ui-panel-title>
                 <kc-ui-panel-body>
                     ${items}
                     <kc-ui-menu id="presets" class="outline">
-                        <kc-ui-menu-item name="all">All</kc-ui-menu-item>
-                        <kc-ui-menu-item name="none">None</kc-ui-menu-item>
                         <kc-ui-menu-item name="front">Front</kc-ui-menu-item>
                         <kc-ui-menu-item name="back">Back</kc-ui-menu-item>
                         <kc-ui-menu-item name="copper">Copper</kc-ui-menu-item>
