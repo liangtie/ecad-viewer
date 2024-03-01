@@ -7,6 +7,7 @@
 import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { Vec2 } from "../../base/math";
+import { html } from "../../base/web-components";
 import { Color, Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -29,27 +30,81 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    #selection_menu: HTMLElement;
+
     public highlight_net(num: number | null) {
         if (this.painter.paint_net(this.board, num)) this.draw();
     }
 
     override on_click(pos: Vec2): void {
-        this.highlight_net(this.#last_hover?.net ?? null);
-        later(() => {
-            this.dispatchEvent(
-                new KiCanvasSelectEvent({
-                    item: this.#last_hover?.contains(pos)
-                        ? this.#last_hover.item
-                        : null,
-                    previous: null,
-                }),
-            );
-        });
+        const items = this.find_items_under_pos(pos);
+
+        if (items.length > 0) {
+            if (items.length == 1) {
+                this.highlight_net(this.#last_hover?.net ?? null);
+                later(() => {
+                    this.dispatchEvent(
+                        new KiCanvasSelectEvent({
+                            item: this.#last_hover?.contains(pos)
+                                ? this.#last_hover.item
+                                : null,
+                            previous: null,
+                        }),
+                    );
+                });
+            } else {
+                this.#selection_menu = html` <div id="ecad-single-pop-menu">
+                    <ul>
+                        <li><a href="#">Option 1</a></li>
+                        <li><a href="#">Option 2</a></li>
+                        <li><a href="#">Option 3</a></li>
+                    </ul>
+                </div>` as HTMLElement;
+            }
+        }
     }
+
+    find_items_under_pos(pos: Vec2) {
+        const items: BoardInteractiveItem[] = [];
+
+        const check_depth = (depth: Depth) => {
+            const layer_items = this.#interactive.get(depth) ?? [];
+            if (layer_items.length)
+                for (const i of layer_items) {
+                    if (i.contains(pos)) {
+                        items.push(i);
+                    }
+                }
+        };
+
+        for (const [depth] of this.#interactive) {
+            switch (depth) {
+                case Depth.GRAPHICS:
+                    break;
+                case Depth.VIA:
+                case Depth.PAD:
+                case Depth.LINE_SEGMENTS:
+                    check_depth(depth);
+                    break;
+                case Depth.FOOT_PRINT:
+                case Depth.ZONE:
+                    break;
+            }
+        }
+
+        // look up the footprints then
+        if (!items.length) check_depth(Depth.FOOT_PRINT);
+
+        // look up the zones finally
+        if (!items.length) check_depth(Depth.ZONE);
+
+        return items;
+    }
+
     override on_dblclick(pos: Vec2): void {}
     override type: ViewerType = ViewerType.PCB;
 
-    #interactive: OrderedMap<number, BoardInteractiveItem[]> = OrderedMap();
+    #interactive: OrderedMap<Depth, BoardInteractiveItem[]> = OrderedMap();
 
     #last_hover: BoardInteractiveItem | null = null;
 
