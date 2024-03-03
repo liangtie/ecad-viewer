@@ -29,8 +29,38 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
+    #should_restore_visibility = false;
+    click_count = 0;
+
+    protected override on_document_clicked(): void {
+        this.click_count = this.click_count + 1;
+        if (this.#should_restore_visibility && this.click_count > 1) {
+            for (const layer of this.layers.copper_layers()) {
+                layer.visible = true;
+            }
+            this.#should_restore_visibility = false;
+            this.click_count = 0;
+            this.painter.layers.overlay.clear();
+            this.draw();
+        }
+    }
+
+    _do_highlight_net(num: number | null) {
+        if (this.painter.paint_net(this.board, num)) {
+            this.#should_restore_visibility = false;
+            if (num) {
+                this.#should_restore_visibility = true;
+                for (const layer of this.layers.copper_layers()) {
+                    layer.visible = false;
+                }
+            }
+            this.draw();
+        }
+    }
+
     public highlight_net(num: number | null) {
-        if (this.painter.paint_net(this.board, num)) this.draw();
+        this.click_count = 0;
+        this._do_highlight_net(num);
     }
 
     override on_click(pos: Vec2): void {

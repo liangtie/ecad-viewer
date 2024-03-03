@@ -171,12 +171,14 @@ class TraceSegmentPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, s: board_items.LineSegment) {
-        if (this.filter_net && s.net != this.filter_net) {
-            return;
+        let color = layer.color;
+        if (this.filter_net) {
+            if (s.net != this.filter_net) color = color.grayscale;
+            else color = Color.cyan;
         }
 
         const points = [s.start, s.end];
-        this.gfx.line(new Polyline(points, s.width, layer.color));
+        this.gfx.line(new Polyline(points, s.width, color));
     }
 }
 
@@ -294,8 +296,11 @@ class ZonePainter extends BoardItemPainter {
             return;
         }
 
-        if (this.filter_net && z.net != this.filter_net) {
-            return;
+        let color = layer.color;
+
+        if (this.filter_net) {
+            if (z.net != this.filter_net) return;
+            else color = Color.dark_gray;
         }
 
         for (const p of z.filled_polygons) {
@@ -306,7 +311,7 @@ class ZonePainter extends BoardItemPainter {
                 continue;
             }
 
-            this.gfx.polygon(new Polygon(p.pts, layer.color));
+            this.gfx.polygon(new Polygon(p.pts, color));
         }
     }
 }
@@ -404,11 +409,12 @@ class PadPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, pad: board_items.Pad) {
-        if (this.filter_net && pad.net?.number != this.filter_net) {
-            return;
-        }
+        let color = layer.color;
 
-        const color = pad.highlighted ? pad.highlightColor : layer.color;
+        if (this.filter_net) {
+            if (pad.net?.number != this.filter_net)
+                color = new Color(0.1, 0.1, 0.1, 0.7);
+        }
 
         const position_mat = Matrix3.translation(
             pad.at.position.x,
@@ -1046,7 +1052,7 @@ export class BoardPainter extends DocumentPainter {
         const layer = this.layers.overlay;
 
         layer.clear();
-        layer.color = Color.white;
+        layer.color = Color.cyan;
         this.gfx.start_layer(layer.name);
 
         for (const item of board.items()) {
@@ -1060,7 +1066,7 @@ export class BoardPainter extends DocumentPainter {
         }
 
         layer.graphics = this.gfx.end_layer();
-        layer.graphics.composite_operation = "overlay";
+        layer.graphics.composite_operation = "source-over";
         this.filter_net = null;
         return true;
     }

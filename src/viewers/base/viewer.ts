@@ -119,6 +119,9 @@ export abstract class Viewer extends EventTarget {
                     this.on_dblclick(this.#mouse_position);
                 }),
             );
+            document.addEventListener("click", () => {
+                this.on_document_clicked();
+            });
         }
 
         this.setup_finished.open();
@@ -159,6 +162,8 @@ export abstract class Viewer extends EventTarget {
     }
 
     public abstract paint(): void;
+
+    protected on_document_clicked(): void {}
 
     protected on_draw() {
         this.renderer.clear_canvas();
