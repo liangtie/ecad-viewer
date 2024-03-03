@@ -33,6 +33,18 @@ export class KiCanvasSelectEvent extends KiCanvasEvent<SelectDetails> {
     }
 }
 
+interface FitterSelections {
+    items: unknown[];
+}
+
+export class KiCanvasFitterMenuEvent extends KiCanvasEvent<FitterSelections> {
+    static readonly type = "kicanvas:fitter-selection";
+
+    constructor(detail: FitterSelections) {
+        super(KiCanvasFitterMenuEvent.type, detail, true);
+    }
+}
+
 interface MouseMoveDetails {
     x: number;
     y: number;
@@ -92,6 +104,7 @@ export interface KiCanvasEventMap {
     [KicadSyncHoverEvent.type]: KicadSyncHoverEvent;
     [TabActivateEvent.type]: TabActivateEvent;
     [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
+    [KiCanvasFitterMenuEvent.type]: KiCanvasFitterMenuEvent;
 }
 
 declare global {

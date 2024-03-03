@@ -7,7 +7,6 @@
 import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { Vec2 } from "../../base/math";
-import { html } from "../../base/web-components";
 import { Color, Renderer } from "../../graphics";
 import { WebGL2Renderer } from "../../graphics/webgl";
 import type { BoardTheme } from "../../kicad";
@@ -18,7 +17,7 @@ import {
     Depth,
 } from "../../kicad/board_bbox_visitor";
 import { DocumentViewer } from "../base/document-viewer";
-import { KiCanvasSelectEvent } from "../base/events";
+import { KiCanvasFitterMenuEvent, KiCanvasSelectEvent } from "../base/events";
 import { ViewerType } from "../base/viewer";
 import { LayerNames, LayerSet, ViewLayer } from "./layers";
 import { BoardPainter } from "./painter";
@@ -30,8 +29,6 @@ export class BoardViewer extends DocumentViewer<
     LayerSet,
     BoardTheme
 > {
-    #selection_menu: HTMLElement;
-
     public highlight_net(num: number | null) {
         if (this.painter.paint_net(this.board, num)) this.draw();
     }
@@ -41,25 +38,35 @@ export class BoardViewer extends DocumentViewer<
 
         if (items.length > 0) {
             if (items.length == 1) {
-                this.highlight_net(this.#last_hover?.net ?? null);
-                later(() => {
-                    this.dispatchEvent(
-                        new KiCanvasSelectEvent({
-                            item: this.#last_hover?.contains(pos)
-                                ? this.#last_hover.item
-                                : null,
-                            previous: null,
-                        }),
-                    );
-                });
+                const it = items[0];
+                if (it) {
+                    this.highlight_net(it.net ?? null);
+                    later(() => {
+                        this.dispatchEvent(
+                            new KiCanvasSelectEvent({
+                                item: it.item,
+                                previous: null,
+                            }),
+                        );
+                        this.dispatchEvent(
+                            new KiCanvasFitterMenuEvent({
+                                items: [],
+                            }),
+                        );
+                    });
+                }
             } else {
-                this.#selection_menu = html` <div id="ecad-single-pop-menu">
-                    <ul>
-                        <li><a href="#">Option 1</a></li>
-                        <li><a href="#">Option 2</a></li>
-                        <li><a href="#">Option 3</a></li>
-                    </ul>
-                </div>` as HTMLElement;
+                this.dispatchEvent(
+                    new KiCanvasSelectEvent({
+                        item: null,
+                        previous: null,
+                    }),
+                );
+                this.dispatchEvent(
+                    new KiCanvasFitterMenuEvent({
+                        items: items,
+                    }),
+                );
             }
         }
     }

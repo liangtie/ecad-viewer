@@ -234,16 +234,3 @@ class EcadBlobElement extends CustomElement {
 }
 
 window.customElements.define("ecad-blob", EcadBlobElement);
-
-document.addEventListener("mousedown", function (event: MouseEvent) {
-    const popupMenu = document.getElementById("ecad-single-pop-menu");
-    if (popupMenu)
-        if (
-            event.button === 0 &&
-            popupMenu.style.display === "block" &&
-            !popupMenu.contains(event.target as any)
-        ) {
-            popupMenu.style.display = "none";
-            popupMenu.parentNode?.removeChild(popupMenu);
-        }
-});

@@ -27,6 +27,17 @@ export abstract class Viewer extends EventTarget {
     public viewport: Viewport;
     public layers: ViewLayerSet;
     #mouse_position: Vec2 = new Vec2(0, 0);
+    #mouse_client_pos: Vec2 = new Vec2(0, 0);
+    #page_mouse_pos: Vec2 = new Vec2(0, 0);
+
+    get client_mouse_pos(): Vec2 {
+        return this.#mouse_client_pos;
+    }
+
+    get page_mouse_pos(): Vec2 {
+        return this.#page_mouse_pos;
+    }
+
     public loaded = new Barrier();
 
     abstract type: ViewerType;
@@ -121,6 +132,8 @@ export abstract class Viewer extends EventTarget {
 
     protected on_mouse_change(e: MouseEvent) {
         const rect = this.canvas.getBoundingClientRect();
+        this.#mouse_client_pos = new Vec2(e.clientX, e.clientY);
+        this.#page_mouse_pos = new Vec2(e.pageX, e.pageY);
         const new_position = this.viewport.camera.screen_to_world(
             new Vec2(e.clientX - rect.left, e.clientY - rect.top),
         );

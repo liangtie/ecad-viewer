@@ -29,6 +29,10 @@
     --resizer-active-bg: #131218;
 
     --panel-bg: #242424;
+    --pop-menu-bg: rgba(57, 8, 27, 0.8);
+    --pop-menu-fg: #f8f8f0;
+    --pop-menu-fg-hover: #69ddd1;
+
     --panel-fg: #f8f8f0;
     --panel-border: 2px solid #282634;
     --panel-title-bg: #484848;

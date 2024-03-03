@@ -20,11 +20,14 @@ import "./nets-panel";
 import "./objects-panel";
 import "./properties-panel";
 import "./viewer";
+import "./selection-pop-menu";
 import { KCBoardLayersPanelElement } from "./layers-panel";
 import { KCBoardObjectsPanelElement } from "./objects-panel";
 import { TabView } from "../../../kc-ui/tab-view";
 import { KCBoardNetsPanelElement } from "./nets-panel";
-import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
+import {
+    TabMenuVisibleChangeEvent,
+} from "../../../viewers/base/events";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -32,6 +35,7 @@ import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
  * basically KiCanvas's version of PCBNew.
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
+    #selection_menu: HTMLElement;
     protected override make_property_element(): ElementOrFragment {
         return html`<kc-board-properties-panel></kc-board-properties-panel>`;
     }
@@ -42,6 +46,9 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
 
     public get tabMenuHidden() {
         return this.tab_view.hidden;
+    }
+    override initialContentCallback() {
+        super.initialContentCallback();
     }
 
     #tab_view: TabView;
@@ -89,6 +96,12 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
 
     override make_viewer_element(): KCBoardViewerElement {
         return html`<kc-board-viewer></kc-board-viewer>` as KCBoardViewerElement;
+    }
+    override render() {
+        this.#selection_menu =
+            html`<kc-board-selection-menu></kc-board-selection-menu>` as HTMLElement;
+        const content = super.render();
+        return html`${content} ${this.#selection_menu}`;
     }
 }
 
