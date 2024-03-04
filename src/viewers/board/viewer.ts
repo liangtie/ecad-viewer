@@ -16,6 +16,7 @@ import {
     type BoardInteractiveItem,
     Depth,
 } from "../../kicad/board_bbox_visitor";
+import type { KCBoardLayersPanelElement } from "../../kicanvas/elements/kc-board/layers-panel";
 import { DocumentViewer } from "../base/document-viewer";
 import { KiCanvasFitterMenuEvent, KiCanvasSelectEvent } from "../base/events";
 import { ViewerType } from "../base/viewer";
@@ -31,12 +32,18 @@ export class BoardViewer extends DocumentViewer<
 > {
     #should_restore_visibility = false;
     click_count = 0;
+    #layer_visibility_ctrl: KCBoardLayersPanelElement;
+
+    set layer_visibility_ctrl(ctr: KCBoardLayersPanelElement) {
+        this.#layer_visibility_ctrl = ctr;
+    }
 
     protected override on_document_clicked(): void {
         this.click_count = this.click_count + 1;
         if (this.#should_restore_visibility && this.click_count > 1) {
+            const visibilities = this.#layer_visibility_ctrl.visibilities;
             for (const layer of this.layers.copper_layers()) {
-                layer.visible = true;
+                layer.visible = visibilities.get(layer.name)!;
             }
             this.#should_restore_visibility = false;
             this.click_count = 0;
@@ -162,7 +169,7 @@ export class BoardViewer extends DocumentViewer<
         for (let k = Depth.START; k < Depth.END; k++)
             this.#interactive = this.#interactive.set(k, []);
 
-        for (const e of visitor.highlight_item)
+        for (const e of visitor.interactive_items)
             this.#interactive.get(e.depth)?.push(e);
 
         await super.load(src);
@@ -239,11 +246,23 @@ export class BoardViewer extends DocumentViewer<
     }
 
     findInteractive(pos: Vec2) {
+        const visible_layers: Set<string> = new Set();
+        for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
+            if (v) visible_layers.add(k);
+
+        const is_item_visible = (item: BoardInteractiveItem) => {
+            for (const layer of visible_layers)
+                if (item.is_on_layer(layer)) return true;
+
+            return false;
+        };
+
         for (const [, v] of this.#interactive) {
-            for (const e of v)
-                if (e.contains(pos)) {
+            for (const e of v) {
+                if (e.contains(pos) && is_item_visible(e)) {
                     return e;
                 }
+            }
         }
         return null;
     }

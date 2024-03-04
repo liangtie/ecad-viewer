@@ -64,6 +64,15 @@ export class KCBoardLayersPanelElement extends KCUIElement {
 
     viewer: BoardViewer;
 
+    public get visibilities() {
+        const res: Map<string, boolean> = new Map();
+
+        for (const it of this.items) {
+            res.set(it.layer_name, it.layer_visible);
+        }
+        return res;
+    }
+
     @query("kc-ui-panel-body", true)
     private panel_body!: KCUIPanelBodyElement;
 
@@ -71,6 +80,11 @@ export class KCBoardLayersPanelElement extends KCUIElement {
         return Array.from(
             this.panel_body.querySelectorAll("kc-board-layer-control") ?? [],
         );
+    }
+
+    public constructor() {
+        super();
+        this.provideContext("layer-visibility", this);
     }
 
     @query("#presets", true)

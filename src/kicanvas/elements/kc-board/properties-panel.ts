@@ -250,11 +250,7 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
             ${this.header("Via properties")}
             ${this.entry("Hole", itm.drill, "mm")}
             ${this.entry("Layer Top", itm.layers[0])}
-            ${this.entry(
-                "Layer BOttom",
-                itm.layers[itm.layers.length - 1],
-                "mm",
-            )}
+            ${this.entry("Layer Bottom", itm.layers[itm.layers.length - 1])}
             ${this.entry("Via Type", itm.type)}
         `;
     }

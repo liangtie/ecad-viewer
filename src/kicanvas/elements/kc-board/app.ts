@@ -25,9 +25,8 @@ import { KCBoardLayersPanelElement } from "./layers-panel";
 import { KCBoardObjectsPanelElement } from "./objects-panel";
 import { TabView } from "../../../kc-ui/tab-view";
 import { KCBoardNetsPanelElement } from "./nets-panel";
-import {
-    TabMenuVisibleChangeEvent,
-} from "../../../viewers/base/events";
+import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
+import type { BoardViewer } from "../../../viewers/board/viewer";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -36,10 +35,10 @@ import {
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
     #selection_menu: HTMLElement;
+    #layer: KCBoardLayersPanelElement;
     protected override make_property_element(): ElementOrFragment {
         return html`<kc-board-properties-panel></kc-board-properties-panel>`;
     }
-
     public set tabMenuHidden(v: boolean) {
         this.#tab_view.setHidden(v);
     }
@@ -49,6 +48,7 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
     }
     override initialContentCallback() {
         super.initialContentCallback();
+        (this.viewer as BoardViewer).layer_visibility_ctrl = this.#layer;
     }
 
     #tab_view: TabView;
@@ -58,13 +58,13 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
     }
 
     protected override make_fitter_menu(): ElementOrFragment {
-        const layer = new KCBoardLayersPanelElement();
+        this.#layer = new KCBoardLayersPanelElement();
         const obj = new KCBoardObjectsPanelElement();
         const nets = new KCBoardNetsPanelElement();
         this.#tab_view = new TabView([
             {
                 title: "Layers",
-                content: layer,
+                content: this.#layer,
             },
             {
                 title: "Objects",

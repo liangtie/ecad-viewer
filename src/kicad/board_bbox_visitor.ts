@@ -43,6 +43,7 @@ export interface BoardInteractiveItem extends Interactive {
     depth: number;
     net: number | null;
     item: BoardInspectItem | null;
+    is_on_layer: (name: string) => boolean;
 }
 
 export class BoxInteractiveItem implements BoardInteractiveItem {
@@ -51,20 +52,27 @@ export class BoxInteractiveItem implements BoardInteractiveItem {
     get bbox() {
         return this.#bbox;
     }
+    is_on_layer(name: string) {
+        return this.layer.has(name);
+    }
 
     constructor(
         bbox: BBox,
         public depth: number,
         public net: number | null,
         public item: BoardInspectItem,
+        private layer: Set<string>,
     ) {
         this.#bbox = bbox;
     }
     contains(pos: Vec2): boolean {
         return this.#bbox.contains_point(pos);
     }
-    select(): void {
-        throw new Error("Method not implemented.");
+}
+
+export class FootprintInteractiveItem extends BoxInteractiveItem {
+    override is_on_layer(name: string) {
+        return true;
     }
 }
 
@@ -81,11 +89,16 @@ export class LineInteractiveItem implements BoardInteractiveItem {
         return this.#line;
     }
 
+    is_on_layer(name: string) {
+        return this.layer.has(name);
+    }
+
     constructor(
         public depth: number,
         line: BoardLine,
         public net: number,
         public item: BoardInspectItem,
+        public layer: Set<string>,
     ) {
         this.#line = line;
     }
@@ -96,9 +109,6 @@ export class LineInteractiveItem implements BoardInteractiveItem {
             this.#line.end,
             this.#line.width,
         );
-    }
-    select(): void {
-        throw new Error("Method not implemented.");
     }
 
     static pointOnLineSegment(p0: Vec2, p1: Vec2, p2: Vec2, width: number) {
@@ -162,25 +172,25 @@ export class LineInteractiveItem implements BoardInteractiveItem {
 }
 
 export class BoardBBoxVisitor extends BoardVisitorBase {
-    public get highlight_item() {
-        return this.#highlight_items;
+    public get interactive_items() {
+        return this.interactive;
     }
 
-    #highlight_items: BoardInteractiveItem[] = [];
+    interactive: BoardInteractiveItem[] = [];
 
     protected override visitLineSegment(lineSegment: LineSegment) {
-        this.highlight_item.push(
-            new LineInteractiveItem(
-                Depth.LINE_SEGMENTS,
-                {
-                    start: lineSegment.start,
-                    end: lineSegment.end,
-                    width: lineSegment.width,
-                },
-                lineSegment.net,
-                lineSegment,
-            ),
+        const line = new LineInteractiveItem(
+            Depth.LINE_SEGMENTS,
+            {
+                start: lineSegment.start,
+                end: lineSegment.end,
+                width: lineSegment.width,
+            },
+            lineSegment.net,
+            lineSegment,
+            new Set([lineSegment.layer]),
         );
+        this.interactive_items.push(line);
         return true;
     }
 
@@ -188,14 +198,26 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
         return true;
     }
     protected override visitVia(via: Via) {
-        this.highlight_item.push(
-            new BoxInteractiveItem(via.bbox, Depth.VIA, via.net, via),
+        this.interactive_items.push(
+            new BoxInteractiveItem(
+                via.bbox,
+                Depth.VIA,
+                via.net,
+                via,
+                new Set(via.layers),
+            ),
         );
         return true;
     }
     protected override visitZone(zone: Zone) {
-        this.highlight_item.push(
-            new BoxInteractiveItem(zone.bbox, Depth.ZONE, null, zone),
+        this.interactive_items.push(
+            new BoxInteractiveItem(
+                zone.bbox,
+                Depth.ZONE,
+                null,
+                zone,
+                new Set(zone.layers),
+            ),
         );
         return true;
     }
@@ -234,8 +256,14 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
     protected override visitFootprint(footprint: Footprint) {
         const bb = footprint.bbox;
-        this.highlight_item.push(
-            new BoxInteractiveItem(bb, Depth.FOOT_PRINT, null, footprint),
+        this.interactive_items.push(
+            new FootprintInteractiveItem(
+                bb,
+                Depth.FOOT_PRINT,
+                null,
+                footprint,
+                new Set(),
+            ),
         );
         return true;
     }
@@ -250,8 +278,14 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
 
     protected override visitPad(pad: Pad) {
-        this.highlight_item.push(
-            new BoxInteractiveItem(pad.bbox, Depth.PAD, pad?.net?.number, pad),
+        this.interactive_items.push(
+            new BoxInteractiveItem(
+                pad.bbox,
+                Depth.PAD,
+                pad?.net?.number,
+                pad,
+                new Set(pad.layers),
+            ),
         );
 
         return true;

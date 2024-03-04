@@ -228,7 +228,15 @@ export class TabHeaderElement extends KCUIElement {
 
     override renderedCallback(): void | undefined {
         if (this.#elements.size) {
-            this.activateTab(TabKind.pcb);
+            if (this.has_pcb) {
+                this.activateTab(TabKind.pcb);
+            } else if (this.has_sch) {
+                this.activateTab(TabKind.sch);
+            } else if (this.has_step) {
+                this.activateTab(TabKind.step);
+            } else if (this.has_bom) {
+                this.activateTab(TabKind.bom);
+            }
         }
     }
 

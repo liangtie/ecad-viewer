@@ -50,6 +50,14 @@ export class ECadViewer extends KCUIElement implements InputContainer {
                 overflow: hidden;
             }
 
+            .tab-content {
+                display: none;
+            }
+
+            .tab-content.active {
+                display: block;
+            }
+
             kc-board-app,
             kc-schematic-app {
                 flex: 1;
@@ -75,6 +83,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
         return this;
     }
 
+    #tab_contents: Record<string, HTMLElement> = {};
     #project: Project = new Project();
     #schematic_app: KCSchematicAppElement;
     #board_app: KCBoardAppElement;
@@ -143,7 +152,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
 
     override render() {
         if (!this.loaded) return html``;
-
+        this.#tab_contents = {};
         this.#tab_header = html`<tab-header></tab-header>` as TabHeaderElement;
         this.#tab_header.input_container = this;
         this.#tab_header.addEventListener(TabActivateEvent.type, (event) => {
@@ -157,8 +166,15 @@ export class ECadViewer extends KCUIElement implements InputContainer {
                         break;
                     case TabKind.bom:
                         break;
+                    case TabKind.step:
+                        break;
                 }
             }
+
+            Object.values(this.#tab_contents).forEach((i) => {
+                i.classList.remove("active");
+            });
+            this.#tab_contents[tab.current]?.classList.add("active");
         });
 
         this.#tab_header.addEventListener(TabMenuClickEvent.type, (event) => {
@@ -178,6 +194,8 @@ export class ECadViewer extends KCUIElement implements InputContainer {
         if (this.#project.has_boards && !this.#board_app) {
             this.#board_app = html`<kc-board-app>
             </kc-board-app>` as KCBoardAppElement;
+            this.#tab_contents[TabKind.pcb] = this.#board_app;
+            this.#board_app.classList.add("tab-content");
             this.#board_app.addEventListener(
                 TabMenuVisibleChangeEvent.type,
                 (event) => {
@@ -190,6 +208,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
         if (this.#project.has_schematics && !this.#schematic_app) {
             this.#schematic_app = html`<kc-schematic-app>
             </kc-schematic-app>` as KCSchematicAppElement;
+            this.#tab_contents[TabKind.sch] = this.#schematic_app;
         }
         return html`
             <div class="vertical">
