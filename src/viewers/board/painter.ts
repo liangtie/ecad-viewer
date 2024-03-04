@@ -165,6 +165,7 @@ class CirclePainter extends BoardItemPainter {
 
 class TraceSegmentPainter extends BoardItemPainter {
     classes = [board_items.LineSegment];
+    color_cache: Color | null = null;
 
     layers_for(item: board_items.LineSegment) {
         return [item.layer];
@@ -172,9 +173,12 @@ class TraceSegmentPainter extends BoardItemPainter {
 
     paint(layer: ViewLayer, s: board_items.LineSegment) {
         let color = layer.color;
+
+        if (!this.color_cache) this.color_cache = color;
+
         if (this.filter_net) {
             if (s.net != this.filter_net) color = color.grayscale;
-            else color = Color.cyan;
+            else color = this.color_cache;
         }
 
         const points = [s.start, s.end];
@@ -273,6 +277,7 @@ class ViaPainter extends BoardItemPainter {
 
 class ZonePainter extends BoardItemPainter {
     classes = [board_items.Zone];
+    color_cache: Color | null = null;
 
     layers_for(z: board_items.Zone): string[] {
         const layers = z.layers ?? [z.layer];
@@ -298,9 +303,11 @@ class ZonePainter extends BoardItemPainter {
 
         let color = layer.color;
 
+        if (!this.color_cache) this.color_cache = color;
+
         if (this.filter_net) {
             if (z.net != this.filter_net) return;
-            else color = Color.dark_gray;
+            else color = this.color_cache;
         }
 
         for (const p of z.filled_polygons) {
