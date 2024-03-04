@@ -96,10 +96,11 @@ class LinePainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, s: board_items.GrLine | board_items.FpLine) {
-        if (this.filter_net) return;
+        let color = layer.color;
+        if (this.filter_net) color = Color.dark_gray;
 
         const points = [s.start, s.end];
-        this.gfx.line(new Polyline(points, s.width, layer.color));
+        this.gfx.line(new Polyline(points, s.width, color));
     }
 }
 
@@ -111,9 +112,9 @@ class RectPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, r: board_items.GrRect | board_items.FpRect) {
-        if (this.filter_net) return;
+        let color = layer.color;
+        if (this.filter_net) color = Color.dark_gray;
 
-        const color = layer.color;
         const points = [
             r.start,
             new Vec2(r.start.x, r.end.y),
@@ -143,9 +144,8 @@ class PolyPainter extends BoardItemPainter {
         layer: ViewLayer,
         p: board_items.Poly | board_items.GrPoly | board_items.FpPoly,
     ) {
-        if (this.filter_net) return;
-
-        const color = layer.color;
+        let color = layer.color;
+        if (this.filter_net) color = Color.dark_gray;
 
         if (p.width) {
             this.gfx.line(new Polyline([...p.pts, p.pts[0]!], p.width, color));
@@ -1059,7 +1059,11 @@ class FootprintPainter extends BoardItemPainter {
         this.gfx.state.push();
         this.gfx.state.multiply(matrix);
 
-        for (const item of fp.items()) {
+        console.log(this.filter_net);
+        // const its = this.filter_net ? fp.items_exclude_drawings() : fp.items();
+        const its = fp.items_exclude_drawings();
+
+        for (const item of its) {
             const item_layers = this.view_painter.layers_for(item);
             if (
                 layer.name == ViewLayerNames.overlay ||
@@ -1098,11 +1102,22 @@ export class BoardPainter extends DocumentPainter {
 
     // Used to filter out items by net when highlighting nets. Painters
     // should use this to determine whether to draw or skip the current item.
-    filter_net: number | null = null;
+    #filter_net: number | null = null;
+
+    get filter_net() {
+        return this.#filter_net;
+    }
+
+    set filter_net(net: number | null) {
+        this.#filter_net = net;
+    }
 
     paint_net(board: board_items.KicadPCB, net: number | null) {
         if (this.filter_net === net) return false;
         this.filter_net = net;
+
+        console.log("paint_net", net);
+
         const layer = this.layers.overlay;
 
         layer.clear();
@@ -1121,7 +1136,6 @@ export class BoardPainter extends DocumentPainter {
 
         layer.graphics = this.gfx.end_layer();
         layer.graphics.composite_operation = "source-over";
-        this.filter_net = null;
         return true;
     }
 

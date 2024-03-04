@@ -57,7 +57,10 @@ export class BoardViewer extends DocumentViewer<
                     layer.visible = false;
                 }
             }
+            console.log("before paint_net", this.painter.filter_net);
+
             this.draw();
+            console.log("after paint_net", this.painter.filter_net);
         }
     }
 
