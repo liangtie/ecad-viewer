@@ -61,12 +61,18 @@ export class BoxInteractiveItem implements BoardInteractiveItem {
         public depth: number,
         public net: number | null,
         public item: BoardInspectItem,
-        private layer: Set<string>,
+        public layer: Set<string>,
     ) {
         this.#bbox = bbox;
     }
     contains(pos: Vec2): boolean {
         return this.#bbox.contains_point(pos);
+    }
+}
+
+class PadInteractiveItem extends BoxInteractiveItem {
+    override is_on_layer(name: string) {
+        return name.indexOf("Cu") !== -1;
     }
 }
 
@@ -278,16 +284,14 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
     }
 
     protected override visitPad(pad: Pad) {
-        this.interactive_items.push(
-            new BoxInteractiveItem(
-                pad.bbox,
-                Depth.PAD,
-                pad?.net?.number,
-                pad,
-                new Set(pad.layers),
-            ),
+        const p = new PadInteractiveItem(
+            pad.bbox,
+            Depth.PAD,
+            pad?.net?.number,
+            pad,
+            new Set(pad.layers),
         );
-
+        this.interactive_items.push(p);
         return true;
     }
     protected override visitPadDrill(padDrill: PadDrill) {

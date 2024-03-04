@@ -4,7 +4,6 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { later } from "../../base/async";
 import type { CrossHightAble } from "../../base/cross_highlight_able";
 import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
@@ -31,7 +30,6 @@ export class BoardViewer extends DocumentViewer<
     BoardTheme
 > {
     #should_restore_visibility = false;
-    click_count = 0;
     #layer_visibility_ctrl: KCBoardLayersPanelElement;
 
     set layer_visibility_ctrl(ctr: KCBoardLayersPanelElement) {
@@ -39,14 +37,12 @@ export class BoardViewer extends DocumentViewer<
     }
 
     protected override on_document_clicked(): void {
-        this.click_count = this.click_count + 1;
-        if (this.#should_restore_visibility && this.click_count > 1) {
+        if (this.#should_restore_visibility) {
             const visibilities = this.#layer_visibility_ctrl.visibilities;
             for (const layer of this.layers.copper_layers()) {
                 layer.visible = visibilities.get(layer.name)!;
             }
             this.#should_restore_visibility = false;
-            this.click_count = 0;
             this.painter.layers.overlay.clear();
             this.draw();
         }
@@ -66,7 +62,6 @@ export class BoardViewer extends DocumentViewer<
     }
 
     public highlight_net(num: number | null) {
-        this.click_count = 0;
         this._do_highlight_net(num);
     }
 
@@ -77,20 +72,17 @@ export class BoardViewer extends DocumentViewer<
             if (items.length == 1) {
                 const it = items[0];
                 if (it) {
-                    this.highlight_net(it.net ?? null);
-                    later(() => {
-                        this.dispatchEvent(
-                            new KiCanvasSelectEvent({
-                                item: it.item,
-                                previous: null,
-                            }),
-                        );
-                        this.dispatchEvent(
-                            new KiCanvasFitterMenuEvent({
-                                items: [],
-                            }),
-                        );
-                    });
+                    this.dispatchEvent(
+                        new KiCanvasSelectEvent({
+                            item: it.item,
+                            previous: null,
+                        }),
+                    );
+                    this.dispatchEvent(
+                        new KiCanvasFitterMenuEvent({
+                            items: [],
+                        }),
+                    );
                 }
             } else {
                 this.dispatchEvent(
@@ -110,6 +102,8 @@ export class BoardViewer extends DocumentViewer<
 
     find_items_under_pos(pos: Vec2) {
         const items: BoardInteractiveItem[] = [];
+
+        if (!this.#layer_visibility_ctrl) return items;
 
         const visible_layers: Set<string> = new Set();
         for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
@@ -156,7 +150,16 @@ export class BoardViewer extends DocumentViewer<
         return items;
     }
 
-    override on_dblclick(pos: Vec2): void {}
+    override on_dblclick(pos: Vec2): void {
+        const items = this.find_items_under_pos(pos);
+
+        if (items.length > 0) {
+            {
+                const it = items[0];
+                if (it) this.highlight_net(it.net ?? null);
+            }
+        }
+    }
     override type: ViewerType = ViewerType.PCB;
 
     #interactive: OrderedMap<Depth, BoardInteractiveItem[]> = OrderedMap();
@@ -257,6 +260,8 @@ export class BoardViewer extends DocumentViewer<
     }
 
     findInteractive(pos: Vec2) {
+        if (!this.#layer_visibility_ctrl) return null;
+
         const visible_layers: Set<string> = new Set();
         for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
             if (v) visible_layers.add(k);

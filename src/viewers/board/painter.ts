@@ -32,7 +32,6 @@ import {
     LineInteractiveItem,
     type BoardInteractiveItem,
 } from "../../kicad/board_bbox_visitor";
-
 abstract class BoardItemPainter extends ItemPainter {
     override view_painter: BoardPainter;
 
@@ -43,6 +42,49 @@ abstract class BoardItemPainter extends ItemPainter {
     /** Alias for BoardPainter.filter_net */
     get filter_net(): number | null {
         return (this.view_painter as BoardPainter).filter_net;
+    }
+
+    color_for(layer_name: string): Color {
+        switch (layer_name) {
+            case LayerNames.drawing_sheet:
+                return (this.theme["worksheet"] as Color) ?? Color.white;
+            case LayerNames.pads_front:
+                return (
+                    (this.theme["copper"] as Record<string, Color>)?.["f"] ??
+                    Color.white
+                );
+            case LayerNames.pads_back:
+                return (
+                    (this.theme["copper"] as Record<string, Color>)?.["b"] ??
+                    Color.white
+                );
+            case LayerNames.non_plated_holes:
+                return (this.theme["non_plated_hole"] as Color) ?? Color.white;
+            case LayerNames.via_holes:
+                return (this.theme["via_hole"] as Color) ?? Color.white;
+            case LayerNames.via_holewalls:
+                return (this.theme["via_through"] as Color) ?? Color.white;
+            case LayerNames.pad_holes:
+                return (this.theme["background"] as Color) ?? Color.white;
+            case LayerNames.pad_holewalls:
+                return (this.theme["pad_through_hole"] as Color) ?? Color.white;
+        }
+
+        let name = layer_name;
+
+        name = name.replace(":Zones:", "").replace(".", "_").toLowerCase();
+
+        if (name.endsWith("_cu")) {
+            name = name.replace("_cu", "");
+            const copper_theme = this.theme.copper;
+            return (
+                copper_theme[name as keyof typeof copper_theme] ?? Color.white
+            );
+        }
+
+        type KeyType = keyof Omit<BoardTheme, "copper">;
+
+        return this.theme[name as KeyType] ?? Color.white;
     }
 }
 
@@ -165,6 +207,7 @@ class CirclePainter extends BoardItemPainter {
 
 class TraceSegmentPainter extends BoardItemPainter {
     classes = [board_items.LineSegment];
+
     color_cache: Color | null = null;
 
     layers_for(item: board_items.LineSegment) {
@@ -172,13 +215,12 @@ class TraceSegmentPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, s: board_items.LineSegment) {
+        if (!this.color_cache) this.color_cache = layer.color;
+
         let color = layer.color;
-
-        if (!this.color_cache) this.color_cache = color;
-
         if (this.filter_net) {
-            if (s.net != this.filter_net) color = color.grayscale;
-            else color = this.color_cache;
+            if (s.net != this.filter_net) return;
+            color = this.color_for(s.layer);
         }
 
         const points = [s.start, s.end];
@@ -237,11 +279,13 @@ class ViaPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, v: board_items.Via) {
-        if (this.filter_net && v.net != this.filter_net) {
-            return;
+        let color = layer.color;
+
+        if (this.filter_net) {
+            if (v.net != this.filter_net) color = Color.dark_gray;
+            else color = Color.cyan;
         }
 
-        const color = layer.color;
         if (
             layer.name.endsWith("HoleWalls") ||
             layer.name == ViewLayerNames.overlay
@@ -325,6 +369,8 @@ class ZonePainter extends BoardItemPainter {
 
 class PadPainter extends BoardItemPainter {
     classes = [board_items.Pad];
+
+    color_cache: Color | null = null;
 
     layers_for(pad: board_items.Pad): string[] {
         // TODO: Port KiCAD's logic over.
@@ -417,10 +463,11 @@ class PadPainter extends BoardItemPainter {
 
     paint(layer: ViewLayer, pad: board_items.Pad) {
         let color = layer.color;
+        if (!this.color_cache) this.color_cache = color;
 
         if (this.filter_net) {
-            if (pad.net?.number != this.filter_net)
-                color = new Color(0.1, 0.1, 0.1, 0.7);
+            if (pad.net?.number === this.filter_net) color = this.color_cache;
+            else color = Color.dark_gray;
         }
 
         const position_mat = Matrix3.translation(
@@ -1059,7 +1106,7 @@ export class BoardPainter extends DocumentPainter {
         const layer = this.layers.overlay;
 
         layer.clear();
-        layer.color = Color.cyan;
+        layer.color = Color.gray;
         this.gfx.start_layer(layer.name);
 
         for (const item of board.items()) {
