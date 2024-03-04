@@ -111,11 +111,22 @@ export class BoardViewer extends DocumentViewer<
     find_items_under_pos(pos: Vec2) {
         const items: BoardInteractiveItem[] = [];
 
+        const visible_layers: Set<string> = new Set();
+        for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
+            if (v) visible_layers.add(k);
+
+        const is_item_visible = (item: BoardInteractiveItem) => {
+            for (const layer of visible_layers)
+                if (item.is_on_layer(layer)) return true;
+
+            return false;
+        };
+
         const check_depth = (depth: Depth) => {
             const layer_items = this.#interactive.get(depth) ?? [];
             if (layer_items.length)
                 for (const i of layer_items) {
-                    if (i.contains(pos)) {
+                    if (i.contains(pos) && is_item_visible(i)) {
                         items.push(i);
                     }
                 }
