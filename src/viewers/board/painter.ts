@@ -326,6 +326,8 @@ class ZonePainter extends BoardItemPainter {
 class PadPainter extends BoardItemPainter {
     classes = [board_items.Pad];
 
+    color_cache: Color | null = null;
+
     layers_for(pad: board_items.Pad): string[] {
         // TODO: Port KiCAD's logic over.
         const layers: string[] = [];
@@ -417,10 +419,10 @@ class PadPainter extends BoardItemPainter {
 
     paint(layer: ViewLayer, pad: board_items.Pad) {
         let color = layer.color;
+        if (!this.color_cache) this.color_cache = color;
 
         if (this.filter_net) {
-            if (pad.net?.number != this.filter_net)
-                color = new Color(0.1, 0.1, 0.1, 0.7);
+            if (pad.net?.number != this.filter_net) color = color.grayscale;
         }
 
         const position_mat = Matrix3.translation(
