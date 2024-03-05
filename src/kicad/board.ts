@@ -954,9 +954,13 @@ export class Footprint implements BoardNode {
         yield* this.pads.values() ?? [];
     }
 
-    *items_exclude_drawings(): Generator<FootprintDrawings | Pad | Zone, void, undefined> {
+    *graphics_items(): Generator<
+        FootprintDrawings | Pad | Zone,
+        void,
+        undefined
+    > {
+        yield* this.drawings ?? [];
         yield* this.zones ?? [];
-        yield* this.pads.values() ?? [];
     }
 
     resolve_text_var(name: string): string | undefined {

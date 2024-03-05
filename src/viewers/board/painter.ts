@@ -44,6 +44,16 @@ abstract class BoardItemPainter extends ItemPainter {
         return (this.view_painter as BoardPainter).filter_net;
     }
 
+    static is_interactive_layer(layer_name: string): boolean {
+        return BoardItemPainter.interactive_layers.has(layer_name);
+    }
+
+    static interactive_layers: Set<string> = new Set([
+        ViewLayerNames.overlay,
+        ViewLayerNames.selection_bg,
+        ViewLayerNames.selection_fg,
+    ]);
+
     color_for(layer_name: string): Color {
         switch (layer_name) {
             case LayerNames.drawing_sheet:
@@ -208,19 +218,17 @@ class CirclePainter extends BoardItemPainter {
 class TraceSegmentPainter extends BoardItemPainter {
     classes = [board_items.LineSegment];
 
-    color_cache: Color | null = null;
-
     layers_for(item: board_items.LineSegment) {
         return [item.layer];
     }
 
     paint(layer: ViewLayer, s: board_items.LineSegment) {
-        if (!this.color_cache) this.color_cache = layer.color;
-
         let color = layer.color;
         if (this.filter_net) {
-            if (s.net != this.filter_net) return;
             color = this.color_for(s.layer);
+
+            if (s.net != this.filter_net) color = Color.light_gray;
+            else color = this.color_for(s.layer);
         }
 
         const points = [s.start, s.end];
@@ -282,13 +290,13 @@ class ViaPainter extends BoardItemPainter {
         let color = layer.color;
 
         if (this.filter_net) {
-            if (v.net != this.filter_net) color = Color.dark_gray;
+            if (v.net !== this.filter_net) color = Color.light_gray;
             else color = Color.cyan;
         }
 
         if (
             layer.name.endsWith("HoleWalls") ||
-            layer.name == ViewLayerNames.overlay
+            BoardItemPainter.is_interactive_layer(layer.name)
         ) {
             this.gfx.circle(new Circle(v.at.position, v.size / 2, color));
         } else if (layer.name.endsWith("Holes")) {
@@ -357,7 +365,7 @@ class ZonePainter extends BoardItemPainter {
         for (const p of z.filled_polygons) {
             if (
                 !layer.name.includes(p.layer) &&
-                layer.name != ViewLayerNames.overlay
+                !BoardItemPainter.is_interactive_layer(layer.name)
             ) {
                 continue;
             }
@@ -1059,14 +1067,12 @@ class FootprintPainter extends BoardItemPainter {
         this.gfx.state.push();
         this.gfx.state.multiply(matrix);
 
-        console.log(this.filter_net);
-        // const its = this.filter_net ? fp.items_exclude_drawings() : fp.items();
-        const its = fp.items_exclude_drawings();
+        const its = this.filter_net ? fp.graphics_items() : fp.items();
 
         for (const item of its) {
             const item_layers = this.view_painter.layers_for(item);
             if (
-                layer.name == ViewLayerNames.overlay ||
+                BoardItemPainter.is_interactive_layer(layer.name) ||
                 item_layers.includes(layer.name)
             ) {
                 this.view_painter.paint_item(layer, item);
@@ -1116,31 +1122,82 @@ export class BoardPainter extends DocumentPainter {
         if (this.filter_net === net) return false;
         this.filter_net = net;
 
-        console.log("paint_net", net);
+        //SECTION - the background
+        {
+            const layer = this.layers.selection_bg;
+            layer.clear();
+            layer.color = Color.transparent_black;
+            this.gfx.start_layer(layer.name);
 
-        const layer = this.layers.overlay;
+            for (const item of board.items()) {
+                switch (item.typeId) {
+                    case "LineSegment": {
+                        if ((item as board_items.LineSegment).net !== net) {
+                            const painter = this.painter_for(item);
+                            if (!painter) continue;
+                            this.paint_item(layer, item);
+                        }
 
-        layer.clear();
-        layer.color = Color.gray;
-        this.gfx.start_layer(layer.name);
+                        break;
+                    }
+                    default:
+                        {
+                            const painter = this.painter_for(item);
 
-        for (const item of board.items()) {
-            const painter = this.painter_for(item);
+                            if (!painter) continue;
 
-            if (!painter) {
-                continue;
+                            this.paint_item(layer, item);
+                        }
+                        break;
+                }
             }
 
-            this.paint_item(layer, item);
+            layer.graphics = this.gfx.end_layer();
+            layer.graphics.composite_operation = "source-over";
         }
 
-        layer.graphics = this.gfx.end_layer();
-        layer.graphics.composite_operation = "source-over";
+        //SECTION - The foreground
+        {
+            const layer = this.layers.selection_fg;
+            layer.clear();
+            layer.color = Color.gray;
+            this.gfx.start_layer(layer.name);
+
+            for (const item of board.items()) {
+                switch (item.typeId) {
+                    case "LineSegment":
+                        if ((item as board_items.LineSegment).net === net) {
+                            const painter = this.painter_for(item);
+
+                            if (!painter) continue;
+
+                            this.paint_item(layer, item);
+                        }
+                        break;
+                    case "Zone":
+                        {
+                            const painter = this.painter_for(item);
+
+                            if (!painter) continue;
+
+                            this.paint_item(layer, item);
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            layer.graphics = this.gfx.end_layer();
+            layer.graphics.composite_operation = "source-over";
+        }
+
         return true;
     }
 
     highlight(item: BoardInteractiveItem | null) {
-        const layer = this.layers.source_over;
+        const layer = this.layers.overlay;
         layer.clear();
         this.gfx.start_layer(layer.name);
         if (item) {

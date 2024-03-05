@@ -14,7 +14,8 @@ import { Color, RenderLayer } from "../../graphics";
  */
 export enum ViewLayerNames {
     overlay = ":Overlay",
-    source_over = ":SourceOver",
+    selection_bg = ":SelectionBG",
+    selection_fg = ":SelectionFG",
     drawing_sheet = ":DrawingSheet",
     grid = ":Grid",
 }
@@ -141,7 +142,8 @@ export class ViewLayerSet implements IDisposable {
     #layer_list: ViewLayer[] = [];
     #layer_map: Map<string, ViewLayer> = new Map();
     #overlay: ViewLayer;
-    #source_over: ViewLayer;
+    #selection_bg: ViewLayer;
+    #selection_fg: ViewLayer;
 
     /**
      * Create a new LayerSet
@@ -154,9 +156,16 @@ export class ViewLayerSet implements IDisposable {
             false,
             Color.white,
         );
-        this.#source_over = new ViewLayer(
+        this.#selection_bg = new ViewLayer(
             this,
-            ViewLayerNames.source_over,
+            ViewLayerNames.selection_bg,
+            true,
+            false,
+            Color.white,
+        );
+        this.#selection_fg = new ViewLayer(
+            this,
+            ViewLayerNames.selection_fg,
             true,
             false,
             Color.white,
@@ -218,9 +227,11 @@ export class ViewLayerSet implements IDisposable {
             }
         }
 
-        yield this.#overlay;
+        yield this.#selection_bg;
 
-        yield this.#source_over;
+        yield this.#selection_fg;
+
+        yield this.#overlay;
     }
 
     /**
@@ -249,8 +260,12 @@ export class ViewLayerSet implements IDisposable {
         return this.#overlay;
     }
 
-    get source_over() {
-        return this.#source_over;
+    get selection_bg() {
+        return this.#selection_bg;
+    }
+
+    get selection_fg() {
+        return this.#selection_fg;
     }
 
     /**

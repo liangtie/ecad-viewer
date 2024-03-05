@@ -43,7 +43,9 @@ export class BoardViewer extends DocumentViewer<
                 layer.visible = visibilities.get(layer.name)!;
             }
             this.#should_restore_visibility = false;
-            this.painter.layers.overlay.clear();
+            this.painter.layers.selection_bg.clear();
+            this.painter.layers.selection_fg.clear();
+
             this.draw();
         }
     }
@@ -57,10 +59,7 @@ export class BoardViewer extends DocumentViewer<
                     layer.visible = false;
                 }
             }
-            console.log("before paint_net", this.painter.filter_net);
-
             this.draw();
-            console.log("after paint_net", this.painter.filter_net);
         }
     }
 
