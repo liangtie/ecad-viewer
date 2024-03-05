@@ -175,11 +175,11 @@ class ArcPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, a: board_items.GrArc | board_items.FpArc) {
-        if (this.filter_net) return;
-
+        let color = layer.color;
+        if (this.filter_net) color = Color.dark_gray;
         const arc = a.arc;
         const points = arc.to_polyline();
-        this.gfx.line(new Polyline(points, arc.width, layer.color));
+        this.gfx.line(new Polyline(points, arc.width, color));
     }
 }
 
@@ -191,9 +191,8 @@ class CirclePainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, c: board_items.GrCircle | board_items.FpCircle) {
-        if (this.filter_net) return;
-
-        const color = layer.color;
+        let color = layer.color;
+        if (this.filter_net) color = Color.dark_gray;
 
         const radius = c.center.sub(c.end).magnitude;
         const arc = new Arc(
@@ -244,13 +243,13 @@ class TraceArcPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, a: board_items.ArcSegment) {
-        if (this.filter_net && a.net != this.filter_net) {
-            return;
-        }
+        let color = layer.color;
+        if (this.filter_net && a.net !== this.filter_net)
+            color = Color.dark_gray;
 
         const arc = Arc.from_three_points(a.start, a.mid, a.end, a.width);
         const points = arc.to_polyline();
-        this.gfx.line(new Polyline(points, arc.width, layer.color));
+        this.gfx.line(new Polyline(points, arc.width, color));
     }
 }
 
@@ -475,7 +474,7 @@ class PadPainter extends BoardItemPainter {
 
         if (this.filter_net) {
             if (pad.net?.number === this.filter_net) color = this.color_cache;
-            else color = Color.dark_gray;
+            else color = this.color_cache.grayscale;
         }
 
         const position_mat = Matrix3.translation(
@@ -1067,7 +1066,7 @@ class FootprintPainter extends BoardItemPainter {
         this.gfx.state.push();
         this.gfx.state.multiply(matrix);
 
-        const its = this.filter_net ? fp.graphics_items() : fp.items();
+        const its = fp.items();
 
         for (const item of its) {
             const item_layers = this.view_painter.layers_for(item);
@@ -1118,8 +1117,23 @@ export class BoardPainter extends DocumentPainter {
         this.#filter_net = net;
     }
 
-    paint_net(board: board_items.KicadPCB, net: number | null) {
+    paint_net(
+        board: board_items.KicadPCB,
+        net: number | null,
+        layer_visibility: Map<string, boolean>,
+    ) {
+        console.log("paint_net", net);
         if (this.filter_net === net) return false;
+
+        if (!net) {
+            for (const layer of [
+                this.layers.selection_bg,
+                this.layers.selection_fg,
+            ])
+                layer.clear();
+            return false;
+        }
+
         this.filter_net = net;
 
         //SECTION - the background
@@ -1132,7 +1146,11 @@ export class BoardPainter extends DocumentPainter {
             for (const item of board.items()) {
                 switch (item.typeId) {
                     case "LineSegment": {
-                        if ((item as board_items.LineSegment).net !== net) {
+                        const line = item as board_items.LineSegment;
+                        if (
+                            layer_visibility.get(line.layer) &&
+                            line.net !== net
+                        ) {
                             const painter = this.painter_for(item);
                             if (!painter) continue;
                             this.paint_item(layer, item);

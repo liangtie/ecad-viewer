@@ -39,7 +39,7 @@ export class BoardViewer extends DocumentViewer<
     protected override on_document_clicked(): void {
         if (this.#should_restore_visibility) {
             const visibilities = this.#layer_visibility_ctrl.visibilities;
-            for (const layer of this.layers.copper_layers()) {
+            for (const layer of this.layers.in_ui_order()) {
                 layer.visible = visibilities.get(layer.name)!;
             }
             this.#should_restore_visibility = false;
@@ -51,11 +51,17 @@ export class BoardViewer extends DocumentViewer<
     }
 
     _do_highlight_net(num: number | null) {
-        if (this.painter.paint_net(this.board, num)) {
+        if (
+            this.painter.paint_net(
+                this.board,
+                num,
+                this.#layer_visibility_ctrl.visibilities,
+            )
+        ) {
             this.#should_restore_visibility = false;
             if (num) {
                 this.#should_restore_visibility = true;
-                for (const layer of this.layers.copper_layers()) {
+                for (const layer of this.layers.in_ui_order()) {
                     layer.visible = false;
                 }
             }
