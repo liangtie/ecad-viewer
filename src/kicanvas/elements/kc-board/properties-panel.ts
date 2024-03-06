@@ -292,9 +292,12 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
         let layers = "";
         if (net.layers) for (const i of net.layers) layers += i + ",";
         if (layers.length) layers.slice(0, layers.length - 1);
+
+        const name = net.net ?? "";
+        const length = net.routed_length ?? 0;
         return html`
-            ${this.header(`${net.net}`)} ${this.entry("Net Name", net.net)}
-            ${this.entry("Routed length", net.routed_length.toFixed(4), "mm")}
+            ${this.header(`${name}`)} ${this.entry("Net Name", name)}
+            ${this.entry("Routed length", length.toFixed(4), "mm")}
             ${this.entry("Layers Used", layers)}
         `;
     }
