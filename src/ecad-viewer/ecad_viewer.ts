@@ -55,7 +55,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             }
 
             .tab-content.active {
-                display: block;
+                display: inherit;
             }
 
             kc-board-app,

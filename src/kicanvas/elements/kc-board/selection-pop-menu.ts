@@ -22,7 +22,7 @@ export class SelectionPopMenu extends KCUIElement {
     static override styles = [
         css`
             :host {
-                position: absolute;
+                position: fixed;
                 display: block;
                 height: 100%;
                 width: 100%;
