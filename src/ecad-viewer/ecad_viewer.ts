@@ -23,7 +23,7 @@ import {
     TabMenuVisibleChangeEvent,
 } from "../viewers/base/events";
 import { TabKind } from "./constraint";
-import type { InputContainer } from "./input_containter";
+import type { InputContainer } from "./input_container";
 
 export class ECadViewer extends KCUIElement implements InputContainer {
     static override styles = [

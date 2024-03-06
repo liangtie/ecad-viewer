@@ -8,7 +8,7 @@ import { attribute, css, html } from "../base/web-components";
 import { KCUIElement } from "../kc-ui/element";
 import { TabMenuClickEvent, TabActivateEvent } from "../viewers/base/events";
 import { Sections, TabKind } from "./constraint";
-import type { InputContainer } from "./input_containter";
+import type { InputContainer } from "./input_container";
 
 export interface TabData {
     title: string;
