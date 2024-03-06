@@ -1043,6 +1043,47 @@ class DimensionPainter extends BoardItemPainter {
     }
 }
 
+interface Point {
+    x: number;
+    y: number;
+}
+
+const get_interested_point = (
+    line_1: { start: Point; angle: number },
+    line_2: { start: Point; end: Point },
+): Point => {
+    // Extracting information from line_1
+    const { start: start1, angle: angle1 } = line_1;
+
+    // Calculate the direction vector of line_2
+    const directionVector2: Point = {
+        x: line_2.end.x - line_2.start.x,
+        y: line_2.end.y - line_2.start.y,
+    };
+
+    // Calculate the direction vector of line_1 using the angle
+    const directionVector1: Point = {
+        x: Math.cos(angle1),
+        y: Math.sin(angle1),
+    };
+
+    // Solve for t in the equation start1 + t * directionVector1 = line_2.start + s * directionVector2
+    // This will give us the point of intersection
+    const t =
+        (directionVector2.x * (line_2.start.y - start1.y) -
+            directionVector2.y * (line_2.start.x - start1.x)) /
+        (directionVector1.x * directionVector2.y -
+            directionVector1.y * directionVector2.x);
+
+    // Calculate the point of intersection
+    const intersectionPoint: Point = {
+        x: start1.x + t * directionVector1.x,
+        y: start1.y + t * directionVector1.y,
+    };
+
+    return intersectionPoint;
+};
+
 class FootprintPainter extends BoardItemPainter {
     classes = [board_items.Footprint];
 
@@ -1058,6 +1099,57 @@ class FootprintPainter extends BoardItemPainter {
     }
 
     paint(layer: ViewLayer, fp: board_items.Footprint) {
+        if (layer.name === ViewLayerNames.selection_mask) {
+            const bbox = fp.bbox;
+
+            // const lines = [
+            //     new Vec2(bbox.x, bbox.y),
+            //     new Vec2(bbox.x + bbox.w, bbox.y),
+            //     new Vec2(bbox.x + bbox.w, bbox.y + bbox.h),
+            //     new Vec2(bbox.x, bbox.y),
+            //     new Vec2(bbox.x, bbox.y + bbox.h),
+            //     new Vec2(bbox.x + bbox.w, bbox.y + bbox.h),
+            // ];
+            // this.gfx.line(lines, 0.1, layer.color);
+            let step = 0.5;
+            if (bbox.w > bbox.h) {
+                step = (step * bbox.w) / bbox.h;
+            }
+
+            let count = 0;
+            {
+                for (let x = bbox.x; x < bbox.x + bbox.w; x += step) {
+                    const y0 =
+                        bbox.y + bbox.h - (count * step * bbox.h) / bbox.w;
+                    const y1 =
+                        bbox.y + bbox.h - (count * step * bbox.h) / bbox.w;
+
+                    this.gfx.line(
+                        new Polyline(
+                            [
+                                new Vec2(x, bbox.y),
+                                new Vec2(bbox.x + bbox.w, y0),
+                            ],
+                            0.1,
+                            layer.color,
+                        ),
+                    );
+                    this.gfx.line(
+                        new Polyline(
+                            [
+                                new Vec2(x, bbox.y + bbox.h),
+                                new Vec2(bbox.x, y1),
+                            ],
+                            0.1,
+                            layer.color,
+                        ),
+                    );
+                    ++count;
+                }
+            }
+            return;
+        }
+
         const matrix = Matrix3.translation(
             fp.at.position.x,
             fp.at.position.y,
@@ -1117,30 +1209,39 @@ export class BoardPainter extends DocumentPainter {
         this.#filter_net = net;
     }
 
+    paint_footprint(fp: board_items.Footprint) {
+        this.clear_interactive();
+
+        const layer = this.layers.selection_mask;
+        this.gfx.start_layer(layer.name);
+        this.paint_item(layer, fp);
+        layer.graphics = this.gfx.end_layer();
+        layer.graphics.composite_operation = "source-over";
+    }
+
+    clear_interactive() {
+        for (const layer of [
+            this.layers.selection_bg,
+            this.layers.selection_fg,
+            this.layers.selection_mask,
+        ])
+            layer.clear();
+    }
+
     paint_net(
         board: board_items.KicadPCB,
         net: number | null,
         layer_visibility: Map<string, boolean>,
     ) {
-        console.log("paint_net", net);
         if (this.filter_net === net) return false;
 
-        if (!net) {
-            for (const layer of [
-                this.layers.selection_bg,
-                this.layers.selection_fg,
-            ])
-                layer.clear();
-            return false;
-        }
+        if (!net) return false;
 
         this.filter_net = net;
 
         //SECTION - the background
         {
             const layer = this.layers.selection_bg;
-            layer.clear();
-            layer.color = Color.transparent_black;
             this.gfx.start_layer(layer.name);
 
             for (const item of board.items()) {
@@ -1177,8 +1278,6 @@ export class BoardPainter extends DocumentPainter {
         //SECTION - The foreground
         {
             const layer = this.layers.selection_fg;
-            layer.clear();
-            layer.color = Color.gray;
             this.gfx.start_layer(layer.name);
 
             for (const item of board.items()) {

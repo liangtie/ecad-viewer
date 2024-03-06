@@ -8,7 +8,7 @@ import { Vec2 } from "../../../base/math";
 import { css, html } from "../../../base/web-components";
 import { KCUIElement } from "../../../kc-ui";
 import type {
-    BoardInspectItem,
+    BoardSelectable,
     BoardInteractiveItem,
 } from "../../../kicad/board_bbox_visitor";
 import {
@@ -107,7 +107,7 @@ export class SelectionPopMenu extends KCUIElement {
         );
     }
 
-    build_item_desc(itm: BoardInspectItem) {
+    build_item_desc(itm: BoardSelectable) {
         switch (itm.typeId) {
             case "Footprint":
                 return this.getFootprintProperties(itm as Footprint);

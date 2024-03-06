@@ -14,6 +14,7 @@ import {
     BoardBBoxVisitor,
     type BoardInteractiveItem,
     Depth,
+    type NetProperty,
 } from "../../kicad/board_bbox_visitor";
 import type { KCBoardLayersPanelElement } from "../../kicanvas/elements/kc-board/layers-panel";
 import { DocumentViewer } from "../base/document-viewer";
@@ -38,26 +39,25 @@ export class BoardViewer extends DocumentViewer<
 
     protected override on_document_clicked(): void {
         if (this.#should_restore_visibility) {
-            const visibilities = this.#layer_visibility_ctrl.visibilities;
+            const visibilities = this.layer_visibility;
             for (const layer of this.layers.in_ui_order()) {
                 layer.visible = visibilities.get(layer.name)!;
             }
             this.#should_restore_visibility = false;
-            this.painter.layers.selection_bg.clear();
-            this.painter.layers.selection_fg.clear();
-
+            this.painter.clear_interactive();
             this.draw();
         }
     }
 
-    _do_highlight_net(num: number | null) {
-        if (
-            this.painter.paint_net(
-                this.board,
-                num,
-                this.#layer_visibility_ctrl.visibilities,
-            )
-        ) {
+    public highlight_fp(fp: board_items.Footprint) {
+        this.#should_restore_visibility = true;
+        for (const layer of this.layers.copper_layers()) layer.visible = false;
+        this.painter.paint_footprint(fp);
+        this.draw();
+    }
+
+    public highlight_net(num: number | null) {
+        if (this.painter.paint_net(this.board, num, this.layer_visibility)) {
             this.#should_restore_visibility = false;
             if (num) {
                 this.#should_restore_visibility = true;
@@ -67,10 +67,17 @@ export class BoardViewer extends DocumentViewer<
             }
             this.draw();
         }
-    }
-
-    public highlight_net(num: number | null) {
-        this._do_highlight_net(num);
+        if (num) {
+            this.dispatchEvent(
+                new KiCanvasSelectEvent({
+                    item: {
+                        net: this.board.getNetName(num),
+                        ...this.#net_info.get(num),
+                    },
+                    previous: null,
+                }),
+            );
+        }
     }
 
     override on_click(pos: Vec2): void {
@@ -108,13 +115,17 @@ export class BoardViewer extends DocumentViewer<
         }
     }
 
+    get layer_visibility() {
+        return this.#layer_visibility_ctrl?.visibilities ?? null;
+    }
+
     find_items_under_pos(pos: Vec2) {
         const items: BoardInteractiveItem[] = [];
 
         if (!this.#layer_visibility_ctrl) return items;
 
         const visible_layers: Set<string> = new Set();
-        for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
+        for (const [k, v] of this.layer_visibility)
             if (v) visible_layers.add(k);
 
         const is_item_visible = (item: BoardInteractiveItem) => {
@@ -163,14 +174,23 @@ export class BoardViewer extends DocumentViewer<
 
         if (items.length > 0) {
             {
-                const it = items[0];
-                if (it) this.highlight_net(it.net ?? null);
+                const it = items[0]!;
+                if (it.net) {
+                    this.highlight_net(it.net);
+                    return;
+                } else if (it.item?.typeId === "Footprint") {
+                    this.painter.filter_net = null;
+                    this.highlight_fp(it.item as board_items.Footprint);
+                    return;
+                }
             }
         }
     }
     override type: ViewerType = ViewerType.PCB;
 
     #interactive: OrderedMap<Depth, BoardInteractiveItem[]> = OrderedMap();
+
+    #net_info: Map<number, NetProperty>;
 
     #last_hover: BoardInteractiveItem | null = null;
 
@@ -193,7 +213,7 @@ export class BoardViewer extends DocumentViewer<
 
         for (const e of visitor.interactive_items)
             this.#interactive.get(e.depth)?.push(e);
-
+        this.#net_info = visitor.net_info;
         await super.load(src);
     }
 
@@ -271,7 +291,7 @@ export class BoardViewer extends DocumentViewer<
         if (!this.#layer_visibility_ctrl) return null;
 
         const visible_layers: Set<string> = new Set();
-        for (const [k, v] of this.#layer_visibility_ctrl.visibilities)
+        for (const [k, v] of this.layer_visibility)
             if (v) visible_layers.add(k);
 
         const is_item_visible = (item: BoardInteractiveItem) => {

@@ -37,12 +37,14 @@ export enum Depth {
     END,
 }
 
-export type BoardInspectItem = Footprint | Pad | LineSegment | Zone | Via;
+export type BoardSelectable = Footprint | Pad | LineSegment | Zone | Via;
+
+export type BoardInspectItem = BoardSelectable | NetInfo;
 
 export interface BoardInteractiveItem extends Interactive {
     depth: number;
     net: number | null;
-    item: BoardInspectItem | null;
+    item: BoardSelectable | null;
     is_on_layer: (name: string) => boolean;
 }
 
@@ -60,7 +62,7 @@ export class BoxInteractiveItem implements BoardInteractiveItem {
         bbox: BBox,
         public depth: number,
         public net: number | null,
-        public item: BoardInspectItem,
+        public item: BoardSelectable,
         public layer: Set<string>,
     ) {
         this.#bbox = bbox;
@@ -103,7 +105,7 @@ export class LineInteractiveItem implements BoardInteractiveItem {
         public depth: number,
         line: BoardLine,
         public net: number,
-        public item: BoardInspectItem,
+        public item: BoardSelectable,
         public layer: Set<string>,
     ) {
         this.#line = line;
@@ -177,12 +179,27 @@ export class LineInteractiveItem implements BoardInteractiveItem {
     }
 }
 
+export interface NetProperty {
+    routed_length: number;
+    layers: Set<string>;
+}
+
+export interface NetInfo extends NetProperty {
+    net: string;
+}
+
 export class BoardBBoxVisitor extends BoardVisitorBase {
     public get interactive_items() {
-        return this.interactive;
+        return this.#interactive;
     }
 
-    interactive: BoardInteractiveItem[] = [];
+    get net_info() {
+        return this.#net_info;
+    }
+
+    #net_info: Map<number, NetProperty> = new Map();
+
+    #interactive: BoardInteractiveItem[] = [];
 
     protected override visitLineSegment(lineSegment: LineSegment) {
         const line = new LineInteractiveItem(
@@ -197,6 +214,21 @@ export class BoardBBoxVisitor extends BoardVisitorBase {
             new Set([lineSegment.layer]),
         );
         this.interactive_items.push(line);
+
+        if (!this.#net_info.has(lineSegment.net))
+            this.#net_info.set(lineSegment.net, {
+                routed_length: lineSegment.routed_length,
+                layers: new Set([lineSegment.layer]),
+            });
+        else {
+            const current = this.#net_info.get(lineSegment.net)!;
+            this.#net_info.set(lineSegment.net, {
+                routed_length:
+                    current.routed_length + lineSegment.routed_length,
+                layers: new Set([...current.layers, lineSegment.layer]),
+            });
+        }
+
         return true;
     }
 

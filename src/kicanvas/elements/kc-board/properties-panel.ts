@@ -11,7 +11,10 @@ import {
     HorizontalResizerElement,
 } from "../../../kc-ui";
 import { Footprint, LineSegment, Pad, Via, Zone } from "../../../kicad/board";
-import type { BoardInspectItem } from "../../../kicad/board_bbox_visitor";
+import type {
+    BoardInspectItem,
+    NetInfo,
+} from "../../../kicad/board_bbox_visitor";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import { BoardViewer } from "../../../viewers/board/viewer";
 
@@ -112,25 +115,31 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
         if (!itm) {
             entries = this.header("No item selected");
         } else {
-            switch (itm.typeId) {
-                case "Footprint":
-                    entries = this.getFootprintProperties(itm as Footprint);
-                    break;
-                case "Pad":
-                    entries = this.getPadProperties(itm as Pad);
-                    break;
-                case "LineSegment":
-                    entries = this.getLineSegmentProperties(itm as LineSegment);
-                    break;
-                case "Via":
-                    entries = this.getViaProperties(itm as Via);
-                    break;
-                case "Zone":
-                    entries = this.getZoneProperties(itm as Zone);
-                    break;
-                default:
-                    entries = this.header("Unknown item type");
-                    break;
+            if ("typeId" in itm)
+                switch (itm.typeId) {
+                    case "Footprint":
+                        entries = this.getFootprintProperties(itm as Footprint);
+                        break;
+                    case "Pad":
+                        entries = this.getPadProperties(itm as Pad);
+                        break;
+                    case "LineSegment":
+                        entries = this.getLineSegmentProperties(
+                            itm as LineSegment,
+                        );
+                        break;
+                    case "Via":
+                        entries = this.getViaProperties(itm as Via);
+                        break;
+                    case "Zone":
+                        entries = this.getZoneProperties(itm as Zone);
+                        break;
+                    default:
+                        entries = this.header("Unknown item type");
+                        break;
+                }
+            else {
+                entries = this.getNetInfo(itm as NetInfo);
             }
         }
         const sizer_element: HorizontalResizerElement =
@@ -232,6 +241,7 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
             ${this.entry("X", itm.start.x.toFixed(4), "mm")}
             ${this.entry("Y", itm.start.y.toFixed(4), "mm")}
             ${this.entry("Width", itm.width.toFixed(4), "mm")}
+            ${this.entry("Length", itm.routed_length.toFixed(4), "mm")}
             ${this.entry("Layer", itm.layer)}
             ${this.entry("Net", this.viewer.board.getNetName(itm.net))}
             ${this.header("Track properties")}
@@ -275,6 +285,17 @@ export class KCBoardPropertiesPanelElement extends KCUIElement {
                 zone.fill.thermal_bridge_width,
                 "mm",
             )}
+        `;
+    }
+
+    getNetInfo(net: NetInfo) {
+        let layers = "";
+        if (net.layers) for (const i of net.layers) layers += i + ",";
+        if (layers.length) layers.slice(0, layers.length - 1);
+        return html`
+            ${this.header(`${net.net}`)} ${this.entry("Net Name", net.net)}
+            ${this.entry("Routed length", net.routed_length.toFixed(4), "mm")}
+            ${this.entry("Layers Used", layers)}
         `;
     }
 }

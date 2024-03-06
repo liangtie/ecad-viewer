@@ -17,6 +17,7 @@ export enum ViewLayerNames {
     selection_bg = ":SelectionBG",
     selection_fg = ":SelectionFG",
     drawing_sheet = ":DrawingSheet",
+    selection_mask = ":SelectionMask",
     grid = ":Grid",
 }
 
@@ -144,6 +145,7 @@ export class ViewLayerSet implements IDisposable {
     #overlay: ViewLayer;
     #selection_bg: ViewLayer;
     #selection_fg: ViewLayer;
+    #selection_mask: ViewLayer;
 
     /**
      * Create a new LayerSet
@@ -169,6 +171,13 @@ export class ViewLayerSet implements IDisposable {
             true,
             false,
             Color.white,
+        );
+        this.#selection_mask = new ViewLayer(
+            this,
+            ViewLayerNames.selection_mask,
+            true,
+            false,
+            Color.dark_green,
         );
     }
 
@@ -231,6 +240,8 @@ export class ViewLayerSet implements IDisposable {
 
         yield this.#selection_fg;
 
+        yield this.#selection_mask;
+
         yield this.#overlay;
     }
 
@@ -266,6 +277,10 @@ export class ViewLayerSet implements IDisposable {
 
     get selection_fg() {
         return this.#selection_fg;
+    }
+
+    get selection_mask() {
+        return this.#selection_mask;
     }
 
     /**
