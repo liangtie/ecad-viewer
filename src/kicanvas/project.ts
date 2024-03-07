@@ -15,20 +15,25 @@ import type { EcadBlob, EcadSources, VirtualFileSystem } from "./services/vfs";
 
 const log = new Logger("kicanvas:project");
 
+export enum AssertType {
+    SCH,
+    PCB,
+}
+
 export class Project extends EventTarget implements IDisposable {
     #fs: VirtualFileSystem;
-    #files_by_name: Map<string, KicadPCB | KicadSch | null> = new Map();
-    public active_page_name: string;
+    #files_by_name: Map<string, KicadPCB | KicadSch> = new Map();
+    #pcb: KicadPCB[] = [];
+    #sch: KicadSch[] = [];
+
+    public active_sch_name: string;
 
     public loaded: Barrier = new Barrier();
     public settings: ProjectSettings = new ProjectSettings();
     #root_schematic_page?: ProjectPage;
 
-    public get filesByIndex() {
-        return this.#files_by_name;
-    }
-
     public dispose() {
+        for (const i of [this.#pcb, this.#sch]) i.length = 0;
         this.#files_by_name.clear();
     }
 
@@ -36,7 +41,7 @@ export class Project extends EventTarget implements IDisposable {
         log.info(`Loading project from ${sources.constructor.name}`);
 
         this.settings = new ProjectSettings();
-        this.#files_by_name.clear();
+        this.dispose();
 
         this.#fs = sources.vfs;
 
@@ -91,12 +96,15 @@ export class Project extends EventTarget implements IDisposable {
         if (this.#files_by_name.has(filename)) {
             return this.#files_by_name.get(filename);
         }
+
         const text = await this.#get_file_text(filename);
         const doc = new document_class(filename, text);
         doc.project = this;
 
         this.#files_by_name.set(filename, doc);
-        return;
+        if (doc instanceof KicadPCB) this.#pcb.push(doc);
+        else this.#sch.push(doc);
+        return doc;
     }
 
     async #load_blob(
@@ -108,9 +116,12 @@ export class Project extends EventTarget implements IDisposable {
         }
         const doc = new document_class(blob, blob.content);
         doc.project = this;
-
+        const filename = blob.filename;
+        this.#files_by_name.set(filename, doc);
+        if (doc instanceof KicadPCB) this.#pcb.push(doc);
+        else this.#sch.push(doc);
         this.#files_by_name.set(blob.filename, doc);
-        return;
+        return doc;
     }
 
     async #load_meta(filename: string) {
@@ -157,12 +168,13 @@ export class Project extends EventTarget implements IDisposable {
         return length(this.schematics()) > 0;
     }
 
-    public *pages() {
-        yield* this.#files_by_name.values();
-    }
-
-    public get first_page() {
-        return first(this.pages());
+    public get_first_page(kind: AssertType) {
+        switch (kind) {
+            case AssertType.SCH:
+                return first(this.#sch);
+            case AssertType.PCB:
+                return first(this.#pcb);
+        }
     }
 
     public page_by_path(project_path: string) {
@@ -176,8 +188,20 @@ export class Project extends EventTarget implements IDisposable {
         return await this.#fs.download(name);
     }
 
-    public activate(page_or_path?: string | null) {
-        this.active_page_name = page_or_path ?? this.first_page!.filename;
+    public get is_empty() {
+        return length(this.files()) === 0;
+    }
+
+    public on_loaded() {
+        this.dispatchEvent(
+            new CustomEvent("change", {
+                detail: this,
+            }),
+        );
+    }
+
+    public activate_sch(page_or_path: string) {
+        this.active_sch_name = page_or_path;
         this.dispatchEvent(
             new CustomEvent("change", {
                 detail: this,

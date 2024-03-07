@@ -15,7 +15,7 @@ import { KCUISelectElement, KCUIElement } from "../../../kc-ui";
 import type { KicadPCB, KicadSch } from "../../../kicad";
 import { KiCanvasSelectEvent } from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
-import type { Project } from "../../project";
+import type { AssertType, Project } from "../../project";
 
 // import dependent elements so they're registered before use.
 import "./help-panel";
@@ -81,19 +81,14 @@ export abstract class KCViewerAppElement<
         })();
     }
 
-    override initialContentCallback() {
-        // If the project already has an active page, load it.
-        if (this.project.first_page) {
-            this.load(this.project.first_page!);
-        }
+    abstract assert_type(): AssertType;
 
+    override initialContentCallback() {
         // Listen for changes to the project's active page and load or hide
         // as needed.
         this.addDisposable(
             listen(this.project, "change", async (e) => {
-                const page = this.project.page_by_path(
-                    this.project.active_page_name,
-                );
+                const page = this.project.get_first_page(this.assert_type());
                 if (page) {
                     await this.load(page);
                 } else {
@@ -115,8 +110,8 @@ export abstract class KCViewerAppElement<
             console.log("button", target);
             switch (target.name) {
                 case "download":
-                    if (this.project.active_page_name) {
-                        this.project.download(this.project.active_page_name);
+                    if (this.project.active_sch_name) {
+                        this.project.download(this.project.active_sch_name);
                     }
                     break;
                 default:

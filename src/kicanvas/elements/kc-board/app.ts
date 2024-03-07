@@ -27,6 +27,7 @@ import { TabView } from "../../../kc-ui/tab-view";
 import { KCBoardNetsPanelElement } from "./nets-panel";
 import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
 import type { BoardViewer } from "../../../viewers/board/viewer";
+import { AssertType } from "../../project";
 
 /**
  * Internal "parent" element for KiCanvas's board viewer. Handles
@@ -34,6 +35,11 @@ import type { BoardViewer } from "../../../viewers/board/viewer";
  * basically KiCanvas's version of PCBNew.
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
+
+    override assert_type(): AssertType {
+        return AssertType.PCB;
+    }
+
     #selection_menu: HTMLElement;
     #layer: KCBoardLayersPanelElement;
     protected override make_property_element(): ElementOrFragment {

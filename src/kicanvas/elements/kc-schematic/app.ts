@@ -15,6 +15,7 @@ import "./symbols-panel";
 import "./viewer";
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
+import { AssertType } from "../../project";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -22,12 +23,16 @@ import { SchematicSheet } from "../../../kicad/schematic";
  * basically KiCanvas's version of EESchema.
  */
 export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerElement> {
+    override assert_type(): AssertType {
+        return AssertType.SCH;
+    }
+
     protected override make_property_element(): ElementOrFragment {
-        throw new Error("Method not implemented.");
+        return html`<h1>property</h1>`;
     }
 
     protected override make_fitter_menu(): ElementOrFragment {
-        throw new Error("Method not implemented.");
+        return html`<h1>fitter menu</h1>`;
     }
 
     override on_viewer_select(item?: unknown, previous?: unknown) {
@@ -38,7 +43,7 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
 
         // If it's a sheet instance, switch over to the new sheet.
         if (item instanceof SchematicSheet) {
-            this.project.activate(
+            this.project.activate_sch(
                 `${item.sheetfile}:${item.path}/${item.uuid}`,
             );
             return;

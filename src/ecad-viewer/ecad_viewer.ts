@@ -15,7 +15,7 @@ import {
     type EcadSources,
 } from "../kicanvas/services/vfs";
 import { KCBoardAppElement } from "../kicanvas/elements/kc-board/app";
-import type { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
+import { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
 import type { TabHeaderElement } from "./tab_header";
 import {
     TabActivateEvent,
@@ -140,7 +140,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
 
             this.loaded = true;
             await this.update();
-            if (this.#project.first_page) this.#project.activate();
+            this.#project.on_loaded();
         } finally {
             this.loading = false;
         }
