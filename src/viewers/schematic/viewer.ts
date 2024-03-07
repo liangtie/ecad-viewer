@@ -7,12 +7,13 @@
 import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
-import { type SchematicTheme } from "../../kicad";
-import {
-    KicadSch,
-} from "../../kicad/schematic";
+import { DrawingSheet, type SchematicTheme } from "../../kicad";
+import { KicadSch } from "../../kicad/schematic";
 import { DocumentViewer } from "../base/document-viewer";
+import { Grid } from "../base/grid";
+import { ViewLayerNames } from "../base/view-layers";
 import { ViewerType } from "../base/viewer";
+import { DrawingSheetPainter } from "../drawing-sheet/painter";
 import { LayerSet } from "./layers";
 import { SchematicPainter } from "./painter";
 
@@ -42,6 +43,43 @@ export class SchematicViewer extends DocumentViewer<
     get schematic(): KicadSch {
         return this.document;
     }
+    public override paint() {
+        if (!this.document) {
+            return;
+        }
+
+        // Update the renderer's background color to match the theme.
+        this.renderer.background_color = this.theme.background;
+
+        // Load the default drawing sheet.
+        if (!this.drawing_sheet) {
+            this.drawing_sheet = DrawingSheet.default();
+        }
+        this.drawing_sheet.document = this.document;
+
+        // Setup graphical layers
+        this.disposables.disposeAndRemove(this.layers);
+        this.layers = this.disposables.add(this.create_layer_set());
+
+        // Paint the board
+        this.painter = this.create_painter();
+        this.painter.paint(this.document);
+
+        // Paint the drawing sheet
+        new DrawingSheetPainter(this.renderer, this.layers, this.theme).paint(
+            this.drawing_sheet,
+        );
+
+        // Create the grid
+        this.grid = new Grid(
+            this.renderer,
+            this.viewport.camera,
+            this.layers.by_name(ViewLayerNames.grid)!,
+            this.grid_origin,
+            this.theme.grid,
+            this.theme.grid_axes,
+        );
+    }
 
     override create_renderer(canvas: HTMLCanvasElement): Renderer {
         const renderer = new Canvas2DRenderer(canvas);
@@ -51,6 +89,10 @@ export class SchematicViewer extends DocumentViewer<
         renderer.background_color = Color.gray;
         return renderer;
     }
+    public override zoom_fit_top_item() {
+        this.viewport.camera.bbox = this.drawing_sheet.page_bbox.grow(10);
+        this.draw();
+    }
 
     protected override create_painter() {
         return new SchematicPainter(this.renderer, this.layers, this.theme);
@@ -59,5 +101,4 @@ export class SchematicViewer extends DocumentViewer<
     protected override create_layer_set() {
         return new LayerSet(this.theme);
     }
-
 }

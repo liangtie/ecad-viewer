@@ -1101,16 +1101,6 @@ class FootprintPainter extends BoardItemPainter {
     paint(layer: ViewLayer, fp: board_items.Footprint) {
         if (layer.name === ViewLayerNames.selection_mask) {
             const bbox = fp.bbox;
-
-            // const lines = [
-            //     new Vec2(bbox.x, bbox.y),
-            //     new Vec2(bbox.x + bbox.w, bbox.y),
-            //     new Vec2(bbox.x + bbox.w, bbox.y + bbox.h),
-            //     new Vec2(bbox.x, bbox.y),
-            //     new Vec2(bbox.x, bbox.y + bbox.h),
-            //     new Vec2(bbox.x + bbox.w, bbox.y + bbox.h),
-            // ];
-            // this.gfx.line(lines, 0.1, layer.color);
             let step = 0.5;
             if (bbox.w > bbox.h) {
                 step = (step * bbox.w) / bbox.h;

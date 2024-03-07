@@ -5,7 +5,6 @@
 */
 
 import { BBox, Vec2 } from "../../base/math";
-import { Logger } from "../../base/log";
 import {
     DrawingSheet,
     type DrawingSheetDocument,
@@ -17,7 +16,6 @@ import { type ViewLayerSet } from "./view-layers";
 import { Viewer } from "./viewer";
 import { later } from "../../base/async";
 
-const log = new Logger("kicanvas:viewer");
 
 type ViewableDocument = DrawingSheetDocument &
     PaintableDocument & { filename: string } & { bbox: BBox };
@@ -62,20 +60,17 @@ export abstract class DocumentViewer<
             return;
         }
 
-        log.info(`Loading ${src.filename} into viewer`);
 
         this.document = src;
         this.paint();
 
         // Wait for a valid viewport size
         later(async () => {
-            log.info("Waiting for viewport");
             await this.viewport.ready;
             const c = this.document as unknown as any;
             this.viewport.bounds = c.bbox.grow(11);
 
             // Position the camera and draw the scene.
-            log.info("Positioning camera");
             this.zoom_fit_top_item();
 
             // Mark the viewer as loaded and notify event listeners
