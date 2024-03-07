@@ -23,7 +23,6 @@ import {
     HierarchicalLabelPainter,
     NetLabelPainter,
 } from "./painters/label";
-import { LibSymbolPinPainter } from "./painters/lib_pin";
 import { PinPainter } from "./painters/pin";
 import { LibSymbolPainter, SchematicSymbolPainter } from "./painters/symbol";
 
@@ -622,7 +621,6 @@ export class SchematicPainter extends BaseSchematicPainter {
             new GlobalLabelPainter(this, gfx),
             new HierarchicalLabelPainter(this, gfx),
             new SchematicSheetPainter(this, gfx),
-            new LibSymbolPinPainter(this, gfx),
         ];
     }
 }

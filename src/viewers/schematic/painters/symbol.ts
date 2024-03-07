@@ -42,6 +42,7 @@ export class LibSymbolPainter extends SchematicItemPainter {
         }
 
         const si = this.view_painter.current_symbol;
+
         const symbol_unit = s.units.get(si?.unit || 1);
 
         if (symbol_unit) {
@@ -61,10 +62,6 @@ export class LibSymbolPainter extends SchematicItemPainter {
 
             for (const g of sym.drawings) {
                 this.view_painter.paint_item(layer, g);
-            }
-
-            for (const p of sym.libPins) {
-                this.view_painter.paint_item(layer, p);
             }
         }
     }
