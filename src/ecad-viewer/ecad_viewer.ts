@@ -51,18 +51,14 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             }
 
             .tab-content {
+                height: 100%;
+                width: 100%;
+                flex: 1;
                 display: none;
             }
 
             .tab-content.active {
                 display: inherit;
-            }
-
-            kc-board-app,
-            kc-schematic-app {
-                flex: 1;
-                height: 100%;
-                width: 100%;
             }
         `,
     ];
@@ -191,11 +187,15 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             }
         });
 
+        const embed_to_tab = (page: HTMLElement, index: TabKind) => {
+            this.#tab_contents[index] = page;
+            page.classList.add("tab-content");
+        };
+
         if (this.#project.has_boards && !this.#board_app) {
             this.#board_app = html`<kc-board-app>
             </kc-board-app>` as KCBoardAppElement;
-            this.#tab_contents[TabKind.pcb] = this.#board_app;
-            this.#board_app.classList.add("tab-content");
+            embed_to_tab(this.#board_app, TabKind.pcb);
             this.#board_app.addEventListener(
                 TabMenuVisibleChangeEvent.type,
                 (event) => {
@@ -209,12 +209,13 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             this.#schematic_app = html`<kc-schematic-app>
             </kc-schematic-app>` as KCSchematicAppElement;
             this.#tab_contents[TabKind.sch] = this.#schematic_app;
+            embed_to_tab(this.#schematic_app, TabKind.sch);
         }
         return html`
             <div class="vertical">
                 ${this.#tab_header}
                 <div class="vertical">
-                    ${this.#schematic_app} ${this.#board_app}
+                    ${this.#board_app} ${this.#schematic_app}
                 </div>
             </div>
         `;
