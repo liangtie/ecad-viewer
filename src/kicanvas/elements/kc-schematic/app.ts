@@ -13,9 +13,11 @@ import "./info-panel";
 import "./properties-panel";
 import "./symbols-panel";
 import "./viewer";
+
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
 import { AssertType } from "../../project";
+import { SchPreviewListElement } from "./sch-preview-list";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -32,7 +34,7 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
     }
 
     protected override make_fitter_menu(): ElementOrFragment {
-        return html`<h1>fitter menu</h1>`;
+        return html`<sch-preview-list-panel></sch-preview-list-panel>`;
     }
 
     override on_viewer_select(item?: unknown, previous?: unknown) {

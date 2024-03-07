@@ -33,6 +33,16 @@ export abstract class KCViewerElement<
 
     mouse_press_pos: Vec2 | null = null;
 
+    set assert(as: KicadAssert) {
+        this.#assert = as;
+    }
+
+    get assert() {
+        return this.#assert;
+    }
+
+    #assert: KicadAssert;
+
     override initialContentCallback() {
         (async () => {
             this.viewer = this.addDisposable(this.make_viewer());
@@ -78,7 +88,7 @@ export abstract class KCViewerElement<
 
     override async load(src: KicadAssert) {
         this.loaded = false;
-        await this.viewer.load(src);
+        await this.viewer.load(src ?? this.#assert);
     }
 
     override render() {

@@ -78,7 +78,7 @@ export class KCBoardLayersPanelElement extends KCUIElement {
 
     private get items(): KCBoardLayerControlElement[] {
         return Array.from(
-            this.panel_body.querySelectorAll("kc-board-layer-control") ?? [],
+            this.panel_body?.querySelectorAll("kc-board-layer-control") ?? [],
         );
     }
 
