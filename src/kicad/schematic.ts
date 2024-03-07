@@ -761,6 +761,7 @@ export class LibSymbol {
     pins: PinDefinition[] = [];
     units: Map<number, LibSymbol[]> = new Map();
     libPins: LibSymbolPin[] = [];
+    exclude_from_sim: boolean = false;
 
     #pins_by_number: Map<string, PinDefinition> = new Map();
     #properties_by_id: Map<number, Property> = new Map();
@@ -769,7 +770,6 @@ export class LibSymbol {
         expr: Parseable,
         public parent: LibSymbol | KicadSch,
     ) {
-        console.log(parent);
         Object.assign(
             this,
             parse_expr(
@@ -1127,12 +1127,14 @@ export class SchematicSymbol {
     fields_autoplaced = false;
     properties: Map<string, Property> = new Map();
     pins: PinInstance[] = [];
+    exclude_from_sim = false;
     default_instance: {
         reference: string;
         unit: string;
         value: string;
         footprint: string;
     };
+
     instances: Map<string, SchematicSymbolInstance> = new Map();
 
     constructor(
@@ -1159,6 +1161,8 @@ export class SchematicSymbol {
             P.pair("lib_id", T.string),
             P.item("at", At),
             P.pair("mirror", T.string),
+            P.pair("exclude_from_sim", T.boolean),
+
             P.pair("unit", T.number),
             P.pair("convert", T.number),
             P.pair("in_bom", T.boolean),
