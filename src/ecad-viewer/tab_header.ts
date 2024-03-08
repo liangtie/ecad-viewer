@@ -18,11 +18,11 @@ export interface TabData {
 export class TabHeaderElement extends KCUIElement {
     #elements: Map<Sections, Map<TabKind, HTMLElement>>;
     #current_tab?: TabKind;
-    // #open_file_btn = html` <tab-button
-    //     icon="svg:open_file"
-    //     class="end"
-    //     title="Open local file">
-    // </tab-button>` as HTMLElement;
+    #open_file_btn = html` <tab-button
+        icon="svg:open_file"
+        class="end"
+        title="Open local file">
+    </tab-button>` as HTMLElement;
 
     public set tabMenuChecked(activate: boolean) {
         this.#elements
@@ -121,9 +121,9 @@ export class TabHeaderElement extends KCUIElement {
     has_bom: boolean = true;
 
     public set input_container(input_container: InputContainer) {
-        // this.#open_file_btn.addEventListener("click", () => {
-        //     input_container.input.click();
-        // });
+        this.#open_file_btn.addEventListener("click", () => {
+            input_container.input.click();
+        });
         input_container.input.addEventListener("change", (e) => {
             const file = (e.target! as any).files[0];
             if (file) {
@@ -217,7 +217,7 @@ export class TabHeaderElement extends KCUIElement {
                         class="end">
                     </tab-button>` as HTMLElement;
 
-                    // section.appendChild(this.#open_file_btn);
+                    section.appendChild(this.#open_file_btn);
                     section.appendChild(download);
                     section.appendChild(full_screen);
                 }
