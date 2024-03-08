@@ -4,8 +4,8 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { Vec2 } from "../../base/math";
-import { Color, Renderer } from "../../graphics";
+import { BBox, Vec2 } from "../../base/math";
+import { Color, Polygon, Polyline, Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { DrawingSheet, type SchematicTheme } from "../../kicad";
 import { KicadSch } from "../../kicad/schematic";
@@ -24,18 +24,38 @@ export class SchematicViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
+    #selected: BBox | null;
     override on_click(pos: Vec2): void {
-        for (const item of this.document.sheets) {
-            if (item.bbox.contains_point(pos) && item.sheetfile) {
-                this.dispatchEvent(
-                    new KiCanvasSelectEvent({
-                        item: item,
-                        previous: null,
-                    }),
-                );
-                break;
+        const selected_item = (() => {
+            this.#selected = null;
+            for (const item of this.document.sheets) {
+                const bbox = item.bbox;
+                if (bbox.contains_point(pos) && item.sheetfile) {
+                    this.#selected = bbox;
+                    return item;
+                }
             }
+
+            for (const [, v] of this.document.symbols) {
+                const bbox = v.bbox(this.theme);
+
+                if (bbox.constrain_point(pos)) {
+                    this.#selected = bbox;
+                    return v;
+                }
+            }
+            return;
+        })();
+
+        if (selected_item) {
+            this.dispatchEvent(
+                new KiCanvasSelectEvent({
+                    item: selected_item,
+                    previous: null,
+                }),
+            );
         }
+        this.paint_selected();
     }
     override on_dblclick(pos: Vec2): void {
         if (this.document.sheets)
@@ -49,12 +69,6 @@ export class SchematicViewer extends DocumentViewer<
 
     override on_hover(pos: Vec2): void {}
     override type: ViewerType = ViewerType.SCHEMATIC;
-
-    private _alter_footprint_parts: string[] = [];
-
-    public get alter_footprint_parts() {
-        return this._alter_footprint_parts;
-    }
 
     get schematic(): KicadSch {
         return this.document;
@@ -116,5 +130,25 @@ export class SchematicViewer extends DocumentViewer<
 
     protected override create_layer_set() {
         return new LayerSet(this.theme);
+    }
+    protected paint_selected() {
+        const layer = this.layers.overlay;
+
+        layer.clear();
+
+        if (this.#selected) {
+            const bb = this.#selected.copy().grow(this.#selected.w * 0.1);
+            this.renderer.start_layer(layer.name);
+
+            this.renderer.line(Polyline.from_BBox(bb, 0.254, Color.white));
+
+            this.renderer.polygon(Polygon.from_BBox(bb, Color.white));
+
+            layer.graphics = this.renderer.end_layer();
+
+            layer.graphics.composite_operation = "overlay";
+        }
+
+        this.draw();
     }
 }

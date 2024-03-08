@@ -158,7 +158,7 @@ export type SymbolTransform = {
  * This is based on SCH_PAINTER::orientSymbol, where KiCAD does some fun logic
  * to place a symbol instance. This tries to replicate that.
  */
-function get_symbol_transform(
+export function get_symbol_transform(
     symbol: schematic_items.SchematicSymbol,
 ): SymbolTransform {
     // Note: KiCAD uses a 2x2 transformation matrix for symbol orientation. It's
@@ -227,7 +227,7 @@ function get_symbol_transform(
  * Determines the bounding box for the given symbol, including only the body
  * and the pins, not any fields or text items.
  */
-function get_symbol_body_and_pins_bbox(
+export function get_symbol_body_and_pins_bbox(
     theme: SchematicTheme,
     si: schematic_items.SchematicSymbol,
 ): BBox {

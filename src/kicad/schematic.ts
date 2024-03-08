@@ -4,14 +4,18 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
-import { DrawingSheet } from ".";
+import { DrawingSheet, type SchematicTheme } from ".";
 import { Color } from "../base/color";
 import type { CrossHightAble } from "../base/cross_highlight_able";
 import type { HighlightAble } from "../base/highlightable";
 import type { IndexAble } from "../base/index_able";
 import * as log from "../base/log";
-import { BBox, Arc as MathArc, Vec2 } from "../base/math";
+import { BBox, Arc as MathArc, Matrix3, Vec2 } from "../base/math";
 import type { Project } from "../kicanvas/project";
+import {
+    get_symbol_body_and_pins_bbox,
+    get_symbol_transform,
+} from "../viewers/schematic/painters/symbol";
 import {
     At,
     Effects,
@@ -1134,6 +1138,16 @@ export class SchematicSymbol {
         value: string;
         footprint: string;
     };
+
+    bbox(theme: SchematicTheme) {
+        const transform = get_symbol_transform(this);
+        const bboxes = get_symbol_body_and_pins_bbox(theme, this);
+        const p = Matrix3.translation(this.at.position.x, this.at.position.y);
+        transform.matrix.multiply(p);
+        const bbox = bboxes.transform(p);
+        console.log(bbox);
+        return bbox;
+    }
 
     instances: Map<string, SchematicSymbolInstance> = new Map();
 
