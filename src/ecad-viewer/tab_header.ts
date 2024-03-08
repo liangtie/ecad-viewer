@@ -131,7 +131,7 @@ export class TabHeaderElement extends KCUIElement {
                         const reader = new FileReader();
 
                         reader.onload = function (e) {
-                            const content = e.target.result;
+                            const content = e.target!.result;
                             resolve({
                                 name: file.name,
                                 content: content,
@@ -145,7 +145,7 @@ export class TabHeaderElement extends KCUIElement {
                         reader.readAsText(file);
                     });
                 };
-                const files = fileInput.files;
+                const files = (e.target! as any).files;
                 // Create an array of promises for each file reading operation
                 const promises = Array.from(files).map((file) =>
                     readFile(file),
