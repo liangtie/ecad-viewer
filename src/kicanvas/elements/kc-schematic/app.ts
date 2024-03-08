@@ -11,13 +11,13 @@ import { KCSchematicViewerElement } from "./viewer";
 // import dependent elements so they're registered before use.
 import "./info-panel";
 import "./properties-panel";
-import "./symbols-panel";
 import "./viewer";
 
 import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
 import { AssertType } from "../../project";
 import { SchPreviewListElement } from "./sch-preview-list";
+import { SheetChangeEvent } from "../../../viewers/base/events";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -30,14 +30,20 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
     }
 
     protected override make_property_element(): ElementOrFragment {
-        return html`<h1>property</h1>`;
+        return html`<kc-schematic-properties-panel></kc-schematic-properties-panel>`;
     }
 
     protected override make_fitter_menu(): HTMLElement {
         const preview = new SchPreviewListElement();
         return preview;
     }
-
+    override initialContentCallback() {
+        super.initialContentCallback();
+        this.viewer.addEventListener(SheetChangeEvent.type, (e) => {
+            const sch = this.project.file_by_name(e.detail);
+            if (sch instanceof KicadSch) this.viewer.load(sch);
+        });
+    }
     override on_viewer_select(item?: unknown, previous?: unknown) {
         // Only handle double-selecting/double-clicking on items.
         if (!item || item != previous) {

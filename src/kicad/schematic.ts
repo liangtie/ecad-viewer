@@ -1601,6 +1601,15 @@ export class SchematicSheet {
     page?: string;
     path?: string;
 
+    public get bbox() {
+        return new BBox(
+            this.at.position.x,
+            this.at.position.y,
+            this.size.x,
+            this.size.y,
+        );
+    }
+
     constructor(
         expr: Parseable,
         public parent: KicadSch,

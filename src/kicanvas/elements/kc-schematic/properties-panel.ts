@@ -5,8 +5,8 @@
 */
 
 import { sorted_by_numeric_strings } from "../../../base/array";
-import { html } from "../../../base/web-components";
-import { KCUIElement } from "../../../kc-ui";
+import { css, html } from "../../../base/web-components";
+import { KCUIElement, KCUIPanelTitleWithCloseElement } from "../../../kc-ui";
 import { SchematicSheet, SchematicSymbol } from "../../../kicad/schematic";
 import {
     KiCanvasLoadEvent,
@@ -17,7 +17,48 @@ import { SchematicViewer } from "../../../viewers/schematic/viewer";
 export class KCSchematicPropertiesPanelElement extends KCUIElement {
     viewer: SchematicViewer;
     selected_item?: SchematicSymbol | SchematicSheet;
+    static override styles = [
+        ...KCUIElement.styles,
+        css`
+            :host {
+                position: absolute;
+                right: 0;
+                height: 100%;
+                width: calc(max(20%, 200px));
+                top: 0;
+                bottom: 0;
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+            }
+            ::-webkit-scrollbar {
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                margin-left: -6px;
+                background: var(--scrollbar-bg);
+            }
 
+            ::-webkit-scrollbar-thumb {
+                position: absolute;
+                background: var(--scrollbar-fg);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--scrollbar-hover-fg);
+            }
+
+            ::-webkit-scrollbar-thumb:active {
+                background: var(--scrollbar-active-fg);
+            }
+        `,
+    ];
+    constructor() {
+        super();
+        this.hidden = true;
+    }
     override connectedCallback() {
         (async () => {
             this.viewer = await this.requestLazyContext("viewer");
@@ -31,6 +72,7 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
         this.addDisposable(
             this.viewer.addEventListener(KiCanvasSelectEvent.type, (e) => {
                 this.selected_item = e.detail.item as SchematicSymbol;
+                this.hidden = false;
                 this.update();
             }),
         );
@@ -39,6 +81,7 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
         this.addDisposable(
             this.viewer.addEventListener(KiCanvasLoadEvent.type, (e) => {
                 this.selected_item = undefined;
+                this.hidden = true;
                 this.update();
             }),
         );
@@ -62,7 +105,14 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
 
         let entries;
         const item = this.selected_item;
+        const title = html`
+            <kc-ui-panel-title-with-close
+                title="Properties"></kc-ui-panel-title-with-close>
+        ` as KCUIPanelTitleWithCloseElement;
 
+        title.close.addEventListener("click", (e) => {
+            this.hidden = true;
+        });
         if (!item) {
             entries = header("No item selected");
         } else if (item instanceof SchematicSymbol) {
@@ -89,8 +139,8 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
                     item.mirror == "x"
                         ? "Around X axis"
                         : item.mirror == "y"
-                        ? "Around Y axis"
-                        : "Not mirrored",
+                          ? "Around Y axis"
+                          : "Not mirrored",
                 )}
                 ${header("Instance properties")}
                 ${entry("Library link", item.lib_name ?? item.lib_id)}
@@ -139,7 +189,7 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
 
         return html`
             <kc-ui-panel>
-                <kc-ui-panel-title title="Properties"></kc-ui-panel-title>
+                ${title}
                 <kc-ui-panel-body>
                     <kc-ui-property-list>${entries}</kc-ui-property-list>
                 </kc-ui-panel-body>

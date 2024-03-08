@@ -8,9 +8,9 @@ import { Vec2 } from "../../base/math";
 import { Color, Renderer } from "../../graphics";
 import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { DrawingSheet, type SchematicTheme } from "../../kicad";
-import { KicadSch, SchematicSheet } from "../../kicad/schematic";
+import { KicadSch } from "../../kicad/schematic";
 import { DocumentViewer } from "../base/document-viewer";
-import { SheetChangeEvent } from "../base/events";
+import { KiCanvasSelectEvent, SheetChangeEvent } from "../base/events";
 import { Grid } from "../base/grid";
 import { ViewLayerNames } from "../base/view-layers";
 import { ViewerType } from "../base/viewer";
@@ -25,19 +25,28 @@ export class SchematicViewer extends DocumentViewer<
     SchematicTheme
 > {
     override on_click(pos: Vec2): void {
-        throw new Error("Method not implemented.");
-    }
-    override on_dblclick(pos: Vec2): void {
-        console.log(pos);
-
-        const items = this.layers.query_point(pos);
-        for (const item of items) {
-            if (item instanceof SchematicSheet) {
-                const fn = `${item.sheetfile}:${item.path}/${item.uuid}`;
-                this.dispatchEvent(new SheetChangeEvent(fn));
+        for (const item of this.document.sheets) {
+            if (item.bbox.contains_point(pos) && item.sheetfile) {
+                this.dispatchEvent(
+                    new KiCanvasSelectEvent({
+                        item: item,
+                        previous: null,
+                    }),
+                );
+                break;
             }
         }
     }
+    override on_dblclick(pos: Vec2): void {
+        if (this.document.sheets)
+            for (const item of this.document.sheets) {
+                if (item.bbox.contains_point(pos) && item.sheetfile) {
+                    this.dispatchEvent(new SheetChangeEvent(item.sheetfile));
+                    break;
+                }
+            }
+    }
+
     override on_hover(pos: Vec2): void {}
     override type: ViewerType = ViewerType.SCHEMATIC;
 
