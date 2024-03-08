@@ -125,29 +125,62 @@ export class TabHeaderElement extends KCUIElement {
             input_container.input.click();
         });
         input_container.input.addEventListener("change", (e) => {
-            const file = (e.target! as any).files[0];
-            if (file) {
-                const fn = file.name as string;
-                if (!fn.endsWith(".kicad_pcb") && !fn.endsWith(".kicad_sch"))
-                    return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const fileContent = e.target!.result;
-                    const parent = input_container.target.parentElement;
-                    if (parent) {
-                        parent.removeChild(input_container.target);
-                        parent.appendChild(
-                            html`<ecad-viewer>
-                                <ecad-blob
-                                    filename="${fn}"
-                                    content="${fileContent}"></ecad-blob>
-                            </ecad-viewer>`,
-                        );
-                    }
-                };
+            const readFiles = () => {
+                const readFile = (file: any) => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
 
-                reader.readAsText(file);
-            }
+                        reader.onload = function (e) {
+                            const content = e.target.result;
+                            resolve({
+                                name: file.name,
+                                content: content,
+                            });
+                        };
+
+                        reader.onerror = function (error) {
+                            reject(error);
+                        };
+
+                        reader.readAsText(file);
+                    });
+                };
+                const files = fileInput.files;
+                // Create an array of promises for each file reading operation
+                const promises = Array.from(files).map((file) =>
+                    readFile(file),
+                );
+
+                // Use Promise.all to wait for all promises to resolve
+                Promise.all(promises)
+                    .then((results) => {
+                        // All files have been read successfully
+
+                        const parent = input_container.target.parentElement;
+
+                        const ecad_view = html`<ecad-viewer> </ecad-viewer>`;
+
+                        results.forEach(({ name, content }) => {
+                            if (
+                                name.endsWith(".kicad_pcb") ||
+                                name.endsWith(".kicad_sch")
+                            )
+                                ecad_view.appendChild(
+                                    html`<ecad-blob
+                                        filename="${name}"
+                                        content="${content}"></ecad-blob>`,
+                                );
+                        });
+                        if (parent) {
+                            parent.removeChild(input_container.target);
+                            parent.appendChild(ecad_view);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error reading files:", error);
+                    });
+            };
+            readFiles();
         });
     }
 

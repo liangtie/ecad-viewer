@@ -88,7 +88,8 @@ export class ECadViewer extends KCUIElement implements InputContainer {
     #file_input: HTMLInputElement = html` <input
         type="file"
         id="fileInput"
-        style="display: none" />` as HTMLInputElement;
+        style="display: none"
+        multiple />` as HTMLInputElement;
 
     @attribute({ type: Boolean })
     public loading: boolean;
