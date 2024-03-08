@@ -7,8 +7,6 @@
 import { css, html } from "../../../base/web-components";
 import { KCUIElement } from "../../../kc-ui";
 import { KicadSch } from "../../../kicad";
-import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
-import type { SchematicViewer } from "../../../viewers/schematic/viewer";
 import { KCSchematicViewerElement } from "./viewer";
 
 export class SchPreviewElement extends KCUIElement {
@@ -71,29 +69,14 @@ export class SchPreviewElement extends KCUIElement {
 
     #sch_name: string;
 
-    #sch_viewer: SchematicViewer;
-
-    constructor(s: { name: string; sch: KicadSch }) {
+    constructor(sch: KicadSch) {
         super();
-        this.#sch = s.sch;
-        this.#sch_name = s.name;
+        this.#sch = sch;
+        this.#sch_name = sch.filename;
         this.#preview.classList.add("preview");
     }
 
-    override connectedCallback() {
-        (async () => {
-            this.#sch_viewer =
-                await this.requestLazyContext<SchematicViewer>("viewer");
-            await this.#sch_viewer.loaded;
-            super.connectedCallback();
-        })();
-    }
-
     override initialContentCallback() {
-        this.addEventListener("click", () => {
-            this.#sch_viewer.load(this.#sch);
-            this.dispatchEvent(new TabMenuVisibleChangeEvent(true));
-        });
         this.#preview.load(this.#sch);
     }
 

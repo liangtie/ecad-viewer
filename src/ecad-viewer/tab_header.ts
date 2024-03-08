@@ -160,7 +160,9 @@ export class TabHeaderElement extends KCUIElement {
 
                         const ecad_view = html`<ecad-viewer> </ecad-viewer>`;
 
-                        results.forEach(({ name, content }) => {
+                        (
+                            results as [{ name: string; content: string }]
+                        ).forEach(({ name, content }) => {
                             if (
                                 name.endsWith(".kicad_pcb") ||
                                 name.endsWith(".kicad_sch")

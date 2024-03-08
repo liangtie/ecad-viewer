@@ -4,12 +4,17 @@
     Full text available at: https://opensource.org/licenses/MIT
 */
 
+import { sorted_by_numeric_strings } from "../base/array";
 import { Barrier } from "../base/async";
 import { type IDisposable } from "../base/disposable";
-import { first, length } from "../base/iterator";
+import { first, length, map } from "../base/iterator";
 import { Logger } from "../base/log";
 import { type Constructor } from "../base/types";
 import { KicadPCB, KicadSch, ProjectSettings } from "../kicad";
+import type {
+    SchematicSheet,
+    SchematicSheetInstance,
+} from "../kicad/schematic";
 
 import type { EcadBlob, EcadSources, VirtualFileSystem } from "./services/vfs";
 
@@ -31,10 +36,12 @@ export class Project extends EventTarget implements IDisposable {
     public loaded: Barrier = new Barrier();
     public settings: ProjectSettings = new ProjectSettings();
     #root_schematic_page?: ProjectPage;
+    #pages_by_path: Map<string, ProjectPage> = new Map();
 
     public dispose() {
         for (const i of [this.#pcb, this.#sch]) i.length = 0;
         this.#files_by_name.clear();
+        this.#pages_by_path.clear();
     }
 
     public async load(sources: EcadSources) {
@@ -60,6 +67,7 @@ export class Project extends EventTarget implements IDisposable {
         }
 
         await Promise.all(promises);
+        this.#determine_schematic_hierarchy();
 
         this.loaded.open();
 
@@ -139,8 +147,6 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     public file_by_name(name: string) {
-        for (const [, v] of this.#files_by_name) if (v) return v;
-
         return this.#files_by_name.get(name);
     }
 
@@ -157,12 +163,9 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     public *schematics() {
-        for (const [c, v] of this.#files_by_name) {
+        for (const [, v] of this.#files_by_name) {
             if (v instanceof KicadSch) {
-                yield {
-                    name: c,
-                    sch: v,
-                };
+                yield v;
             }
         }
     }
@@ -174,7 +177,7 @@ export class Project extends EventTarget implements IDisposable {
     public get_first_page(kind: AssertType) {
         switch (kind) {
             case AssertType.SCH:
-                return first(this.#sch);
+                return this.root_schematic_page?.document;
             case AssertType.PCB:
                 return first(this.#pcb);
         }
@@ -211,12 +214,126 @@ export class Project extends EventTarget implements IDisposable {
             }),
         );
     }
+
+    #determine_schematic_hierarchy() {
+        log.info("Determining schematic hierarchy");
+
+        const paths_to_schematics = new Map<string, KicadSch>();
+        const paths_to_sheet_instances = new Map<
+            string,
+            { sheet: SchematicSheet; instance: SchematicSheetInstance }
+        >();
+
+        for (const schematic of this.schematics()) {
+            paths_to_schematics.set(`/${schematic.uuid}`, schematic);
+
+            for (const sheet of schematic.sheets) {
+                const sheet_sch = this.#files_by_name.get(
+                    sheet.sheetfile ?? "",
+                ) as KicadSch;
+
+                if (!sheet_sch) {
+                    continue;
+                }
+
+                for (const instance of sheet.instances.values()) {
+                    paths_to_schematics.set(instance.path, schematic);
+                    paths_to_sheet_instances.set(
+                        `${instance.path}/${sheet.uuid}`,
+                        {
+                            sheet: sheet,
+                            instance: instance,
+                        },
+                    );
+                }
+            }
+        }
+
+        // Find the root sheet. This is done by sorting all of the paths
+        // from shortest to longest and walking through the paths to see if
+        // we can find the schematic for the parent. The first one we find
+        // it the common ancestor (root).
+        const paths = Array.from(paths_to_sheet_instances.keys()).sort(
+            (a, b) => a.length - b.length,
+        );
+
+        let root: KicadSch | undefined;
+        for (const path of paths) {
+            const parent_path = path.split("/").slice(0, -1).join("/");
+
+            if (!parent_path) {
+                continue;
+            }
+
+            root = paths_to_schematics.get(parent_path);
+
+            if (root) {
+                break;
+            }
+        }
+
+        // If we found a root page, we can build out the list of pages by
+        // walking through paths_to_sheet with root as page one.
+        let pages = [];
+
+        if (root) {
+            this.#root_schematic_page = new ProjectPage(
+                this,
+                root.filename,
+                `/${root!.uuid}`,
+                "Root",
+                "1",
+            );
+            pages.push(this.#root_schematic_page);
+
+            for (const [path, sheet] of paths_to_sheet_instances.entries()) {
+                pages.push(
+                    new ProjectPage(
+                        this,
+                        sheet.sheet.sheetfile!,
+                        path,
+                        sheet.sheet.sheetname ?? sheet.sheet.sheetfile!,
+                        sheet.instance.page ?? "",
+                    ),
+                );
+            }
+        }
+
+        // Sort the pages we've collected so far and then insert them
+        // into the pages map.
+        pages = sorted_by_numeric_strings(pages, (p) => p.page!);
+
+        for (const page of pages) {
+            this.#pages_by_path.set(page.project_path, page);
+        }
+
+        // Add any "orphan" sheets to the list of pages now that we've added all
+        // the hierarchical ones.
+        const seen_schematic_files = new Set(
+            map(this.#pages_by_path.values(), (p) => p.filename),
+        );
+
+        for (const schematic of this.schematics()) {
+            if (!seen_schematic_files.has(schematic.filename)) {
+                const page = new ProjectPage(
+                    this,
+                    "schematic",
+                    schematic.filename,
+                    `/${schematic.uuid}`,
+                    schematic.filename,
+                );
+                this.#pages_by_path.set(page.project_path, page);
+            }
+        }
+
+        // Finally, if no root schematic was found, just use the first one we saw.
+        this.#root_schematic_page = first(this.#pages_by_path.values());
+    }
 }
 
 export class ProjectPage {
     constructor(
         public project: Project,
-        public type: "pcb" | "schematic",
         public filename: string,
         public sheet_path: string,
         public name?: string,

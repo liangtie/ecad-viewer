@@ -95,6 +95,14 @@ export class TabMenuClickEvent extends CustomEvent<TabKind> {
     }
 }
 
+export class SheetChangeEvent extends CustomEvent<string> {
+    static readonly type = "kicanvas:sheet:change";
+
+    constructor(fp: string) {
+        super(SheetChangeEvent.type, { detail: fp });
+    }
+}
+
 // Event maps for type safe addEventListener.
 
 export interface KiCanvasEventMap {
@@ -105,6 +113,7 @@ export interface KiCanvasEventMap {
     [TabActivateEvent.type]: TabActivateEvent;
     [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
     [KiCanvasFitterMenuEvent.type]: KiCanvasFitterMenuEvent;
+    [SheetChangeEvent.type]: SheetChangeEvent;
 }
 
 declare global {
@@ -112,11 +121,13 @@ declare global {
         [KiCanvasLoadEvent.type]: KiCanvasLoadEvent;
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
         [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
+        [SheetChangeEvent.type]: SheetChangeEvent;
     }
 
     interface HTMLElementEventMap {
         [KiCanvasLoadEvent.type]: KiCanvasLoadEvent;
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
         [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
+        [SheetChangeEvent.type]: SheetChangeEvent;
     }
 }

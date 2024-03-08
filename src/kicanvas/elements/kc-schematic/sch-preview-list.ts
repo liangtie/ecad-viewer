@@ -6,6 +6,8 @@
 
 import { css, html } from "../../../base/web-components";
 import { KCUIElement } from "../../../kc-ui";
+import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
+import type { SchematicViewer } from "../../../viewers/schematic/viewer";
 import type { Project } from "../../project";
 import { SchPreviewElement } from "./sch-preview";
 
@@ -62,11 +64,15 @@ export class SchPreviewListElement extends KCUIElement {
 
     #project: Project;
     #viewers: SchPreviewElement[] = [];
+    #sch_viewer: SchematicViewer;
 
     override connectedCallback() {
         (async () => {
             this.#project = await this.requestContext("project");
             await this.#project.loaded;
+            this.#sch_viewer =
+                await this.requestLazyContext<SchematicViewer>("viewer");
+            await this.#sch_viewer.loaded;
             super.connectedCallback();
         })();
     }
@@ -81,6 +87,11 @@ export class SchPreviewListElement extends KCUIElement {
         for (const sch of this.#project.schematics()) {
             const viewer = new SchPreviewElement(sch);
             this.#viewers.push(viewer);
+            viewer.addEventListener("click", (e) => {
+                this.dispatchEvent(new TabMenuVisibleChangeEvent(true));
+                this.#sch_viewer.load(sch);
+            });
+
             vertical_layout.appendChild(viewer);
         }
         return html` <kc-ui-panel>
