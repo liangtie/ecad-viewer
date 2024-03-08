@@ -13,7 +13,10 @@ import {
 } from "../../../base/web-components";
 import { KCUISelectElement, KCUIElement } from "../../../kc-ui";
 import type { KicadPCB, KicadSch } from "../../../kicad";
-import { KiCanvasSelectEvent } from "../../../viewers/base/events";
+import {
+    KiCanvasSelectEvent,
+    TabMenuVisibleChangeEvent,
+} from "../../../viewers/base/events";
 import type { Viewer } from "../../../viewers/base/viewer";
 import type { AssertType, Project } from "../../project";
 
@@ -58,7 +61,18 @@ export abstract class KCViewerAppElement<
     ];
     #viewer_elm: ViewerElementT;
     #property_viewer: ElementOrFragment;
-    #fitter_menu: ElementOrFragment;
+    #fitter_menu: HTMLElement;
+
+    public set tabMenuHidden(v: boolean) {
+        this.#fitter_menu.hidden = v;
+        this.dispatchEvent(
+            new TabMenuVisibleChangeEvent(!this.#fitter_menu.hidden),
+        );
+    }
+
+    public get tabMenuHidden() {
+        return this.#fitter_menu.hidden;
+    }
 
     project: Project;
     viewerReady: DeferredPromise<boolean> = new DeferredPromise<boolean>();
@@ -141,10 +155,17 @@ export abstract class KCViewerAppElement<
 
     protected abstract make_viewer_element(): ViewerElementT;
 
-    protected abstract make_fitter_menu(): ElementOrFragment;
+    protected abstract make_fitter_menu(): HTMLElement;
 
     override render() {
         this.#fitter_menu = this.make_fitter_menu();
+        this.#fitter_menu.hidden = true;
+        this.#fitter_menu.addEventListener(
+            TabMenuVisibleChangeEvent.type,
+            (e: TabMenuVisibleChangeEvent) => {
+                this.tabMenuHidden = e.detail;
+            },
+        );
         this.#viewer_elm = this.make_viewer_element();
         this.#property_viewer = this.make_property_element();
         return html`

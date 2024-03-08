@@ -124,6 +124,8 @@
     --tab-button-selected-bg: #888;
     --tab-button-ck-bg: #888;
     --tab-button-color: #ffffff;
+    --preview-item-height: 180px;
+    --preview-item-hover-fg: #81eeff;
 }
 
 /*

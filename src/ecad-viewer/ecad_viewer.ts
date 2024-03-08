@@ -24,6 +24,7 @@ import {
 } from "../viewers/base/events";
 import { TabKind } from "./constraint";
 import type { InputContainer } from "./input_container";
+import type { KCViewerAppElement } from "../kicanvas/elements/common/app";
 
 export class ECadViewer extends KCUIElement implements InputContainer {
     static override styles = [
@@ -149,16 +150,19 @@ export class ECadViewer extends KCUIElement implements InputContainer {
     override render() {
         if (!this.loaded) return html``;
         this.#tab_contents = {};
-        this.#tab_header = html`<tab-header></tab-header>` as TabHeaderElement;
+        this.#tab_header = html`<tab-header> </tab-header>` as TabHeaderElement;
         this.#tab_header.input_container = this;
         this.#tab_header.addEventListener(TabActivateEvent.type, (event) => {
             const tab = (event as TabActivateEvent).detail;
             if (tab.previous) {
                 switch (tab.previous) {
                     case TabKind.pcb:
-                        this.#board_app.tabMenuHidden = true;
+                        if (this.#board_app)
+                            this.#board_app.tabMenuHidden = true;
                         break;
                     case TabKind.sch:
+                        if (this.#schematic_app)
+                            this.#schematic_app.tabMenuHidden = true;
                         break;
                     case TabKind.bom:
                         break;
@@ -181,28 +185,30 @@ export class ECadViewer extends KCUIElement implements InputContainer {
                         !this.#board_app.tabMenuHidden;
                     break;
                 case TabKind.sch:
+                    this.#schematic_app.tabMenuHidden =
+                        !this.#schematic_app.tabMenuHidden;
                     break;
                 case TabKind.bom:
                     break;
             }
         });
 
-        const embed_to_tab = (page: HTMLElement, index: TabKind) => {
+        const embed_to_tab = (
+            page: KCViewerAppElement<any>,
+            index: TabKind,
+        ) => {
             this.#tab_contents[index] = page;
             page.classList.add("tab-content");
+            page.addEventListener(TabMenuVisibleChangeEvent.type, (event) => {
+                const visible = (event as TabMenuVisibleChangeEvent).detail;
+                this.#tab_header.tabMenuChecked = visible;
+            });
         };
 
         if (this.#project.has_boards && !this.#board_app) {
             this.#board_app = html`<kc-board-app>
             </kc-board-app>` as KCBoardAppElement;
             embed_to_tab(this.#board_app, TabKind.pcb);
-            this.#board_app.addEventListener(
-                TabMenuVisibleChangeEvent.type,
-                (event) => {
-                    const visible = (event as TabMenuVisibleChangeEvent).detail;
-                    this.#tab_header.tabMenuChecked = visible;
-                },
-            );
         }
 
         if (this.#project.has_schematics && !this.#schematic_app) {

@@ -111,10 +111,12 @@ declare global {
     interface WindowEventMap {
         [KiCanvasLoadEvent.type]: KiCanvasLoadEvent;
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
+        [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
     }
 
     interface HTMLElementEventMap {
         [KiCanvasLoadEvent.type]: KiCanvasLoadEvent;
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
+        [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
     }
 }

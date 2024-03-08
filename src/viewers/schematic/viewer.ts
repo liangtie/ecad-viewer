@@ -29,9 +29,7 @@ export class SchematicViewer extends DocumentViewer<
     override on_dblclick(pos: Vec2): void {
         throw new Error("Method not implemented.");
     }
-    override on_hover(pos: Vec2): void {
-        throw new Error("Method not implemented.");
-    }
+    override on_hover(pos: Vec2): void {}
     override type: ViewerType = ViewerType.SCHEMATIC;
 
     private _alter_footprint_parts: string[] = [];

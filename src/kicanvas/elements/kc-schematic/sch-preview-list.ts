@@ -7,7 +7,7 @@
 import { css, html } from "../../../base/web-components";
 import { KCUIElement } from "../../../kc-ui";
 import type { Project } from "../../project";
-import { KCSchematicViewerElement } from "./viewer";
+import { SchPreviewElement } from "./sch-preview";
 
 export class SchPreviewListElement extends KCUIElement {
     static override styles = [
@@ -15,9 +15,10 @@ export class SchPreviewListElement extends KCUIElement {
         css`
             :host {
                 position: absolute;
+                padding-top: 5px;
                 left: 0;
                 height: 100%;
-                width: calc(max(20%, 200px));
+                width: calc(max(15%, 240px));
                 top: 0;
                 bottom: 0;
                 flex: 1;
@@ -49,7 +50,7 @@ export class SchPreviewListElement extends KCUIElement {
                 background: var(--scrollbar-active-fg);
             }
             .vertical-layout {
-                display: flex;
+                display: content;
                 flex-direction: column;
                 flex: 1;
                 height: 100%;
@@ -60,33 +61,30 @@ export class SchPreviewListElement extends KCUIElement {
     ];
 
     #project: Project;
-    #viewers: KCSchematicViewerElement[] = [];
-    #vertical_layout = html`<div class="vertical-layout"></div>` as HTMLElement;
+    #viewers: SchPreviewElement[] = [];
 
     override connectedCallback() {
         (async () => {
             this.#project = await this.requestContext("project");
             await this.#project.loaded;
-            for (const sch of this.#project.schematics()) {
-                const viewer = new KCSchematicViewerElement();
-                viewer.assert = sch;
-                this.#viewers.push(viewer);
-                this.#vertical_layout.appendChild(viewer);
-            }
             super.connectedCallback();
         })();
     }
 
     override initialContentCallback() {
-        for (const viewer of this.#viewers) {
-            viewer.load(viewer.assert).then(() => {
-                viewer.style.height = `120px`;
-            });
-        }
+        super.initialContentCallback();
     }
     override render() {
+        const vertical_layout = html`<div
+            class="vertical-layout"></div>` as HTMLElement;
+
+        for (const sch of this.#project.schematics()) {
+            const viewer = new SchPreviewElement(sch);
+            this.#viewers.push(viewer);
+            vertical_layout.appendChild(viewer);
+        }
         return html` <kc-ui-panel>
-            <kc-ui-panel-body> ${this.#vertical_layout} </kc-ui-panel-body>
+            <kc-ui-panel-body> ${vertical_layout} </kc-ui-panel-body>
         </kc-ui-panel>`;
     }
 }

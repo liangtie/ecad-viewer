@@ -20,11 +20,6 @@ export class TabView extends KCUIElement {
     #close: KCUIButtonElement;
     #tabContents: HTMLElement[] = [];
 
-    public setHidden(hide: boolean) {
-        this.hidden = hide;
-        this.dispatchEvent(new TabMenuVisibleChangeEvent(!this.hidden));
-    }
-
     static override styles = [
         ...KCUIElement.styles,
         css`
@@ -106,7 +101,7 @@ export class TabView extends KCUIElement {
             icon="svg:close">
         </kc-ui-button>` as KCUIButtonElement;
         this.#close.addEventListener("click", () => {
-            this.setHidden(true);
+            this.dispatchEvent(new TabMenuVisibleChangeEvent(true));
         });
         if (tabData.length) this.showTab(0);
     }

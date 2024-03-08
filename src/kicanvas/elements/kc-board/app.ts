@@ -25,7 +25,6 @@ import { KCBoardLayersPanelElement } from "./layers-panel";
 import { KCBoardObjectsPanelElement } from "./objects-panel";
 import { TabView } from "../../../kc-ui/tab-view";
 import { KCBoardNetsPanelElement } from "./nets-panel";
-import { TabMenuVisibleChangeEvent } from "../../../viewers/base/events";
 import type { BoardViewer } from "../../../viewers/board/viewer";
 import { AssertType } from "../../project";
 
@@ -35,7 +34,6 @@ import { AssertType } from "../../project";
  * basically KiCanvas's version of PCBNew.
  */
 export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> {
-
     override assert_type(): AssertType {
         return AssertType.PCB;
     }
@@ -45,29 +43,17 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
     protected override make_property_element(): ElementOrFragment {
         return html`<kc-board-properties-panel></kc-board-properties-panel>`;
     }
-    public set tabMenuHidden(v: boolean) {
-        this.#tab_view.setHidden(v);
-    }
 
-    public get tabMenuHidden() {
-        return this.tab_view.hidden;
-    }
     override initialContentCallback() {
         super.initialContentCallback();
         (this.viewer as BoardViewer).layer_visibility_ctrl = this.#layer;
     }
 
-    #tab_view: TabView;
-
-    public get tab_view(): TabView {
-        return this.#tab_view;
-    }
-
-    protected override make_fitter_menu(): ElementOrFragment {
+    protected override make_fitter_menu(): HTMLElement {
         this.#layer = new KCBoardLayersPanelElement();
         const obj = new KCBoardObjectsPanelElement();
         const nets = new KCBoardNetsPanelElement();
-        this.#tab_view = new TabView([
+        return new TabView([
             {
                 title: "Layers",
                 content: this.#layer,
@@ -81,15 +67,6 @@ export class KCBoardAppElement extends KCViewerAppElement<KCBoardViewerElement> 
                 content: nets,
             },
         ]);
-        this.#tab_view.hidden = true;
-        this.#tab_view.addEventListener(TabMenuVisibleChangeEvent.type, (e) => {
-            this.dispatchEvent(
-                new TabMenuVisibleChangeEvent(
-                    (e as TabMenuVisibleChangeEvent).detail,
-                ),
-            );
-        });
-        return this.#tab_view;
     }
 
     override on_viewer_select(item?: unknown, previous?: unknown) {

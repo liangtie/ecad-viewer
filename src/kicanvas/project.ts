@@ -157,9 +157,12 @@ export class Project extends EventTarget implements IDisposable {
     }
 
     public *schematics() {
-        for (const value of this.#files_by_name.values()) {
-            if (value instanceof KicadSch) {
-                yield value;
+        for (const [c, v] of this.#files_by_name) {
+            if (v instanceof KicadSch) {
+                yield {
+                    name: c,
+                    sch: v,
+                };
             }
         }
     }

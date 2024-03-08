@@ -33,8 +33,9 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
         return html`<h1>property</h1>`;
     }
 
-    protected override make_fitter_menu(): ElementOrFragment {
-        return html`<sch-preview-list-panel></sch-preview-list-panel>`;
+    protected override make_fitter_menu(): HTMLElement {
+        const preview = new SchPreviewListElement();
+        return preview;
     }
 
     override on_viewer_select(item?: unknown, previous?: unknown) {

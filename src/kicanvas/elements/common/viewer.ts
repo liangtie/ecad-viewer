@@ -28,20 +28,11 @@ export abstract class KCViewerElement<
 
     @attribute({ type: String })
     theme: string;
+
     @attribute({ type: Boolean })
     disableinteraction: boolean;
 
     mouse_press_pos: Vec2 | null = null;
-
-    set assert(as: KicadAssert) {
-        this.#assert = as;
-    }
-
-    get assert() {
-        return this.#assert;
-    }
-
-    #assert: KicadAssert;
 
     override initialContentCallback() {
         (async () => {
@@ -88,7 +79,7 @@ export abstract class KCViewerElement<
 
     override async load(src: KicadAssert) {
         this.loaded = false;
-        await this.viewer.load(src ?? this.#assert);
+        await this.viewer.load(src);
     }
 
     override render() {

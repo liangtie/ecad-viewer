@@ -128,7 +128,8 @@ export class TabHeaderElement extends KCUIElement {
             const file = (e.target! as any).files[0];
             if (file) {
                 const fn = file.name as string;
-                if (!fn.endsWith(".kicad_pcb")) return;
+                if (!fn.endsWith(".kicad_pcb") && !fn.endsWith(".kicad_sch"))
+                    return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const fileContent = e.target!.result;
