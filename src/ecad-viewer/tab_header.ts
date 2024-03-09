@@ -6,7 +6,11 @@
 
 import { attribute, css, html } from "../base/web-components";
 import { KCUIElement } from "../kc-ui/element";
-import { TabMenuClickEvent, TabActivateEvent } from "../viewers/base/events";
+import {
+    TabMenuClickEvent,
+    TabActivateEvent,
+    SheetLoadEvent,
+} from "../viewers/base/events";
 import { Sections, TabKind } from "./constraint";
 import type { InputContainer } from "./input_container";
 
@@ -119,6 +123,10 @@ export class TabHeaderElement extends KCUIElement {
 
     @attribute({ type: Boolean })
     has_bom: boolean = true;
+
+    protected get sch_button() {
+        return this.#elements.get(Sections.beginning)!.get(TabKind.sch)!;
+    }
 
     public set input_container(input_container: InputContainer) {
         this.#open_file_btn.addEventListener("click", () => {
@@ -342,6 +350,10 @@ export class TabHeaderElement extends KCUIElement {
                     }
                 }
             });
+        });
+
+        this.addEventListener(SheetLoadEvent.type, (e) => {
+            this.sch_button.textContent = e.detail;
         });
     }
 

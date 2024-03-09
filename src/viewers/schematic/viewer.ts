@@ -10,7 +10,11 @@ import { Canvas2DRenderer } from "../../graphics/canvas2d";
 import { DrawingSheet, type SchematicTheme } from "../../kicad";
 import { KicadSch } from "../../kicad/schematic";
 import { DocumentViewer } from "../base/document-viewer";
-import { KiCanvasSelectEvent, SheetChangeEvent } from "../base/events";
+import {
+    KiCanvasSelectEvent,
+    SheetChangeEvent,
+    SheetLoadEvent,
+} from "../base/events";
 import { Grid } from "../base/grid";
 import { ViewLayerNames } from "../base/view-layers";
 import { ViewerType } from "../base/viewer";
@@ -24,27 +28,20 @@ export class SchematicViewer extends DocumentViewer<
     LayerSet,
     SchematicTheme
 > {
-    #selected: BBox | null;
+    override async load(src: KicadSch) {
+        super.load(src);
+        this.dispatchEvent(new SheetLoadEvent(src.filename));
+    }
     override on_click(pos: Vec2): void {
+        let selected: BBox | null = null;
         const selected_item = (() => {
-            this.#selected = null;
-            for (const item of this.document.sheets) {
-                const bbox = item.bbox;
-                if (bbox.contains_point(pos) && item.sheetfile) {
-                    this.#selected = bbox;
-                    return item;
+            const items = this.layers.query_point(pos);
+            for (const it of items) {
+                if (it.bbox.context) {
+                    selected = it.bbox;
+                    return it.bbox.context;
                 }
             }
-
-            for (const [, v] of this.document.symbols) {
-                const bbox = v.bbox(this.theme);
-
-                if (bbox.constrain_point(pos)) {
-                    this.#selected = bbox;
-                    return v;
-                }
-            }
-            return;
         })();
 
         if (selected_item) {
@@ -55,7 +52,7 @@ export class SchematicViewer extends DocumentViewer<
                 }),
             );
         }
-        this.paint_selected();
+        this.paint_selected(selected);
     }
     override on_dblclick(pos: Vec2): void {
         if (this.document.sheets)
@@ -131,18 +128,20 @@ export class SchematicViewer extends DocumentViewer<
     protected override create_layer_set() {
         return new LayerSet(this.theme);
     }
-    protected paint_selected() {
+
+    protected paint_selected(selected: BBox | null) {
         const layer = this.layers.overlay;
 
         layer.clear();
 
-        if (this.#selected) {
-            const bb = this.#selected.copy().grow(this.#selected.w * 0.1);
+        if (selected) {
+            const color = new Color(0.1, 1, 1);
+            const bb = selected.copy().grow(selected.w * 0.1);
             this.renderer.start_layer(layer.name);
 
-            this.renderer.line(Polyline.from_BBox(bb, 0.254, Color.white));
+            this.renderer.line(Polyline.from_BBox(bb, 0.254, color));
 
-            this.renderer.polygon(Polygon.from_BBox(bb, Color.white));
+            this.renderer.polygon(Polygon.from_BBox(bb, color));
 
             layer.graphics = this.renderer.end_layer();
 

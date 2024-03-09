@@ -18,6 +18,7 @@ import { KCBoardAppElement } from "../kicanvas/elements/kc-board/app";
 import { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
 import type { TabHeaderElement } from "./tab_header";
 import {
+    SheetLoadEvent,
     TabActivateEvent,
     TabMenuClickEvent,
     TabMenuVisibleChangeEvent,
@@ -217,6 +218,9 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             </kc-schematic-app>` as KCSchematicAppElement;
             this.#tab_contents[TabKind.sch] = this.#schematic_app;
             embed_to_tab(this.#schematic_app, TabKind.sch);
+            this.#schematic_app.addEventListener(SheetLoadEvent.type, (e) => {
+                this.#tab_header.dispatchEvent(new SheetLoadEvent(e.detail));
+            });
         }
         return html`
             <div class="vertical">

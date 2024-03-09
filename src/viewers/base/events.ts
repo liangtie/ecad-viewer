@@ -103,6 +103,14 @@ export class SheetChangeEvent extends CustomEvent<string> {
     }
 }
 
+export class SheetLoadEvent extends CustomEvent<string> {
+    static readonly type = "kicanvas:sheet:loaded";
+
+    constructor(sheet_name: string) {
+        super(SheetLoadEvent.type, { detail: sheet_name });
+    }
+}
+
 // Event maps for type safe addEventListener.
 
 export interface KiCanvasEventMap {
@@ -114,6 +122,7 @@ export interface KiCanvasEventMap {
     [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
     [KiCanvasFitterMenuEvent.type]: KiCanvasFitterMenuEvent;
     [SheetChangeEvent.type]: SheetChangeEvent;
+    [SheetLoadEvent.type]: SheetLoadEvent;
 }
 
 declare global {
@@ -122,6 +131,7 @@ declare global {
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
         [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
         [SheetChangeEvent.type]: SheetChangeEvent;
+        [SheetLoadEvent.type]: SheetLoadEvent;
     }
 
     interface HTMLElementEventMap {
@@ -129,5 +139,6 @@ declare global {
         [KiCanvasSelectEvent.type]: KiCanvasSelectEvent;
         [TabMenuVisibleChangeEvent.type]: TabMenuVisibleChangeEvent;
         [SheetChangeEvent.type]: SheetChangeEvent;
+        [SheetLoadEvent.type]: SheetLoadEvent;
     }
 }

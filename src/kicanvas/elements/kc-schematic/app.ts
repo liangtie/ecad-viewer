@@ -17,7 +17,7 @@ import { KicadSch } from "../../../kicad";
 import { SchematicSheet } from "../../../kicad/schematic";
 import { AssertType } from "../../project";
 import { SchPreviewListElement } from "./sch-preview-list";
-import { SheetChangeEvent } from "../../../viewers/base/events";
+import { SheetChangeEvent, SheetLoadEvent } from "../../../viewers/base/events";
 
 /**
  * Internal "parent" element for KiCanvas's schematic viewer. Handles
@@ -42,6 +42,10 @@ export class KCSchematicAppElement extends KCViewerAppElement<KCSchematicViewerE
         this.viewer.addEventListener(SheetChangeEvent.type, (e) => {
             const sch = this.project.file_by_name(e.detail);
             if (sch instanceof KicadSch) this.viewer.load(sch);
+        });
+
+        this.viewer.addEventListener(SheetLoadEvent.type, (e) => {
+            this.dispatchEvent(new SheetLoadEvent(e.detail));
         });
     }
     override on_viewer_select(item?: unknown, previous?: unknown) {
