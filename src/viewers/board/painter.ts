@@ -421,53 +421,6 @@ class PadPainter extends BoardItemPainter {
         return layers;
     }
 
-    paintPadNumber(layer: ViewLayer, pad: board_items.Pad) {
-        const edatext = new EDAText(pad.number);
-        Object.assign(
-            edatext.attributes,
-            JSON.parse(`
-                {
-                    "font": null,
-                    "h_align": "center",
-                    "v_align": "center",
-                    "angle": {},
-                    "line_spacing": 1,
-                    "stroke_width": 350,
-                    "italic": false,
-                    "bold": false,
-                    "underlined": false,
-                    "color": {
-                        "r": 0.6862745098039216,
-                        "g": 0.6862745098039216,
-                        "b": 0.6862745098039216,
-                        "a": 1
-                    },
-                    "visible": true,
-                    "mirrored": false,
-                    "multiline": true,
-                    "size": {
-                        "x": 10000,
-                        "y": 10000
-                    },
-                    "keep_upright": false
-                }
-
-            `),
-        );
-        edatext.attributes.size = new Vec2(2000, 2000);
-
-        edatext.apply_at(pad.at);
-
-        edatext.attributes.color = pad.highlighted ? Color.black : Color.white;
-
-        StrokeFont.default().draw(
-            this.gfx,
-            edatext.shown_text,
-            edatext.text_pos,
-            edatext.attributes,
-        );
-    }
-
     paint(layer: ViewLayer, pad: board_items.Pad) {
         let color = layer.color;
         if (!this.color_cache) this.color_cache = color;
