@@ -122,13 +122,13 @@ export class Project extends EventTarget implements IDisposable {
         if (this.#files_by_name.has(blob.filename)) {
             return this.#files_by_name.get(blob.filename);
         }
-        const doc = new document_class(blob, blob.content);
-        doc.project = this;
         const filename = blob.filename;
+        const doc = new document_class(filename, blob.content);
+        doc.project = this;
         this.#files_by_name.set(filename, doc);
         if (doc instanceof KicadPCB) this.#pcb.push(doc);
         else this.#sch.push(doc);
-        this.#files_by_name.set(blob.filename, doc);
+        this.#files_by_name.set(filename, doc);
         return doc;
     }
 
@@ -177,7 +177,7 @@ export class Project extends EventTarget implements IDisposable {
     public get_first_page(kind: AssertType) {
         switch (kind) {
             case AssertType.SCH:
-                return this.root_schematic_page?.document;
+                return this.root_schematic_page?.document ?? first(this.#sch);
             case AssertType.PCB:
                 return first(this.#pcb);
         }
