@@ -417,6 +417,11 @@ export class LayerSet extends BaseLayerSet {
     *pad_layers() {
         yield this.by_name(LayerNames.pads_front)!;
         yield this.by_name(LayerNames.pads_back)!;
+
+        yield this.by_name(LayerNames.f_mask)!;
+        yield this.by_name(LayerNames.b_mask)!;
+        yield this.by_name(LayerNames.f_paste)!;
+        yield this.by_name(LayerNames.b_paste)!;
     }
 
     *pad_hole_layers() {
