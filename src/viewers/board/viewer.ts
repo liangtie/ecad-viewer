@@ -59,8 +59,12 @@ export class BoardViewer extends DocumentViewer<
     public focus_net(num: number | null) {
         this.highlight_net(num);
         const net_bbox = this.painter.net_bbox;
-        if (net_bbox)
-            this.viewport.camera.bbox = net_bbox.grow(net_bbox.w * 0.1);
+        if (net_bbox) {
+            this.viewport.camera.bbox = net_bbox.grow(
+                net_bbox.w * 0.5,
+                net_bbox.h * 0.5,
+            );
+        }
     }
 
     public highlight_net(num: number | null) {
