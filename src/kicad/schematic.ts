@@ -552,6 +552,7 @@ export class Text {
     at: At;
     effects = new Effects();
     uuid?: string;
+    exclude_from_sim?: boolean;
 
     constructor(
         expr: Parseable,
@@ -569,6 +570,7 @@ export class Text {
                 P.positional("text"),
                 P.item("at", At),
                 P.item("effects", Effects),
+                P.pair("exclude_from_sim", T.boolean),
                 P.pair("uuid", T.string),
             ),
         );

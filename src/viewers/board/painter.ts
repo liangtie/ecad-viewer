@@ -10,7 +10,7 @@
  * Each item class has a corresponding Painter implementation.
  */
 
-import { Angle, Arc, Matrix3, Vec2 } from "../../base/math";
+import { Angle, Arc, BBox, Matrix3, Vec2 } from "../../base/math";
 import * as log from "../../base/log";
 import { Circle, Color, Polygon, Polyline, Renderer } from "../../graphics";
 import * as board_items from "../../kicad/board";
@@ -1152,6 +1152,12 @@ export class BoardPainter extends DocumentPainter {
         this.#filter_net = net;
     }
 
+    #net_bbox: BBox | null = null;
+
+    get net_bbox() {
+        return this.#net_bbox;
+    }
+
     paint_footprint(fp: board_items.Footprint) {
         this.clear_interactive();
 
@@ -1220,6 +1226,7 @@ export class BoardPainter extends DocumentPainter {
 
         //SECTION - The foreground
         {
+            this.#net_bbox = null;
             const layer = this.layers.selection_fg;
             this.gfx.start_layer(layer.name);
 
@@ -1228,9 +1235,16 @@ export class BoardPainter extends DocumentPainter {
                     case "LineSegment":
                         if ((item as board_items.LineSegment).net === net) {
                             const painter = this.painter_for(item);
+                            const line = item as board_items.LineSegment;
+
+                            if (!this.#net_bbox) this.#net_bbox = line.bbox;
+                            else
+                                this.#net_bbox = BBox.combine([
+                                    line.bbox,
+                                    this.#net_bbox,
+                                ]);
 
                             if (!painter) continue;
-
                             this.paint_item(layer, item);
                         }
                         break;

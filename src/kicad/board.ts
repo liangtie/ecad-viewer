@@ -187,9 +187,14 @@ export class LineSegment implements BoardNode {
     locked = false;
     tstamp: string;
 
-    get routed_length(){
-        return Math.sqrt(  (this.end.x - this.start.x) ** 2 + (this.end.y - this.start.y) ** 2)
+    get bbox() {
+        return BBox.from_points([this.start, this.end]);
+    }
 
+    get routed_length() {
+        return Math.sqrt(
+            (this.end.x - this.start.x) ** 2 + (this.end.y - this.start.y) ** 2,
+        );
     }
 
     constructor(expr: Parseable) {

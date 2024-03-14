@@ -56,6 +56,13 @@ export class BoardViewer extends DocumentViewer<
         this.draw();
     }
 
+    public focus_net(num: number | null) {
+        this.highlight_net(num);
+        const net_bbox = this.painter.net_bbox;
+        if (net_bbox)
+            this.viewport.camera.bbox = net_bbox.grow(net_bbox.w * 0.1);
+    }
+
     public highlight_net(num: number | null) {
         if (this.painter.paint_net(this.board, num, this.layer_visibility)) {
             this.#should_restore_visibility = false;
