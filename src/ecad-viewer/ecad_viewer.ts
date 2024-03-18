@@ -16,6 +16,8 @@ import {
 } from "../kicanvas/services/vfs";
 import { KCBoardAppElement } from "../kicanvas/elements/kc-board/app";
 import { KCSchematicAppElement } from "../kicanvas/elements/kc-schematic/app";
+import { BomApp } from "../kicanvas/elements/bom/app";
+
 import type { TabHeaderElement } from "./tab_header";
 import {
     SheetLoadEvent,
@@ -85,6 +87,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
     #project: Project = new Project();
     #schematic_app: KCSchematicAppElement;
     #board_app: KCBoardAppElement;
+    #bom_app: BomApp;
     #tab_header: TabHeaderElement;
     #file_input: HTMLInputElement = html` <input
         type="file"
@@ -195,10 +198,7 @@ export class ECadViewer extends KCUIElement implements InputContainer {
             }
         });
 
-        const embed_to_tab = (
-            page: KCViewerAppElement<any>,
-            index: TabKind,
-        ) => {
+        const embed_to_tab = (page: HTMLElement, index: TabKind) => {
             this.#tab_contents[index] = page;
             page.classList.add("tab-content");
             page.addEventListener(TabMenuVisibleChangeEvent.type, (event) => {
@@ -222,11 +222,15 @@ export class ECadViewer extends KCUIElement implements InputContainer {
                 this.#tab_header.dispatchEvent(new SheetLoadEvent(e.detail));
             });
         }
+
+        this.#bom_app = new BomApp();
+        embed_to_tab(this.#bom_app, TabKind.bom);
+
         return html`
             <div class="vertical">
                 ${this.#tab_header}
                 <div class="vertical">
-                    ${this.#board_app} ${this.#schematic_app}
+                    ${this.#board_app} ${this.#schematic_app} ${this.#bom_app}
                 </div>
             </div>
         `;
