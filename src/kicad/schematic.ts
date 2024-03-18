@@ -142,6 +142,10 @@ export class KicadSch {
         );
     }
 
+    *getChildren() {
+        for (const i of this.items()) yield i;
+    }
+
     *items() {
         yield* this.wires;
         yield* this.buses;
@@ -720,6 +724,9 @@ export class HierarchicalLabel extends Label {
 }
 
 export class LibSymbols {
+    *getChildren() {
+        for (const i of this.symbols) yield i;
+    }
     symbols: LibSymbol[] = [];
     #symbols_by_name: Map<string, LibSymbol> = new Map();
 
@@ -747,6 +754,9 @@ export class LibSymbols {
 }
 
 export class LibSymbol {
+    *getChildren() {
+        for (const i of this.children) yield i;
+    }
     name: string;
     power = false;
     pin_numbers: {
@@ -1512,6 +1522,9 @@ export class LibSymbolPin implements CrossHightAble {
 }
 
 export class SheetInstances {
+    *getChildren() {
+        for (const [, v] of this.sheet_instances) yield v;
+    }
     sheet_instances: Map<string, SheetInstance> = new Map();
 
     constructor(expr: Parseable) {
@@ -1555,6 +1568,9 @@ export class SheetInstance {
 }
 
 export class SymbolInstances {
+    *getChildren() {
+        for (const [, v] of this.symbol_instances) yield v;
+    }
     symbol_instances: Map<string, SymbolInstance> = new Map();
 
     constructor(expr: Parseable) {
@@ -1605,6 +1621,9 @@ export class SymbolInstance {
 }
 
 export class SchematicSheet {
+    *getChildren() {
+        for (const [, v] of this.instances) yield v;
+    }
     at: At;
     size: Vec2;
     fields_autoplaced: boolean;
@@ -1743,3 +1762,43 @@ export class SchematicSheetInstance {
     path: string;
     page?: string;
 }
+
+export type SchematicNode =
+    | KicadSch
+    | Fill
+    | GraphicItem
+    | Wire
+    | Bus
+    | BusEntry
+    | BusAlias
+    | Junction
+    | NoConnect
+    | Arc
+    | Bezier
+    | Circle
+    | Polyline
+    | Rectangle
+    | Image
+    | Text
+    | LibText
+    | TextBox
+    | Label
+    | NetLabel
+    | GlobalLabel
+    | HierarchicalLabel
+    | LibSymbols
+    | LibSymbol
+    | Property
+    | PinDefinition
+    | PinAlternate
+    | SchematicSymbol
+    | SchematicSymbolInstance
+    | PinInstance
+    | LibSymbolPin
+    | SheetInstances
+    | SheetInstance
+    | SymbolInstances
+    | SymbolInstance
+    | SchematicSheet
+    | SchematicSheetPin
+    | SchematicSheetInstance;
