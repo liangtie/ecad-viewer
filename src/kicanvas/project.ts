@@ -38,6 +38,10 @@ export class Project extends EventTarget implements IDisposable {
     #root_schematic_page?: ProjectPage;
     #pages_by_path: Map<string, ProjectPage> = new Map();
 
+    get pages() {
+        return Array.from(this.#pages_by_path.values());
+    }
+
     public dispose() {
         for (const i of [this.#pcb, this.#sch]) i.length = 0;
         this.#files_by_name.clear();

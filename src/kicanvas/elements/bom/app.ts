@@ -6,6 +6,8 @@
 
 import { KCUIElement } from "../../../kc-ui";
 import { css, html } from "../../../base/web-components";
+import "./viewer";
+
 export class BomApp extends KCUIElement {
     static override styles = [
         ...KCUIElement.styles,
@@ -44,41 +46,7 @@ export class BomApp extends KCUIElement {
     ];
 
     override render() {
-        return html`
-            <kc-ui-panel>
-                <kc-ui-panel-title title="Help"></kc-ui-panel-title>
-                <kc-ui-panel-body>
-                    <p>
-                        You're using
-                        <a href="https://kicanvas.org/home">KiCanvas</a>, an
-                        interactive, browser-based viewer for KiCAD schematics
-                        and boards.
-                    </p>
-                    <p>
-                        KiCanvas is very much in <strong>alpha</strong>, so
-                        please
-                        <a
-                            href="https://github.com/theacodes/kicanvas/issues/new/choose"
-                            target="_blank"
-                            >file an issue on GitHub</a
-                        >
-                        if you run into any bugs.
-                    </p>
-                    <p>
-                        KiCanvas is developed by
-                        <a href="https://thea.codes" target="_blank"
-                            >Thea Flowers</a
-                        >
-                        and supported by
-                        <a
-                            href="https://github.com/sponsors/theacodes"
-                            target="_blank"
-                            >community donations</a
-                        >.
-                    </p></kc-ui-panel-body
-                >
-            </kc-ui-panel>
-        `;
+        return html` <bom-viewer> </bom-viewer> `;
     }
 }
 

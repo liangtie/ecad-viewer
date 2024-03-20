@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "complex_hierarchy_schlib")(type "KiCad")(uri "${KIPRJMOD}/complex_hierarchy_schlib.kicad_sym")(options "")(descr ""))
+  (lib (name "VO0600T")(type "KiCad")(uri "C:/Users/yihuo/Desktop/VO0600T.kicad_sym")(options "")(descr ""))
+)

@@ -1308,6 +1308,10 @@ export class SchematicSymbol {
         this.set_property_text("Value", val);
     }
 
+    get datasheet() {
+        return this.get_property_text("Datasheet") ?? "";
+    }
+
     get footprint() {
         return this.get_property_text("Footprint") ?? "";
     }

@@ -100,8 +100,8 @@ export class KCSchematicPropertiesPanelElement extends KCUIElement {
 
         const checkbox = (value?: boolean) =>
             value
-                ? html`<kc-ui-icon>check</kc-ui-icon>`
-                : html`<kc-ui-icon>close</kc-ui-icon>`;
+                ? html`<kc-ui-icon>yes</kc-ui-icon>`
+                : html`<kc-ui-icon>no</kc-ui-icon>`;
 
         let entries;
         const item = this.selected_item;
