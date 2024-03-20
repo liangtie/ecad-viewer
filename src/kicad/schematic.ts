@@ -1295,6 +1295,9 @@ export class SchematicSymbol {
     get reference() {
         return this.get_property_text("Reference") ?? "?";
     }
+    get description() {
+        return this.get_property_text("Description") ?? "?";
+    }
 
     set reference(val: string) {
         this.set_property_text("Reference", val);

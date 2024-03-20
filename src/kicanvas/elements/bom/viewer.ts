@@ -15,12 +15,16 @@ import { KicadSch } from "../../../kicad";
 class ItemsGroupedByFpValueDNP implements BomItem {
     #references: string[] = [];
 
+    public get Price() {
+        return 0;
+    }
+
     public get Qty() {
         return this.#references.length;
     }
 
     public get Reference() {
-        return this.#references.join("\n");
+        return this.#references.join(",\n");
     }
 
     public addReference(ref: string) {
@@ -28,8 +32,9 @@ class ItemsGroupedByFpValueDNP implements BomItem {
     }
 
     public constructor(
-        public Value: string,
+        public Name: string,
         public Datasheet: string,
+        public Description: string,
         public Footprint: string,
         public DNP: boolean,
     ) {}
@@ -37,15 +42,11 @@ class ItemsGroupedByFpValueDNP implements BomItem {
 function generateBomItemHtml(bomItem: BomItem) {
     return html`
         <tr>
-            <td>${bomItem.Reference}</td>
-            <td>${bomItem.Value}</td>
-            <td>
-                <a href="${bomItem.Datasheet}" target="_blank"
-                    >${bomItem.Datasheet}</a
-                >
-            </td>
+            <td>${bomItem.Name}</td>
+            <td>N/A</td>
+            <td>${bomItem.Description}</td>
             <td>${bomItem.Footprint}</td>
-            <td>${bomItem.DNP ? "Yes" : "No"}</td>
+            <td>${bomItem.Reference}</td>
             <td>${bomItem.Qty}</td>
         </tr>
     `;
@@ -74,9 +75,7 @@ export class BomViewer extends KCUIElement {
                 flex-direction: column;
                 height: 100%;
                 width: 100%;
-                overflow: hidden;
             }
-
             .tab-content {
                 height: 100%;
                 width: 100%;
@@ -105,6 +104,12 @@ export class BomViewer extends KCUIElement {
             th {
                 top: 0;
                 position: sticky;
+                background: #666;
+            }
+
+            #summary {
+                color: white;
+                text-align: right;
                 background: #666;
             }
             tr:nth-child(odd) {
@@ -151,7 +156,7 @@ export class BomViewer extends KCUIElement {
                     new Map();
 
                 const group_by_fp_value = (itm: BomItem) =>
-                    `${itm.Footprint}-${itm.Value}-${itm.DNP}`;
+                    `${itm.Footprint}-${itm.Name}-${itm.DNP}`;
 
                 for (const it of visitor.bom_list) {
                     const key = group_by_fp_value(it);
@@ -160,8 +165,9 @@ export class BomViewer extends KCUIElement {
                         grouped_it_map.set(
                             key,
                             new ItemsGroupedByFpValueDNP(
-                                it.Value,
+                                it.Name,
                                 it.Datasheet,
+                                it.Description,
                                 it.Footprint,
                                 it.DNP,
                             ),
@@ -182,11 +188,11 @@ export class BomViewer extends KCUIElement {
         const table = html`<table>
             <thead>
                 <tr>
-                    <th>Reference</th>
-                    <th>Value</th>
-                    <th>Datasheet</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
                     <th>Footprint</th>
-                    <th>DNP</th>
+                    <th>Designator</th>
                     <th>Quantity</th>
                 </tr>
             </thead>
@@ -194,8 +200,10 @@ export class BomViewer extends KCUIElement {
 
         const body = html`<tbody id="bomItemsBody"></tbody>`;
 
+        let total_cp = 0;
         for (const it of this.#bom_items) {
             body.appendChild(generateBomItemHtml(it));
+            total_cp += it.Qty;
         }
 
         table.appendChild(body);
@@ -204,15 +212,16 @@ export class BomViewer extends KCUIElement {
 
         headerCells.forEach((cell, index) => {
             const headerWidth = cell.getBoundingClientRect().width;
-            const bodyWidth = bodyCells[index].getBoundingClientRect().width;
+            const bodyWidth = bodyCells[index]!.getBoundingClientRect().width;
             const maxWidth = Math.max(headerWidth, bodyWidth);
             cell.style.width = maxWidth + "px";
         });
         return html`
-            <kc-ui-panel>
-                <!-- <kc-ui-panel-title title="Nets"></kc-ui-panel-title> -->
+            <!-- <kc-ui-panel-title title="Nets"></kc-ui-panel-title> -->
+            <div class="vertical">
                 <kc-ui-panel-body> ${table} </kc-ui-panel-body>
-            </kc-ui-panel>
+                <p id="summary">Total: ${total_cp} Price: N/A</p>
+            </div>
         `;
     }
 }

@@ -18,18 +18,20 @@ export class SchematicBomVisitor extends SchematicVisitorBase {
 
         const schematicSymbol: BomItem = {
             Reference: "",
-            Value: node.value,
+            Name: node.value,
+            Description: node.description,
             Datasheet: node.datasheet,
             Footprint: node.footprint,
             DNP: node.dnp,
             Qty: 1,
+            Price: 0,
         };
 
         for (const [, ins] of node.instances) {
             this.#bom_list.push({
                 ...schematicSymbol,
                 Reference: ins.reference ?? schematicSymbol.Reference,
-                Value: ins.value ?? schematicSymbol.Value,
+                Name: ins.value ?? schematicSymbol.Name,
                 Footprint: ins.footprint ?? schematicSymbol.Footprint,
             });
         }
