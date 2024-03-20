@@ -101,6 +101,12 @@ export class BomViewer extends KCUIElement {
                 word-wrap: break-word;
                 color: black;
             }
+
+            th {
+                top: 0;
+                position: sticky;
+                background: #666;
+            }
             tr:nth-child(odd) {
                 background-color: #f9f9f9; /* Alternative color for odd rows */
             }
