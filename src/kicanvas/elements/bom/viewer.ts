@@ -39,7 +39,11 @@ function generateBomItemHtml(bomItem: BomItem) {
         <tr>
             <td>${bomItem.Reference}</td>
             <td>${bomItem.Value}</td>
-            <td>${bomItem.Datasheet}</td>
+            <td>
+                <a href="${bomItem.Datasheet}" target="_blank"
+                    >${bomItem.Datasheet}</a
+                >
+            </td>
             <td>${bomItem.Footprint}</td>
             <td>${bomItem.DNP ? "Yes" : "No"}</td>
             <td>${bomItem.Qty}</td>
@@ -123,16 +127,6 @@ export class BomViewer extends KCUIElement {
             ::-webkit-scrollbar-thumb:active {
                 background: var(--scrollbar-active-fg);
             }
-            #headerTable {
-                position: sticky;
-                top: 0;
-                z-index: 1;
-                background-color: #f2f2f2;
-            }
-
-            #bodyTable {
-                margin-top: -1px;
-            }
         `,
     ];
 
@@ -179,7 +173,7 @@ export class BomViewer extends KCUIElement {
     override initialContentCallback() {}
 
     override render() {
-        const header_table = html` <table id="headerTable">
+        const table = html`<table>
             <thead>
                 <tr>
                     <th>Reference</th>
@@ -191,7 +185,6 @@ export class BomViewer extends KCUIElement {
                 </tr>
             </thead>
         </table>`;
-        const content_table = html`<table id="bodyTable"></table>`;
 
         const body = html`<tbody id="bomItemsBody"></tbody>`;
 
@@ -199,10 +192,11 @@ export class BomViewer extends KCUIElement {
             body.appendChild(generateBomItemHtml(it));
         }
 
-        content_table.appendChild(body);
-        const bodyCells = content_table.querySelectorAll("td");
+        table.appendChild(body);
+        const headerCells = table.querySelectorAll("th");
+        const bodyCells = table.querySelectorAll("td");
 
-        header_table.querySelectorAll("th").forEach((cell, index) => {
+        headerCells.forEach((cell, index) => {
             const headerWidth = cell.getBoundingClientRect().width;
             const bodyWidth = bodyCells[index].getBoundingClientRect().width;
             const maxWidth = Math.max(headerWidth, bodyWidth);
@@ -211,9 +205,7 @@ export class BomViewer extends KCUIElement {
         return html`
             <kc-ui-panel>
                 <!-- <kc-ui-panel-title title="Nets"></kc-ui-panel-title> -->
-                <kc-ui-panel-body>
-                    ${header_table} ${content_table}
-                </kc-ui-panel-body>
+                <kc-ui-panel-body> ${table} </kc-ui-panel-body>
             </kc-ui-panel>
         `;
     }
