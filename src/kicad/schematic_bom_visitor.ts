@@ -14,7 +14,12 @@ export class SchematicBomVisitor extends SchematicVisitorBase {
     }
 
     visitSchematicSymbol(node: SchematicSymbol) {
-        if (node.footprint.length == 0 || !node.in_bom) return;
+        if (
+            node.footprint.length == 0 ||
+            !node.in_bom ||
+            (node.unit && node.unit != 1) // Check if the symbol has multiple parts , count only the part 1
+        )
+            return;
 
         const schematicSymbol: BomItem = {
             Reference: "",

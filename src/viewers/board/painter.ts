@@ -996,47 +996,6 @@ class DimensionPainter extends BoardItemPainter {
     }
 }
 
-interface Point {
-    x: number;
-    y: number;
-}
-
-const get_interested_point = (
-    line_1: { start: Point; angle: number },
-    line_2: { start: Point; end: Point },
-): Point => {
-    // Extracting information from line_1
-    const { start: start1, angle: angle1 } = line_1;
-
-    // Calculate the direction vector of line_2
-    const directionVector2: Point = {
-        x: line_2.end.x - line_2.start.x,
-        y: line_2.end.y - line_2.start.y,
-    };
-
-    // Calculate the direction vector of line_1 using the angle
-    const directionVector1: Point = {
-        x: Math.cos(angle1),
-        y: Math.sin(angle1),
-    };
-
-    // Solve for t in the equation start1 + t * directionVector1 = line_2.start + s * directionVector2
-    // This will give us the point of intersection
-    const t =
-        (directionVector2.x * (line_2.start.y - start1.y) -
-            directionVector2.y * (line_2.start.x - start1.x)) /
-        (directionVector1.x * directionVector2.y -
-            directionVector1.y * directionVector2.x);
-
-    // Calculate the point of intersection
-    const intersectionPoint: Point = {
-        x: start1.x + t * directionVector1.x,
-        y: start1.y + t * directionVector1.y,
-    };
-
-    return intersectionPoint;
-};
-
 class FootprintPainter extends BoardItemPainter {
     classes = [board_items.Footprint];
 
@@ -1077,16 +1036,18 @@ class FootprintPainter extends BoardItemPainter {
                             layer.color,
                         ),
                     );
-                    this.gfx.line(
-                        new Polyline(
-                            [
-                                new Vec2(x, bbox.y + bbox.h),
-                                new Vec2(bbox.x, y1),
-                            ],
-                            0.1,
-                            layer.color,
-                        ),
-                    );
+
+                    if (count !== 0)
+                        this.gfx.line(
+                            new Polyline(
+                                [
+                                    new Vec2(x, bbox.y + bbox.h),
+                                    new Vec2(bbox.x, y1),
+                                ],
+                                0.1,
+                                layer.color,
+                            ),
+                        );
                     ++count;
                 }
             }

@@ -39,18 +39,7 @@ class ItemsGroupedByFpValueDNP implements BomItem {
         public DNP: boolean,
     ) {}
 }
-function generateBomItemHtml(bomItem: BomItem) {
-    return html`
-        <tr>
-            <td>${bomItem.Name}</td>
-            <td>N/A</td>
-            <td>${bomItem.Description}</td>
-            <td>${bomItem.Footprint}</td>
-            <td>${bomItem.Reference}</td>
-            <td>${bomItem.Qty}</td>
-        </tr>
-    `;
-}
+
 export class BomViewer extends KCUIElement {
     #project: Project;
     #bom_items: BomItem[] = [];
@@ -183,11 +172,24 @@ export class BomViewer extends KCUIElement {
     }
 
     override initialContentCallback() {}
-
+    generateBomItemHtml(bomItem: BomItem, index: number) {
+        return html`
+            <tr>
+                <td>${index}</td>
+                <td>${bomItem.Name}</td>
+                <td>N/A</td>
+                <td>${bomItem.Description}</td>
+                <td>${bomItem.Footprint}</td>
+                <td>${bomItem.Reference}</td>
+                <td>${bomItem.Qty}</td>
+            </tr>
+        `;
+    }
     override render() {
         const table = html`<table>
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Name</th>
                     <th>Price</th>
                     <th>Description</th>
@@ -201,8 +203,9 @@ export class BomViewer extends KCUIElement {
         const body = html`<tbody id="bomItemsBody"></tbody>`;
 
         let total_cp = 0;
-        for (const it of this.#bom_items) {
-            body.appendChild(generateBomItemHtml(it));
+        for (let i = 0; i < this.#bom_items.length; i++) {
+            const it = this.#bom_items[i]!;
+            body.appendChild(this.generateBomItemHtml(it, i + 1));
             total_cp += it.Qty;
         }
 
