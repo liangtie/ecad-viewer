@@ -28,7 +28,7 @@ import { BoardVisitorBase } from "./board_visitor_base";
 export enum Depth {
     START,
     GRAPHICS = START,
-    VIA,
+    VIA = 1,
     PAD,
     LINE_SEGMENTS,
 

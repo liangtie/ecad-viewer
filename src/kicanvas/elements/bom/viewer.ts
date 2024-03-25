@@ -11,6 +11,7 @@ import type { Project } from "../../project";
 import { SchematicBomVisitor } from "../../../kicad/schematic_bom_visitor";
 import type { BomItem } from "../../../kicad/bom_item";
 import { KicadSch } from "../../../kicad";
+import { BoardBomItemVisitor } from "../../../kicad/board_bom_visitor";
 
 class ItemsGroupedByFpValueDNP implements BomItem {
     #references: string[] = [];
@@ -24,7 +25,7 @@ class ItemsGroupedByFpValueDNP implements BomItem {
     }
 
     public get Reference() {
-        return this.#references.join(",\n");
+        return this.#references.filter((i) => i.length).join(",\n");
     }
 
     public addReference(ref: string) {
@@ -135,40 +136,51 @@ export class BomViewer extends KCUIElement {
             this.#project = await this.requestContext("project");
             await this.#project.loaded;
 
-            if (this.#project.has_schematics) {
-                const visitor = new SchematicBomVisitor();
-                for (const page of this.#project.pages) {
-                    const doc = page.document;
-                    if (doc instanceof KicadSch) visitor.visit(doc);
-                }
-                const grouped_it_map: Map<string, ItemsGroupedByFpValueDNP> =
-                    new Map();
-
-                const group_by_fp_value = (itm: BomItem) =>
-                    `${itm.Footprint}-${itm.Name}-${itm.DNP}`;
-
-                for (const it of visitor.bom_list) {
-                    const key = group_by_fp_value(it);
-
-                    if (!grouped_it_map.has(key)) {
-                        grouped_it_map.set(
-                            key,
-                            new ItemsGroupedByFpValueDNP(
-                                it.Name,
-                                it.Datasheet,
-                                it.Description,
-                                it.Footprint,
-                                it.DNP,
-                            ),
-                        );
+            const bom_items = (() => {
+                if (this.#project.has_schematics) {
+                    const visitor = new SchematicBomVisitor();
+                    for (const page of this.#project.pages) {
+                        const doc = page.document;
+                        if (doc instanceof KicadSch) visitor.visit(doc);
                     }
-                    grouped_it_map.get(key)!.addReference(it.Reference);
-                }
-                this.#bom_items = Array.from(grouped_it_map.values());
-            }
+                    return visitor.bom_list;
+                } else if (this.#project.has_boards) {
+                    const visitor = new BoardBomItemVisitor();
+                    for (const b of this.#project.boards()) visitor.visit(b);
 
+                    return visitor.bom_list;
+                }
+                return [];
+            })();
+            this.#sort_bom(bom_items);
             super.connectedCallback();
         })();
+    }
+
+    #sort_bom(bom_list: BomItem[]) {
+        const grouped_it_map: Map<string, ItemsGroupedByFpValueDNP> = new Map();
+
+        const group_by_fp_value = (itm: BomItem) =>
+            `${itm.Footprint}-${itm.Name}-${itm.DNP}`;
+
+        for (const it of bom_list) {
+            const key = group_by_fp_value(it);
+
+            if (!grouped_it_map.has(key)) {
+                grouped_it_map.set(
+                    key,
+                    new ItemsGroupedByFpValueDNP(
+                        it.Name,
+                        it.Datasheet,
+                        it.Description,
+                        it.Footprint,
+                        it.DNP,
+                    ),
+                );
+            }
+            grouped_it_map.get(key)!.addReference(it.Reference);
+        }
+        this.#bom_items = Array.from(grouped_it_map.values());
     }
 
     override initialContentCallback() {}

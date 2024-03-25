@@ -973,6 +973,26 @@ export class Footprint implements BoardNode {
         yield* this.zones ?? [];
     }
 
+    get Reference() {
+        return this.reference ?? this.properties["Reference"] ?? "";
+    }
+
+    get Value() {
+        return this.value ?? this.properties["Value"] ?? "";
+    }
+
+    get Footprint() {
+        return this.properties["Footprint"] ?? this.library_link ?? "";
+    }
+
+    get Datasheet() {
+        return this.properties["Datasheet"] ?? "";
+    }
+
+    get Description() {
+        return this.descr ?? this.properties["Description"] ?? "";
+    }
+
     resolve_text_var(name: string): string | undefined {
         switch (name) {
             case "REFERENCE":
